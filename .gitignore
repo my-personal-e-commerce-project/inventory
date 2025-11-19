@@ -4,7 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-.metals/
+.metals/**
 
 ### STS ###
 .apt_generated
