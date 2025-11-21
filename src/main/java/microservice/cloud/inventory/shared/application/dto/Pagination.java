@@ -14,7 +14,6 @@ import lombok.Setter;
 public class Pagination<T> {
 
     private List<T> results;
-    private Integer page;
     private Integer last_page;
     private Integer current_page;
 }

@@ -18,11 +18,20 @@ public class CategoryAttributeRepositoryImpl implements CategoryAttributeReposit
 
     @Override
     public void save(CategoryAttribute categoryAttribute) {
-        AttributeDefinitionEntity attributeDefinition = 
-            entityManager.find(
-                AttributeDefinitionEntity.class, 
-                categoryAttribute.attribute_definition().id().value()
-            );
+        AttributeDefinitionEntity attributeDefinition = AttributeDefinitionEntity.builder()
+            .id(categoryAttribute.attribute_definition().id().value())
+            .name(categoryAttribute.attribute_definition().name())
+            .slug(categoryAttribute.attribute_definition().slug())
+            .type(categoryAttribute.attribute_definition().type().toString())
+            .is_global(categoryAttribute.attribute_definition().isGlobal())
+            .build();
+
+        entityManager.persist(attributeDefinition);
+        
+        attributeDefinition = entityManager.find(
+            AttributeDefinitionEntity.class, 
+            categoryAttribute.attribute_definition().id().value()
+        );
 
         entityManager.persist(CategoryAttributeEntity.builder()
             .id(categoryAttribute.id().value())
@@ -36,11 +45,20 @@ public class CategoryAttributeRepositoryImpl implements CategoryAttributeReposit
 
     @Override
     public void update(CategoryAttribute categoryAttribute) {
-        AttributeDefinitionEntity attributeDefinition = 
-            entityManager.find(
-                AttributeDefinitionEntity.class, 
-                categoryAttribute.attribute_definition().id().value()
-            );
+        AttributeDefinitionEntity attributeDefinition = AttributeDefinitionEntity.builder()
+            .id(categoryAttribute.attribute_definition().id().value())
+            .name(categoryAttribute.attribute_definition().name())
+            .slug(categoryAttribute.attribute_definition().slug())
+            .type(categoryAttribute.attribute_definition().type().toString())
+            .is_global(categoryAttribute.attribute_definition().isGlobal())
+            .build();
+
+        entityManager.persist(attributeDefinition);
+        
+        attributeDefinition = entityManager.find(
+            AttributeDefinitionEntity.class, 
+            categoryAttribute.attribute_definition().id().value()
+        );
 
         entityManager.persist(CategoryAttributeEntity.builder()
             .id(categoryAttribute.id().value())
@@ -49,7 +67,7 @@ public class CategoryAttributeRepositoryImpl implements CategoryAttributeReposit
             .is_filterable(categoryAttribute.is_filterable())
             .is_sortable(categoryAttribute.is_sortable())
             .build()
-        );       
+        );
     }
 
     @Override

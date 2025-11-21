@@ -29,7 +29,7 @@ public class CategoryAttributeEntity {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    private CategoryEntity category;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "attribute_definition_id", nullable = false)

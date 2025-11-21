@@ -3,45 +3,80 @@ package microservice.cloud.inventory.category.infrastructure.adapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import microservice.cloud.inventory.category.application.ports.in.CreateAttributeUseCasePort;
-import microservice.cloud.inventory.category.application.ports.in.DeleteAttributeUseCasePort;
-import microservice.cloud.inventory.category.application.ports.in.ListAttributesUseCasePort;
-import microservice.cloud.inventory.category.application.ports.in.UpdateAttributeUseCasePort;
-import microservice.cloud.inventory.category.application.ports.out.AttributeReadRepository;
-import microservice.cloud.inventory.category.application.use_cases.CreateAttributeUseCase;
-import microservice.cloud.inventory.category.application.use_cases.DeleteAttributeUseCase;
-import microservice.cloud.inventory.category.application.use_cases.ListAttributeUseCase;
-import microservice.cloud.inventory.category.application.use_cases.UpdateAttributeUseCase;
+import microservice.cloud.inventory.category.application.ports.in.AddCategoryAttributeUseCasePort;
+import microservice.cloud.inventory.category.application.ports.in.CreateCategoryUseCasePort;
+import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryUseCasePort;
+import microservice.cloud.inventory.category.application.ports.in.ListCategoryUseCasePort;
+import microservice.cloud.inventory.category.application.ports.in.RemoveCategoryAttributeUseCasePort;
+import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryAttributeUseCasePort;
+import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryUseCasePort;
+import microservice.cloud.inventory.category.application.ports.out.CategoryReadRepository;
+
+import microservice.cloud.inventory.category.application.use_cases.AddCategoryAttributeUseCase;
+import microservice.cloud.inventory.category.application.use_cases.CreateCategoryUseCase;
+import microservice.cloud.inventory.category.application.use_cases.DeleteCategoryUseCase;
+import microservice.cloud.inventory.category.application.use_cases.ListCategoryUseCase;
+import microservice.cloud.inventory.category.application.use_cases.RemoveCategoryAttributeUseCase;
+import microservice.cloud.inventory.category.application.use_cases.UpdateCategoryAttributeUseCase;
+import microservice.cloud.inventory.category.application.use_cases.UpdateCategoryUseCase;
 import microservice.cloud.inventory.category.domain.repository.CategoryAttributeRepository;
+import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 
 @Configuration
 public class ConfigAdapter {
 
     @Bean
-    public UpdateAttributeUseCasePort updateAttributeUseCasePort(
-        CategoryAttributeRepository categoryAttributeRepository
+    public ListCategoryUseCasePort listCategoryUseCasePort(
+        CategoryReadRepository categoryReadRepository
     ) {
-        return new UpdateAttributeUseCase(categoryAttributeRepository);
+        return new ListCategoryUseCase(categoryReadRepository);
     }
 
     @Bean
-    public DeleteAttributeUseCasePort deleteAttributeUseCasePort(
-        CategoryAttributeRepository categoryAttributeRepository
+    public AddCategoryAttributeUseCasePort addCategoryAttributeUseCasePort(
+        CategoryRepository categoryRepository,
+        CategoryReadRepository categoryReadRepository
     ) {
-        return new DeleteAttributeUseCase(categoryAttributeRepository);
+        return new AddCategoryAttributeUseCase(
+            categoryRepository,
+            categoryReadRepository
+        );
     }
 
     @Bean
-    public CreateAttributeUseCasePort createAttributeUseCasePort(
-        CategoryAttributeRepository categoryAttributeRepository
+    public RemoveCategoryAttributeUseCasePort removeCategoryAttributeUseCasePort(
+        CategoryRepository categoryRepository,
+        CategoryReadRepository categoryReadRepository
     ) {
-        return new CreateAttributeUseCase(categoryAttributeRepository);
+        return new RemoveCategoryAttributeUseCase(categoryRepository, categoryReadRepository);
     }
 
     @Bean
-    public ListAttributesUseCasePort listAttributesUseCasePort(
-        AttributeReadRepository attributeReadRepository       
+    public UpdateCategoryAttributeUseCasePort updateAttributeUseCasePort(
+        CategoryRepository categoryRepository,
+        CategoryReadRepository categoryReadRepository
     ) {
-        return new ListAttributeUseCase(attributeReadRepository);
+        return new UpdateCategoryAttributeUseCase(categoryRepository, categoryReadRepository);
+    }
+
+    @Bean
+    public CreateCategoryUseCasePort createCategoryUseCasePort(
+        CategoryRepository categoryRepository
+    ) {
+        return new CreateCategoryUseCase(categoryRepository);
+    }
+
+    @Bean
+    public DeleteCategoryUseCasePort deleteCategoryUseCasePort(
+        CategoryRepository categoryRepository
+    ) {
+        return new DeleteCategoryUseCase(categoryRepository);
+    }
+
+    @Bean
+    public UpdateCategoryUseCasePort updateCategoryUseCasePort(
+        CategoryRepository categoryRepository
+    ) {
+        return new UpdateCategoryUseCase(categoryRepository);
     }
 }

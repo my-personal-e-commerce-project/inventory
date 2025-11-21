@@ -10,7 +10,7 @@ public class Id {
         return value;
     }
 
-    public Id generate() {
+    public static Id generate() {
         return new Id(UUID.randomUUID().toString());
     }
 
