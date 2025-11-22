@@ -6,6 +6,8 @@ target/
 
 .metals/**
 
+shell.nix
+
 ### STS ###
 .apt_generated
 .classpath
