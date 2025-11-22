@@ -2,18 +2,19 @@ package microservice.cloud.inventory.attribute.domain.entity;
 
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class AttributeDefinition {
     private Id id;
     private String name;
-    private String slug;
+    private Slug slug;
     private DataType type;
     private boolean is_global;
 
     public AttributeDefinition(
         Id id, 
         String name, 
-        String slug, 
+        Slug slug, 
         DataType type, 
         boolean is_global
     ) {
@@ -32,7 +33,7 @@ public class AttributeDefinition {
         return name;
     }
 
-    public String slug() {
+    public Slug slug() {
         return slug;
     }
 
@@ -40,7 +41,7 @@ public class AttributeDefinition {
         return type;
     }
 
-    public boolean isGlobal() {
+    public boolean is_global() {
         return is_global;
     }
 }

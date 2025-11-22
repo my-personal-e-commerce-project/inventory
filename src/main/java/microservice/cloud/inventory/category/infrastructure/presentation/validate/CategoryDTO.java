@@ -1,5 +1,7 @@
 package microservice.cloud.inventory.category.infrastructure.presentation.validate;
 
+import java.util.List;
+
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -28,4 +30,7 @@ public class CategoryDTO {
 
     @Builder.Default
     public String parent_id = null;
+
+    @Builder.Default
+    public List<CategoryAttributeDTO> categoryAttributes = null;
 }

@@ -7,6 +7,5 @@ public interface CategoryRepository {
 
     public void save(Category category);
     public void update(Category category);
-    public void syncCategoryAttributes(Category category);
     public void delete(Id id);
 }

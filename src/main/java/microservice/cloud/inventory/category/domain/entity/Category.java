@@ -20,6 +20,7 @@ public class Category {
         this.slug = slug;
         this.parent_id = parent_id;
 
+        this.categoryAttributes = null;
         if(categoryAttributes != null)
             categoryAttributes.stream()
                 .forEach(
@@ -32,21 +33,17 @@ public class Category {
                );
     }
 
-    public void addCategoryAttribute(CategoryAttribute categoryAttribute) {
-        this.categoryAttributes.put(
-            categoryAttribute.id().value(), 
-            categoryAttribute
-        );
-    }
-
-    public void updateCategoryAttribute(CategoryAttribute categoryAttribute) {
-        this.categoryAttributes.put(
-            categoryAttribute.id().value(), 
-            categoryAttribute
-        );
-    }
-
     public void removeCategoryAttribute(Id id) {
+        if(id == null)
+            throw new RuntimeException("Id can not be null");
+
+        CategoryAttribute data = this.categoryAttributes.get(
+            id.value()
+        );
+
+        if(data == null)
+            throw new RuntimeException("Category attribute not found");
+
         this.categoryAttributes.remove(
             id().value()
         );
@@ -69,6 +66,8 @@ public class Category {
     }
 
     public List<CategoryAttribute> categoryAttributes() {
+        if(categoryAttributes == null)
+            return null;
         return List.copyOf(categoryAttributes.values());
     }
 }

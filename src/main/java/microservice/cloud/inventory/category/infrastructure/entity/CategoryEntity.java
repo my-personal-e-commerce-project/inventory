@@ -30,14 +30,14 @@ public class CategoryEntity {
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private String id; 
 
-    @Column(name = "name", unique = true, nullable = false, updatable = false)
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
 
-    @Column(name = "slug", unique = true, nullable = false, updatable = false)
+    @Column(name = "slug", unique = true, nullable = false)
     private String slug;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "parent_id", nullable = false, updatable = false)
+    @JoinColumn(name = "parent_id")
     private CategoryEntity parent;
 
     @Builder.Default
@@ -48,6 +48,7 @@ public class CategoryEntity {
     )
     private List<CategoryAttributeEntity> categoryAttributes = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CategoryEntity> children = new ArrayList<>();
 }
