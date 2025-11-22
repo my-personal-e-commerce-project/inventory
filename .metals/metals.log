@@ -4628,3 +4628,7 @@ java.util.concurrent.RejectedExecutionException: Task scala.concurrent.impl.Call
 2025.11.21 19:06:54 INFO  compiling inventory (9 java sources)[0m
 2025.11.21 19:06:56 WARN  javac exited with exit code 1[0m
 2025.11.21 19:06:56 INFO  time: compiled inventory in 1.89s[0m
+2025.11.22 12:10:59 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/mauro/project/microservice_laravel/inventory/.metals/lsp.trace.json or /home/mauro/.cache/metals/lsp.trace.json[0m
+2025.11.22 12:11:00 INFO  logging to file /home/mauro/project/microservice_laravel/inventory/.metals/metals.log[0m
+2025.11.22 12:11:00 INFO  Started: Metals version 0.11.2 in workspace '/home/mauro/project/microservice_laravel/inventory' for client coc.nvim 0.0.82.[0m
+2025.11.22 12:11:00 INFO  Parse release: 17.0.15[0m
