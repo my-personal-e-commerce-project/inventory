@@ -1,8 +1,10 @@
 package microservice.cloud.inventory.category.domain.entity;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
@@ -15,12 +17,16 @@ public class Category {
     private Map<String, CategoryAttribute> categoryAttributes;
 
     public Category(Id id, String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
+        
+        if(id == null)
+            throw new RuntimeException("The id cannot be null");
+
         this.id = id;
         this.name = name;
         this.slug = slug;
         this.parent_id = parent_id;
 
-        this.categoryAttributes = null;
+        this.categoryAttributes = new HashMap<>();
         if(categoryAttributes != null)
             categoryAttributes.stream()
                 .forEach(
@@ -33,6 +39,34 @@ public class Category {
                );
     }
 
+    public void addCategoryAttribute(
+        CategoryAttribute attr
+    ) {
+        if(attr.attribute_definition().is_global() == true)
+            throw new 
+                RuntimeException(
+                    "The definition of the attribute cannot be global"
+                );
+        
+        this.categoryAttributes.put(attr.id().value(), attr);
+
+    }
+
+    public void updateCategoryAttribute(CategoryAttribute attr) {
+        CategoryAttribute categoryAttribute = this.categoryAttributes
+            .get(attr.id().value());
+
+        if(categoryAttribute == null) {
+            throw new DataNotFound(
+                "Id: "+attr.id().value()+" can not be null"
+            );
+        }
+
+        this.categoryAttributes.remove(attr.id().value());
+
+        this.categoryAttributes.put(attr.id().value(), attr);
+    }
+
     public void removeCategoryAttribute(Id id) {
         if(id == null)
             throw new RuntimeException("Id can not be null");
@@ -42,7 +76,7 @@ public class Category {
         );
 
         if(data == null)
-            throw new RuntimeException("Category attribute not found");
+            throw new DataNotFound("Category attribute not found");
 
         this.categoryAttributes.remove(
             id().value()

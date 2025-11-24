@@ -15,6 +15,10 @@ public class Id {
     }
 
     public Id(String value) {
+
+        if(value == null)
+            throw new RuntimeException("Id cannot be null");
+
         this.value = value;
     }
 }

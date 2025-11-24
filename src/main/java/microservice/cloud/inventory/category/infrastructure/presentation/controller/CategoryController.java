@@ -22,16 +22,21 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
+import microservice.cloud.inventory.category.application.ports.in.CreateCategoryAttributeUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.CreateCategoryUseCasePort;
+import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryAttributeUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.ListCategoryUseCasePort;
+import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryAttributeUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryUseCasePort;
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.infrastructure.dto.ResponsePayload;
+import microservice.cloud.inventory.category.infrastructure.presentation.validate.AttributeDefinitionDTO;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryAttributeDTO;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryDTO;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
+import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
@@ -45,13 +50,16 @@ public class CategoryController {
     private final UpdateCategoryUseCasePort updateCategoryUseCasePort;
     private final DeleteCategoryUseCasePort deleteCategoryUseCasePort;
 
+    private final UpdateCategoryAttributeUseCasePort updateCategoryAttributeUseCasePort; 
+    private final CreateCategoryAttributeUseCasePort createCategoryAttributeUseCasePort; 
+    private final DeleteCategoryAttributeUseCasePort deleteCategoryAttributeUseCasePort; 
+
     @GetMapping
     public ResponseEntity<ResponsePayload<Pagination<CategoryDTO>>> getAttributes(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
         Pagination<Category> categories = listCategoryUseCasePort.execute(0, 10);
-
         Pagination<CategoryDTO> categoriesDTO = new Pagination<>(
             categories.getResults().stream().map(this::toMap).toList(),
             categories.getLast_page(),
@@ -71,20 +79,17 @@ public class CategoryController {
     public ResponseEntity<ResponsePayload<CategoryDTO>> createCategory(
         @Valid @RequestBody CategoryDTO category
     ) {
-        Slug slug = category.getSlug() == null? 
-            Slug.create(category.getName()): 
-            new Slug(category.getSlug());
+        Slug slug = new Slug(category.getSlug());
 
         Category data = new Category(
             Id.generate(),
             category.getName(),
             slug,
-            category.parent_id == null? null: new Id(category.getParent_id()),
-            category.categoryAttributes == null? null: 
-            category.categoryAttributes.stream().map(data -> {
-                data.setId(Id.generate().value());
-                data.setAttribute_definition_id(Id.generate().value());
-                return toMap(data);
+            category.getParent_id() == null? null: new Id(category.getParent_id()),
+            category.getCategoryAttributes() == null? null: 
+            category.getCategoryAttributes().stream().map(attr -> {
+                attr.setId(Id.generate().value());
+                return toMap(attr);
             }).toList() 
         );
 
@@ -106,14 +111,15 @@ public class CategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<ResponsePayload<CategoryDTO>> updateCategory(
         @PathVariable String id,
-        @RequestBody CategoryDTO category
+        @Valid @RequestBody CategoryDTO category
     ) {
+        System.out.println(category.getName());
         Category data = new Category(
             new Id(id),
             category.getName(),
             new Slug(category.getSlug()),
-            category.parent_id == null? null: new Id(category.getParent_id()),
-            category.categoryAttributes == null? null: category.categoryAttributes.stream().map(this::toMap).toList()
+            category.getParent_id() == null? null: new Id(category.getParent_id()),
+            null     
         );
 
         updateCategoryUseCasePort.execute(data);
@@ -125,13 +131,13 @@ public class CategoryController {
                 .message("Category updated successfully")
                 .payload(categoryDTO)
                 .build(),
-                HttpStatus.CREATED
+                HttpStatus.OK
         );
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCategory(
-        @RequestParam String id
+        @PathVariable String id
     ) {
         deleteCategoryUseCasePort.execute(
             new Id(id)
@@ -140,15 +146,67 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{id}/attributes")
+    public ResponseEntity<ResponsePayload<CategoryAttributeDTO>> createCategoryAttribute(
+        @PathVariable String id,
+        @Valid @RequestBody CategoryAttributeDTO categoryAttribute
+    ) {
+        categoryAttribute.setId(Id.generate().value());
+
+        CategoryAttribute attr = toMap(categoryAttribute);
+        
+        createCategoryAttributeUseCasePort.execute(new Id(id), attr);
+
+        return new ResponseEntity<>(
+            ResponsePayload.<CategoryAttributeDTO>builder()
+                .message("Category updated successfully")
+                .payload(categoryAttribute)
+                .build(),
+                HttpStatus.OK
+        );    
+    }
+
+
+    @PutMapping("/{id}/attributes/{attr_id}")
+    public ResponseEntity<ResponsePayload<CategoryAttributeDTO>> updateCategoryAttribute(
+        @PathVariable String id,
+        @PathVariable String attr_id,
+        @Valid @RequestBody CategoryAttributeDTO categoryAttribute
+    ) {
+        categoryAttribute.setId(attr_id);
+
+        CategoryAttribute attr = toMap(categoryAttribute);
+        
+        updateCategoryAttributeUseCasePort.execute(new Id(id), attr);
+
+        return new ResponseEntity<>(
+            ResponsePayload.<CategoryAttributeDTO>builder()
+                .message("Category updated successfully")
+                .payload(categoryAttribute)
+                .build(),
+                HttpStatus.OK
+        );    
+    }
+
+    @DeleteMapping("/{id}/attributes/{attr_id}")
+    public ResponseEntity<?> deleteCategoryAttribute(
+        @PathVariable String id,
+        @PathVariable String attr_id
+    ) {
+        deleteCategoryAttributeUseCasePort.execute(new Id(id), new Id(attr_id));
+
+        return ResponseEntity.noContent().build();
+    }
+
     private CategoryAttribute toMap(CategoryAttributeDTO categoryAttribute) {
         return new CategoryAttribute(
-            Id.generate(),
+            new Id(categoryAttribute.getId()),
             new AttributeDefinition(
                 Id.generate(),
-                categoryAttribute.getAttribute_definition_name(),
-                new Slug(categoryAttribute.getAttribute_definition_slug()),
-                DataType.valueOf(categoryAttribute.getAttribute_definition_type()),
-                false
+                categoryAttribute.getAttributeDefinition().getName(),
+                new Slug(categoryAttribute.getAttributeDefinition().getSlug()),
+                DataType.valueOf(categoryAttribute.getAttributeDefinition().getType()),
+               false 
             ),
             categoryAttribute.getIs_required(),
             categoryAttribute.getIs_filterable(),
@@ -163,11 +221,14 @@ public class CategoryController {
             category.categoryAttributes().stream().<CategoryAttributeDTO>map(
             categoryAttribute -> CategoryAttributeDTO.builder()
                 .id(categoryAttribute.id().value())
-                .attribute_definition_id(categoryAttribute.attribute_definition().id().value())
-                .attribute_definition_name(categoryAttribute.attribute_definition().name())
-                .attribute_definition_slug(categoryAttribute.attribute_definition().slug().value())
-                .attribute_definition_type(categoryAttribute.attribute_definition().type().name())
-                .attribute_definition_is_global(categoryAttribute.attribute_definition().is_global())
+                .attributeDefinition(
+                    AttributeDefinitionDTO.builder()
+                        .name(categoryAttribute.attribute_definition().name())
+                        .slug(categoryAttribute.attribute_definition().slug().value())
+                        .type(categoryAttribute.attribute_definition().type().toString())
+                        .is_global(false)
+                        .build()
+                )
                 .is_required(categoryAttribute.is_required())
                 .is_filterable(categoryAttribute.is_filterable())
                 .is_sortable(categoryAttribute.is_sortable())
@@ -181,6 +242,15 @@ public class CategoryController {
             .parent_id(category.parent_id() == null ? null : category.parent_id().value())
             .categoryAttributes(categoryAttributesDTO)
             .build();    
+    }
+
+    @ExceptionHandler(DataNotFound.class)
+    public ResponseEntity<ResponsePayload<?>> handleDataNotFound(
+            DataNotFound ex) {
+        return new ResponseEntity<ResponsePayload<?>>(
+            ResponsePayload.builder().message(ex.getMessage()).build(), 
+            HttpStatus.NOT_FOUND
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -197,4 +267,12 @@ public class CategoryController {
         );
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ResponsePayload<?>> handleRuntimeException(
+            RuntimeException ex) {
+        return new ResponseEntity<ResponsePayload<?>>(
+            ResponsePayload.builder().message(ex.getMessage()).build(), 
+            HttpStatus.BAD_REQUEST
+        );
+    }
 }

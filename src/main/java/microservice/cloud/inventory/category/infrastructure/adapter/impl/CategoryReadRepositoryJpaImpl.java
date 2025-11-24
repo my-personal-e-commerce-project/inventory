@@ -52,13 +52,12 @@ public class CategoryReadRepositoryJpaImpl implements CategoryReadRepository {
             .map(this::toDomain)
             .collect(Collectors.toList());
 
-        return new Pagination<>(domainObjects, totalPages, page);
+        return new Pagination<Category>(domainObjects, totalPages, page);
     }
 
     @Override
     public Category findById(Id id) {
         CategoryEntity entity = entityManager.find(CategoryEntity.class, id.value());
-
         if(entity == null)
             throw new RuntimeException("Category not found");
 
@@ -75,8 +74,8 @@ public class CategoryReadRepositoryJpaImpl implements CategoryReadRepository {
         return new Category(
             new Id(entity.getId()), 
             entity.getName(), 
-            new Slug(entity.getSlug()), 
-            new Id(entity.getId()), 
+            new Slug(entity.getSlug()),
+            entity.getParent() == null? null: new Id(entity.getParent().getId()),
             categoryAttributes
         );
     }
@@ -85,9 +84,9 @@ public class CategoryReadRepositoryJpaImpl implements CategoryReadRepository {
         AttributeDefinition categoryAttributes = new AttributeDefinition(
             new Id(entity.getAttribute_definition().getId()), 
             entity.getAttribute_definition().getName(), 
-            entity.getAttribute_definition().getSlug(), 
+            new Slug(entity.getAttribute_definition().getSlug()),
             DataType.valueOf(entity.getAttribute_definition().getType()),
-            entity.getAttribute_definition().getIs_global().booleanValue()
+            entity.getAttribute_definition().is_global()
         );
 
         return new CategoryAttribute(

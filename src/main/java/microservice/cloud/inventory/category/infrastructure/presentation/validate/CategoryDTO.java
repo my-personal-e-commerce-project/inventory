@@ -18,19 +18,19 @@ import lombok.Setter;
 public class CategoryDTO {
 
     @Builder.Default
-    public String id = null;
+    private String id = null;
 
     @NotNull
     @NotEmpty
-    public String name;
+    private String name;
 
     @NotNull
     @NotEmpty
-    public String slug;
+    private String slug;
 
     @Builder.Default
-    public String parent_id = null;
+    private String parent_id = null;
 
     @Builder.Default
-    public List<CategoryAttributeDTO> categoryAttributes = null;
+    private List<CategoryAttributeDTO> categoryAttributes = null;
 }

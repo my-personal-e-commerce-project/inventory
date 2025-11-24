@@ -17,6 +17,10 @@ public class CategoryAttribute {
         Boolean is_filterable, 
         Boolean is_sortable
     ) {
+        if(id == null)
+            throw new RuntimeException("The id cannot be null");
+
+        this.id = id;
         this.attribute_definition = attribute_definition;
         this.is_required = is_required;
         this.is_filterable = is_filterable;

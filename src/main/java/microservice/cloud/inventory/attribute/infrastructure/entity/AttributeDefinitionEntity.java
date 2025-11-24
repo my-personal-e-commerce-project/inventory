@@ -25,5 +25,7 @@ public class AttributeDefinitionEntity {
     private String name;
     private String slug;
     private String type;
-    private Boolean is_global;
+
+    @Builder.Default
+    private boolean is_global = false;
 }

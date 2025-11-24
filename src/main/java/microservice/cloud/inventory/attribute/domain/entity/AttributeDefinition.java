@@ -18,6 +18,9 @@ public class AttributeDefinition {
         DataType type, 
         boolean is_global
     ) {
+        if(id == null)
+            throw new RuntimeException("The id cannot be null");
+
         this.id = id;
         this.name = name;
         this.slug = slug;

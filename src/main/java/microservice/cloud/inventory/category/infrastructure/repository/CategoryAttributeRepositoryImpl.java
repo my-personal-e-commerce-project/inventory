@@ -21,9 +21,9 @@ public class CategoryAttributeRepositoryImpl implements CategoryAttributeReposit
         AttributeDefinitionEntity attributeDefinition = AttributeDefinitionEntity.builder()
             .id(categoryAttribute.attribute_definition().id().value())
             .name(categoryAttribute.attribute_definition().name())
-            .slug(categoryAttribute.attribute_definition().slug())
+            .slug(categoryAttribute.attribute_definition().slug().value())
             .type(categoryAttribute.attribute_definition().type().toString())
-            .is_global(categoryAttribute.attribute_definition().isGlobal())
+            .is_global(categoryAttribute.attribute_definition().is_global())
             .build();
 
         entityManager.persist(attributeDefinition);
@@ -48,9 +48,9 @@ public class CategoryAttributeRepositoryImpl implements CategoryAttributeReposit
         AttributeDefinitionEntity attributeDefinition = AttributeDefinitionEntity.builder()
             .id(categoryAttribute.attribute_definition().id().value())
             .name(categoryAttribute.attribute_definition().name())
-            .slug(categoryAttribute.attribute_definition().slug())
+            .slug(categoryAttribute.attribute_definition().slug().value())
             .type(categoryAttribute.attribute_definition().type().toString())
-            .is_global(categoryAttribute.attribute_definition().isGlobal())
+            .is_global(categoryAttribute.attribute_definition().is_global())
             .build();
 
         entityManager.persist(attributeDefinition);
