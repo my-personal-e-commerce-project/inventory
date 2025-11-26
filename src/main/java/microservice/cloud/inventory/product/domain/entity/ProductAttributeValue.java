@@ -1,37 +1,50 @@
 package microservice.cloud.inventory.product.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
+import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
+import microservice.cloud.inventory.shared.domain.value_objects.Id;
 
 public class ProductAttributeValue {
     private Id id;
-    private Id product_id;
-    private Id attribute_definition_id;
+    private Id attribute_definition;
 
     private String string_value;
     private Integer integer_value; 
     private Double double_value;
     private Boolean boolean_value;
 
-    public ProductAttributeValue(Id id, Id product_id, Id attribute_definition_id, String string_value, Integer integer_value, Double double_value, Boolean boolean_value) {
+    public ProductAttributeValue(Id id, Id attribute_definition, String string_value, Integer integer_value, Double double_value, Boolean boolean_value) {
+
         this.id = id;
-        this.product_id = product_id;
-        this.attribute_definition_id = attribute_definition_id;
+        this.attribute_definition = attribute_definition;
         this.string_value = string_value;
         this.integer_value = integer_value;
         this.double_value = double_value;
         this.boolean_value = boolean_value;
     }
 
+    public void validTypes(AttributeDefinition attr) {
+        DataType type = attr.type();
+
+        if(type == DataType.STRING && string_value == null)
+            throw new RuntimeException("String value cannot be null in: " + id);
+
+        if(type == DataType.DOUBLE && double_value == null)
+            throw new RuntimeException("Double value cannot be null in: " + id);
+
+        if(type == DataType.INTEGER && integer_value == null)
+            throw new RuntimeException("Integer value cannot be null in: " + id);
+
+        if(type == DataType.BOOLEAN && boolean_value == null)
+            throw new RuntimeException("Boolean value cannot be null: " + id);
+    }
+
     public Id id() {
         return id;
     }
 
-    public Id product_id() {
-        return product_id;
-    }
-
-    public Id attribute_definition_id() {
-        return attribute_definition_id;
+    public Id attribute_definition() {
+        return attribute_definition;
     }
 
     public String string_value() {

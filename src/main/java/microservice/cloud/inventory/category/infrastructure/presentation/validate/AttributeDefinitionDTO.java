@@ -16,6 +16,9 @@ import lombok.Setter;
 @Getter
 public class AttributeDefinitionDTO {
 
+    @Builder.Default
+    public String id = null;
+
     @NotNull
     @NotBlank
     public String name;
@@ -27,7 +30,7 @@ public class AttributeDefinitionDTO {
     @NotNull
     @NotBlank
     @Pattern(regexp = "^(STRING|INTEGER|DOUBLE|BOOLEAN|ENUMERATION)$", 
-        message = "Status must be STRING, INTEGER, DOUBLE, BOOLEAN or ENUMERATION")
+        message = "Status must be STRING, INTEGER, DOUBLE, BOOLEAN")
     public String type;
 
     @Builder.Default

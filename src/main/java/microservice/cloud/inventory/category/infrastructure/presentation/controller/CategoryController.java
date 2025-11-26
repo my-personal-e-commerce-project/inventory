@@ -1,14 +1,10 @@
 package microservice.cloud.inventory.category.infrastructure.presentation.controller;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +32,6 @@ import microservice.cloud.inventory.category.infrastructure.presentation.validat
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryAttributeDTO;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryDTO;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
-import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
@@ -223,6 +218,7 @@ public class CategoryController {
                 .id(categoryAttribute.id().value())
                 .attributeDefinition(
                     AttributeDefinitionDTO.builder()
+                        .id(categoryAttribute.attribute_definition().id().value())
                         .name(categoryAttribute.attribute_definition().name())
                         .slug(categoryAttribute.attribute_definition().slug().value())
                         .type(categoryAttribute.attribute_definition().type().toString())
@@ -242,37 +238,5 @@ public class CategoryController {
             .parent_id(category.parent_id() == null ? null : category.parent_id().value())
             .categoryAttributes(categoryAttributesDTO)
             .build();    
-    }
-
-    @ExceptionHandler(DataNotFound.class)
-    public ResponseEntity<ResponsePayload<?>> handleDataNotFound(
-            DataNotFound ex) {
-        return new ResponseEntity<ResponsePayload<?>>(
-            ResponsePayload.builder().message(ex.getMessage()).build(), 
-            HttpStatus.NOT_FOUND
-        );
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ResponsePayload<?>> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            errors.put(error.getField(), error.getDefaultMessage());
-        });
-
-        return new ResponseEntity<ResponsePayload<?>>(
-            ResponsePayload.builder().errors(errors).message("Validation failed").build(), 
-            HttpStatus.BAD_REQUEST
-        );
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ResponsePayload<?>> handleRuntimeException(
-            RuntimeException ex) {
-        return new ResponseEntity<ResponsePayload<?>>(
-            ResponsePayload.builder().message(ex.getMessage()).build(), 
-            HttpStatus.BAD_REQUEST
-        );
     }
 }

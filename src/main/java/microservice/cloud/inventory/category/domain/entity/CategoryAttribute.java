@@ -20,6 +20,12 @@ public class CategoryAttribute {
         if(id == null)
             throw new RuntimeException("The id cannot be null");
 
+        if(attribute_definition.is_global() == true)
+            throw new 
+                RuntimeException(
+                    "The definition of the attribute cannot be global"
+                );
+
         this.id = id;
         this.attribute_definition = attribute_definition;
         this.is_required = is_required;

@@ -22,7 +22,7 @@ import microservice.cloud.inventory.category.application.use_cases.UpdateCategor
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 
 @Configuration
-public class ConfigAdapter {
+public class CategoryConfigAdapter {
 
     @Bean
     public ListCategoryUseCasePort listCategoryUseCasePort(
