@@ -1,5 +1,4 @@
 package microservice.cloud.inventory.category.infrastructure.adapter;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

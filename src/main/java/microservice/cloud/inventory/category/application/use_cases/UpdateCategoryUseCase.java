@@ -15,7 +15,7 @@ public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
 
     @Override
     public void execute(Category category) {
-        
+       
         categoryRepository.update(category);
     }
 }

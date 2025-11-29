@@ -1,5 +1,7 @@
 package microservice.cloud.inventory.category.infrastructure.presentation.validate;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -14,22 +16,23 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CategoryAttributeDTO {
+public class UpdateCategoryDTO {
 
     @Builder.Default
     private String id = null;
-  
-    @Valid
+
     @NotNull
     @NotEmpty
-    private AttributeDefinitionDTO attributeDefinition;
+    private String name;
 
     @NotNull
-    private Boolean is_required;
+    @NotEmpty
+    private String slug;
 
-    @NotNull
-    private Boolean is_filterable;
+    @Builder.Default
+    private String parent_id = null;
 
+    @Valid
     @NotNull
-    private Boolean is_sortable;
+    private List<UpdateCategoryAttributeDTO> categoryAttributes;
 }

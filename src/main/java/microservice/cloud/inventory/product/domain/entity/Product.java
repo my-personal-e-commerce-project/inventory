@@ -1,13 +1,21 @@
 package microservice.cloud.inventory.product.domain.entity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import microservice.cloud.inventory.product.domain.event.ProductCreatedEvent;
+import microservice.cloud.inventory.product.domain.event.ProductUpdatedEvent;
+import microservice.cloud.inventory.product.domain.exception.InvalidProductException;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
+import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
+import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
-public class Product {
+public class Product extends AggregateRoot{
     private Id id;
     private String title;
     private Slug slug;
@@ -18,7 +26,7 @@ public class Product {
     private Price price;
     private Quantity stock;
     private List<String> images;
-    private List<ProductAttributeValue> attributeValues;
+    private Map<String, ProductAttributeValue> attributeValues = new HashMap<>();
 
     public Product(
         Id id, 
@@ -31,23 +39,114 @@ public class Product {
         Quantity stock,
         List<String> images
     ) {
-
         if(categories == null || categories.size() < 1)
-            throw new RuntimeException("Products must have at least one category");
+            throw new InvalidProductException("Products must have at least one category");
 
-
-        if(attributeValues == null || attributeValues.size() < 1)
-            throw new RuntimeException("Products must have at least one attribute");
+        if(title == null)
+            throw new InvalidProductException("Products must have at least one category");
 
         this.id = id;
         this.title = title;
         this.slug = slug;
         this.description = description;
         this.categories = categories;
+        attributeValues.stream().forEach(attr -> this.attributeValues.put(attr.id().value(), attr));
         this.price = price;
-        this.attributeValues = attributeValues;
         this.stock = stock;
         this.images = images;
+
+        this.dispatch(new ProductCreatedEvent(
+                id.value(), 
+                title, 
+                slug.value(), 
+                description, 
+                categories, 
+                price.value(), 
+                stock.value(), 
+                images, 
+                this.attributeValues()
+            )
+        );
+    }
+
+    public void addProductAttribute(ProductAttributeValue attr) {
+        attributeValues.values().stream().forEach(a -> {
+            if(a.attribute_definition() == attr.attribute_definition())
+                throw new RuntimeException("An attribute with the same attribute definition already exists.");
+        });
+
+        attributeValues.put(attr.id().value(), attr);
+
+        this.dispatch(new ProductUpdatedEvent(
+                id.value(), 
+                title, 
+                slug.value(), 
+                description, 
+                categories, 
+                price.value(), 
+                stock.value(), 
+                images, 
+                this.attributeValues()
+            )
+        );
+    }
+
+    public void update(Product product) {
+        List<ProductAttributeValue> newAttrs = product.attributeValues();
+
+        Map<String, ProductAttributeValue> mapNewAttrs = new HashMap<>();
+
+        newAttrs.stream().forEach(a -> {
+            mapNewAttrs.put(a.id().value(), a);
+        });
+
+        attributeValues.values().stream().forEach(a -> {
+            ProductAttributeValue attr = mapNewAttrs.get(a.id().value());
+
+            if(attr == null)
+                throw new RuntimeException("you need to thicken the attribute " + a.id().value());
+        });
+
+        this.title = product.title();
+        this.description = product.description();
+        this.slug = product.slug();
+        this.categories = product.categories();
+        this.price = product.price();
+        this.stock = product.stock();
+        this.images = product.images();
+
+        this.dispatch(new ProductUpdatedEvent(
+                id.value(), 
+                title, 
+                slug.value(), 
+                description, 
+                categories, 
+                price.value(), 
+                stock.value(), 
+                images, 
+                this.attributeValues()
+            )
+        );
+    }
+
+    public void removeAttribute(Id productAttributeId) {
+        if(attributeValues.get(productAttributeId.value()) == null)
+            throw new DataNotFound("Product attribute not found");
+
+        attributeValues.remove(productAttributeId.value());
+
+        this.dispatch(new ProductUpdatedEvent(
+                id.value(), 
+                title, 
+                slug.value(), 
+                description, 
+                categories, 
+                price.value(), 
+                stock.value(), 
+                images, 
+                this.attributeValues()
+            )
+        );
     }
 
     public Id id() {
@@ -75,7 +174,7 @@ public class Product {
     }
 
     public List<ProductAttributeValue> attributeValues() {
-        return attributeValues;
+        return new ArrayList<>(attributeValues.values());
     }
 
     public Quantity stock() {

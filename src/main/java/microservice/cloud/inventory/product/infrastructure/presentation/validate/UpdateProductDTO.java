@@ -16,7 +16,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-public class ProductDTO {
+public class UpdateProductDTO {
 
     @Builder.Default
     private String id = null;
@@ -39,8 +39,7 @@ public class ProductDTO {
 
     @Valid
     @NotNull
-    @NotEmpty
-    private List<ProductAttributeValueDTO> attributes;
+    private List<UpdateProductAttributeValueDTO> attributes;
 
     @NotNull
     private double price;
@@ -48,5 +47,6 @@ public class ProductDTO {
     @NotNull
     private int stock;
 
+    @NotNull
     private List<String> images;
 }

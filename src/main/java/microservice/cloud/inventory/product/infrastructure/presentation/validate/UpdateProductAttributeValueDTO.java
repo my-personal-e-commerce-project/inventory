@@ -13,24 +13,18 @@ import lombok.Setter;
 @Setter
 @Getter
 @Builder
-public class ProductAttributeValueDTO {
+public class UpdateProductAttributeValueDTO {
 
-    @Builder.Default
-    private String id = null;
+    @NotNull
+    @NotEmpty
+    private String id;
 
     @NotNull
     @NotEmpty
     private String attribute_definition_id;
-    
-    @Builder.Default
-    private String string_value=null;
-    
-    @Builder.Default
-    private Integer integer_value=null;
-    
-    @Builder.Default
-    private Double double_value=null;
-    
-    @Builder.Default
-    private Boolean boolean_value=null;
+
+    private String string_value;
+    private Integer integer_value;
+    private Double double_value;
+    private Boolean boolean_value;
 }

@@ -28,7 +28,6 @@ public class ControllerAdvice {
         );
     }
 
-    
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleValidationErrors(MethodArgumentNotValidException ex) {
@@ -48,7 +47,6 @@ public class ControllerAdvice {
         return response;
     }
 
-
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ResponsePayload<?>> handleRuntimeException(
             RuntimeException ex) {
@@ -58,7 +56,6 @@ public class ControllerAdvice {
             HttpStatus.BAD_REQUEST
         );
     }
-
 
     @ExceptionHandler(JpaObjectRetrievalFailureException.class)
     public ResponseEntity<ResponsePayload<?>> handleEntityNotFoundException(

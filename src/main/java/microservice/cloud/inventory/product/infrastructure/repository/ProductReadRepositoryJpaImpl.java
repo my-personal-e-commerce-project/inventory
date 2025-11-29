@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
+import microservice.cloud.inventory.product.application.dtos.ProductAttributeValueReadDTO;
 import microservice.cloud.inventory.product.application.dtos.ProductReadDTO;
 import microservice.cloud.inventory.product.application.ports.put.ProductReadRepository;
 import microservice.cloud.inventory.product.infrastructure.entity.ProductEntity;
-import microservice.cloud.inventory.product.infrastructure.presentation.validate.ProductAttributeValueDTO;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
 
 @Repository
@@ -49,10 +49,10 @@ public class ProductReadRepositoryJpaImpl implements ProductReadRepository {
         return new Pagination<ProductReadDTO>(domainObjects, totalPages, page);
     }
 
-    public ProductReadDTO toModel(ProductEntity product) {
-        List<ProductAttributeValueDTO> attrs = product.getAttributeValues().stream().map(
+    private ProductReadDTO toModel(ProductEntity product) {
+        List<ProductAttributeValueReadDTO> attrs = product.getAttributeValues().stream().map(
             attr -> {
-                return ProductAttributeValueDTO.builder()
+                return ProductAttributeValueReadDTO.builder()
                     .id(attr.getId())
                     .attribute_definition_id(attr.getAttribute_definition().getId())
                     .string_value(attr.getString_value())

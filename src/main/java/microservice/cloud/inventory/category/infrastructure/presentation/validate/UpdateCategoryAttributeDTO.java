@@ -14,15 +14,16 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CategoryAttributeDTO {
+public class UpdateCategoryAttributeDTO {
 
-    @Builder.Default
-    private String id = null;
+    @NotNull
+    @NotEmpty
+    private String id;
   
     @Valid
     @NotNull
     @NotEmpty
-    private AttributeDefinitionDTO attributeDefinition;
+    private UpdateAttributeDefinitionDTO attributeDefinition;
 
     @NotNull
     private Boolean is_required;

@@ -4,11 +4,9 @@ import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import microservice.cloud.inventory.product.infrastructure.presentation.validate.ProductAttributeValueDTO;
 
 @Builder
 @AllArgsConstructor
@@ -28,7 +26,7 @@ public class ProductReadDTO {
 
     private List<String> categories;
 
-    private List<ProductAttributeValueDTO> attributes;
+    private List<ProductAttributeValueReadDTO> attributes;
 
     private double price;
 
