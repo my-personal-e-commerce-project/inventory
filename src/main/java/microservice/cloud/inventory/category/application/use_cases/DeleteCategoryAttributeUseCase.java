@@ -11,16 +11,13 @@ public class DeleteCategoryAttributeUseCase implements DeleteCategoryAttributeUs
 
     private CategoryRepository categoryRepository;
     private CategoryReadRepository categoryReadRepository;
-    private AttributeDefinitionRepository attributeDefinitionRepository;
 
     public DeleteCategoryAttributeUseCase(
         CategoryRepository categoryRepository,
-        AttributeDefinitionRepository attributeDefinitionRepository,
         CategoryReadRepository categoryReadRepository
     ) {
     
         this.categoryRepository = categoryRepository;
-        this.attributeDefinitionRepository = attributeDefinitionRepository;
         this.categoryReadRepository = categoryReadRepository;
     }
     
@@ -28,8 +25,6 @@ public class DeleteCategoryAttributeUseCase implements DeleteCategoryAttributeUs
         Category category = categoryReadRepository.findById(categoryId);
 
         category.removeCategoryAttribute(categoryAttributeId);
-
-        attributeDefinitionRepository.deleteByCategoryAttributeId(categoryAttributeId);
 
         categoryRepository.update(category);
     }

@@ -89,7 +89,7 @@ public class Category {
             throw new DataNotFound("Category attribute not found");
 
         this.categoryAttributes.remove(
-            id().value()
+            id.value()
         );
     }
     

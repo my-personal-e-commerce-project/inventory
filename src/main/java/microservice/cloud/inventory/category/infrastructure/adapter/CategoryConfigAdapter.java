@@ -61,12 +61,10 @@ public class CategoryConfigAdapter {
     @Bean
     public DeleteCategoryAttributeUseCasePort deleteCategoryAttributeUseCasePort(
         CategoryRepository categoryRepository,
-        CategoryReadRepository categoryReadRepository,
-        AttributeDefinitionRepository attributeDefinitionRepository
+        CategoryReadRepository categoryReadRepository
     ) {
         return new DeleteCategoryAttributeUseCase(
             categoryRepository, 
-            attributeDefinitionRepository, 
             categoryReadRepository
         );
     }
