@@ -15,7 +15,10 @@ public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
 
     @Override
     public void execute(Category category) {
-       
-        categoryRepository.update(category);
+        Category categoryDB = categoryRepository.findById(category.id());
+
+        categoryDB.update(category);
+
+        categoryRepository.update(categoryDB);
     }
 }

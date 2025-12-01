@@ -52,19 +52,29 @@ public class Category {
 
     }
 
-    public void updateCategoryAttribute(CategoryAttribute attr) {
-        CategoryAttribute categoryAttribute = this.categoryAttributes
-            .get(attr.id().value());
+    public void update(Category category) {
 
-        if(categoryAttribute == null) {
-            throw new DataNotFound(
-                "Id: "+attr.id().value()+" can not be null"
-            );
-        }
+        category.categoryAttributes().stream().forEach(attr -> {
+            if(categoryAttributes.get(attr.id().value())==null)
+                throw new DataNotFound("Category attribute " + attr.id().value() + " not found");
 
-        this.categoryAttributes.remove(attr.id().value());
+            CategoryAttribute attribute = categoryAttributes.get(attr.id().value());
 
-        this.categoryAttributes.put(attr.id().value(), attr);
+            if(!attr.attribute_definition().id().equals(attribute.attribute_definition().id())) {
+                throw new RuntimeException("The id of your attribute definition does not match: " + attribute.attribute_definition().id().value());
+            }
+        });
+
+        Map<String, CategoryAttribute> attrsMap = new HashMap<>();
+
+        category.categoryAttributes().forEach(attr -> {
+            attrsMap.put(attr.id().value(), attr);
+        });
+
+        categoryAttributes = attrsMap;
+        name = category.name();
+        slug = category.slug();
+        parent_id = category.parent_id();
     }
 
     public void removeCategoryAttribute(Id id) {

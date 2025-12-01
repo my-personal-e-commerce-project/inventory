@@ -33,7 +33,7 @@ public class CategoryAttributeEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity category;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     @JoinColumn(name = "attribute_definition_id", nullable = false)
     private AttributeDefinitionEntity attribute_definition;
 

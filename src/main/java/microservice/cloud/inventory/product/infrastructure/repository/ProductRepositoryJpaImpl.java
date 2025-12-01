@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.infrastructure.entity.AttributeDefinitionEntity;
@@ -120,6 +121,9 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
     @Override
     @Transactional
     public void save(Product product) {
+        if(existBySlug(product.slug().value())) {
+            throw new RuntimeException("Product with slug " + product.slug().value() + " already exists");
+        }
         entityManager.persist(toMap(product));
     }
 
@@ -269,4 +273,20 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
 
         return categories;
     }
+
+    private boolean existBySlug(String slug) {
+        String jpql = "SELECT COUNT(c) FROM ProductEntity c WHERE c.slug = :slug";
+
+        try {
+            Long count = entityManager.createQuery(jpql, Long.class)
+                .setParameter("slug", slug)
+                .getSingleResult(); 
+            
+            return count > 0;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
+
+
 }

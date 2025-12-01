@@ -21,4 +21,9 @@ public class Id {
 
         this.value = value;
     }
+
+    public boolean equals(Id id) {
+
+        return id.value().equals(this.value);
+    }
 }

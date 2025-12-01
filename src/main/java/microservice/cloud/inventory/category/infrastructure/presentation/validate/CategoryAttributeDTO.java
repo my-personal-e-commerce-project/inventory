@@ -1,7 +1,6 @@
 package microservice.cloud.inventory.category.infrastructure.presentation.validate;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +20,6 @@ public class CategoryAttributeDTO {
   
     @Valid
     @NotNull
-    @NotEmpty
     private AttributeDefinitionDTO attributeDefinition;
 
     @NotNull

@@ -33,6 +33,7 @@ public class CategoryDTO {
     private String parent_id = null;
 
     @Valid
+    @NotNull
     @Builder.Default
     private List<CategoryAttributeDTO> categoryAttributes = null;
 }

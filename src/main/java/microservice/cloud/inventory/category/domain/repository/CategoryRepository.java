@@ -8,4 +8,5 @@ public interface CategoryRepository {
     public void save(Category category);
     public void update(Category category);
     public void delete(Id id);
+    public Category findById(Id id);
 }

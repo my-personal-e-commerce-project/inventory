@@ -22,7 +22,6 @@ public class UpdateCategoryAttributeDTO {
   
     @Valid
     @NotNull
-    @NotEmpty
     private UpdateAttributeDefinitionDTO attributeDefinition;
 
     @NotNull

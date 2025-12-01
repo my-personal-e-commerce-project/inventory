@@ -1,6 +1,5 @@
 package microservice.cloud.inventory.category.infrastructure.presentation.controller;
 
-import java.lang.ProcessBuilder.Redirect.Type;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -24,7 +23,6 @@ import microservice.cloud.inventory.category.application.ports.in.CreateCategory
 import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryAttributeUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.ListCategoryUseCasePort;
-import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryAttributeUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryUseCasePort;
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
@@ -32,9 +30,7 @@ import microservice.cloud.inventory.category.infrastructure.dto.ResponsePayload;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.AttributeDefinitionDTO;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryAttributeDTO;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryDTO;
-import microservice.cloud.inventory.category.infrastructure.presentation.validate.UpdateCategoryAttributeDTO;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.UpdateCategoryDTO;
-import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
@@ -49,7 +45,6 @@ public class CategoryController {
     private final UpdateCategoryUseCasePort updateCategoryUseCasePort;
     private final DeleteCategoryUseCasePort deleteCategoryUseCasePort;
 
-    private final UpdateCategoryAttributeUseCasePort updateCategoryAttributeUseCasePort; 
     private final CreateCategoryAttributeUseCasePort createCategoryAttributeUseCasePort; 
     private final DeleteCategoryAttributeUseCasePort deleteCategoryAttributeUseCasePort; 
 
@@ -88,6 +83,7 @@ public class CategoryController {
             category.getCategoryAttributes() == null? null: 
             category.getCategoryAttributes().stream().map(attr -> {
                 attr.setId(Id.generate().value());
+                attr.getAttributeDefinition().setId(Id.generate().value());
                 return toMap(attr);
             }).toList() 
         );
@@ -108,20 +104,21 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponsePayload<CategoryDTO>> updateCategory(
+    public ResponseEntity<ResponsePayload<UpdateCategoryDTO>> updateCategory(
         @PathVariable String id,
         @Valid @RequestBody UpdateCategoryDTO category
     ) {
+
+        category.setId(id);
+
         Category data = toMap(category);
 
         updateCategoryUseCasePort.execute(data);
 
-        CategoryDTO categoryDTO = toMap(data);
-
         return new ResponseEntity<>(
-            ResponsePayload.<CategoryDTO>builder()
+            ResponsePayload.<UpdateCategoryDTO>builder()
                 .message("Category updated successfully")
-                .payload(categoryDTO)
+                .payload(category)
                 .build(),
                 HttpStatus.OK
         );
@@ -151,7 +148,7 @@ public class CategoryController {
 
         return new ResponseEntity<>(
             ResponsePayload.<CategoryAttributeDTO>builder()
-                .message("Category updated successfully")
+                .message("Category attribute added successfully")
                 .payload(categoryAttribute)
                 .build(),
                 HttpStatus.OK
@@ -197,7 +194,6 @@ public class CategoryController {
             category.getParent_id() == null? null: new Id(category.getParent_id()),
             attrs
         );
-
     }
 
     private CategoryAttribute toMap(CategoryAttributeDTO categoryAttribute) {
