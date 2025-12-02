@@ -1,6 +1,5 @@
 package microservice.cloud.inventory.product.infrastructure.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,9 +30,12 @@ public class ProductAttributeValueEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private ProductEntity product;
-   
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JoinColumn(nullable = false)
+  
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        nullable = false,
+        name = "attribute_definition_id"
+    )
     private AttributeDefinitionEntity attribute_definition;
 
     private String string_value;

@@ -64,13 +64,13 @@ public class CategoryRepositoryJpaImpl implements CategoryRepository {
                 CategoryAttributeEntity.builder()
                     .id(data.id().value())
                     .attribute_definition(
-                        new AttributeDefinitionEntity(
-                            data.attribute_definition().id().value(),
-                            data.attribute_definition().name(),
-                            data.attribute_definition().slug().value(),
-                            data.attribute_definition().type().toString(),
-                            data.attribute_definition().is_global()
-                        )
+                        AttributeDefinitionEntity.builder()
+                            .id(data.attribute_definition().id().value())
+                            .name(data.attribute_definition().name())
+                            .slug(data.attribute_definition().slug().value())
+                            .type(data.attribute_definition().type().toString())
+                            .is_global(data.attribute_definition().is_global())
+                            .build() 
                     )
                     .is_required(data.is_required())
                     .is_filterable(data.is_filterable())
@@ -122,13 +122,13 @@ public class CategoryRepositoryJpaImpl implements CategoryRepository {
                 CategoryAttributeEntity.builder()
                     .id(data.id().value())
                     .attribute_definition(
-                        new AttributeDefinitionEntity(
-                            data.attribute_definition().id().value(),
-                            data.attribute_definition().name(),
-                            data.attribute_definition().slug().value(),
-                            data.attribute_definition().type().toString(),
-                            data.attribute_definition().is_global()
-                        )
+                        AttributeDefinitionEntity.builder()
+                            .id(data.attribute_definition().id().value())
+                            .name(data.attribute_definition().name())
+                            .slug(data.attribute_definition().slug().value())
+                            .type(data.attribute_definition().type().toString())
+                            .is_global(data.attribute_definition().is_global())
+                            .build() 
                     )
                     .is_required(data.is_required())
                     .is_filterable(data.is_filterable())
