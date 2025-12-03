@@ -27,16 +27,16 @@ public class ProductAttributeValue {
         DataType type = attr.type();
 
         if(type == DataType.STRING && string_value == null)
-            throw new RuntimeException("String value cannot be null in: " + id);
+            throw new RuntimeException("String value cannot be null from in this attribute");
 
         if(type == DataType.DOUBLE && double_value == null)
-            throw new RuntimeException("Double value cannot be null in: " + id);
+            throw new RuntimeException("Double value cannot be null this in this attribute");
 
         if(type == DataType.INTEGER && integer_value == null)
-            throw new RuntimeException("Integer value cannot be null in: " + id);
+            throw new RuntimeException("Integer value cannot be null in this attribute");
 
         if(type == DataType.BOOLEAN && boolean_value == null)
-            throw new RuntimeException("Boolean value cannot be null: " + id);
+            throw new RuntimeException("Boolean value cannot be null in this attribute");
     }
 
     public Id id() {

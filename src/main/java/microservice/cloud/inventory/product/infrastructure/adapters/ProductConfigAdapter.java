@@ -1,5 +1,7 @@
 package microservice.cloud.inventory.product.infrastructure.adapters;
 
+import java.security.KeyStore.Entry.Attribute;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -42,9 +44,10 @@ public class ProductConfigAdapter {
 
     @Bean
     public UpdateProductUseCasePort updateProductUseCasePort(
-            ProductRepository productRepository
+        ProductRepository productRepository,
+        AttributeDefinitionRepository attributeDefinitionRepository
     ) {
-        return new UpdateProductUseCase(productRepository);
+        return new UpdateProductUseCase(productRepository, attributeDefinitionRepository);
     }
 
     @Bean
@@ -56,9 +59,10 @@ public class ProductConfigAdapter {
     
     @Bean
     public AddProductAttributeUseCasePort addProductAttributeUseCasePort(
-        ProductRepository productRepository
+        ProductRepository productRepository,
+        AttributeDefinitionRepository attributeDefinitionRepository
     ) {
-        return new AddProductAttributeUseCase(productRepository);
+        return new AddProductAttributeUseCase(productRepository, attributeDefinitionRepository);
     }
 
     @Bean

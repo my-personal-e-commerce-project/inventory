@@ -28,6 +28,12 @@ public class CategoryRepositoryJpaImpl implements CategoryRepository {
     private final EntityManager entityManager;
 
     @Override
+    public List<Category> findByIds(List<Id> ids) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     public Category findById(Id id) {
         CategoryEntity category = entityManager.find(CategoryEntity.class, id.value());
 

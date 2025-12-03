@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.product.domain.event.ProductCreatedEvent;
 import microservice.cloud.inventory.product.domain.event.ProductUpdatedEvent;
 import microservice.cloud.inventory.product.domain.exception.InvalidProductException;
@@ -69,9 +70,30 @@ public class Product extends AggregateRoot{
         );
     }
 
+    public void validAttributes(List<AttributeDefinition> attrs) {
+        Map<String, ProductAttributeValue> attributeDefinitionPerProductAttributeValue = new HashMap<>();
+
+        this.attributeValues().stream().forEach(attr -> {
+            attributeDefinitionPerProductAttributeValue.put(attr.attribute_definition().value(), attr);
+        });
+
+        attrs.stream().forEach(a -> {
+            ProductAttributeValue attr = attributeDefinitionPerProductAttributeValue
+                .get(a.id().value());
+
+            if(attr == null)
+                throw new RuntimeException(
+                        "undeclared attribute for the definition attribute: " 
+                        + a.id().value()
+                    );
+
+            attr.validTypes(a);
+        });
+    }
+
     public void addProductAttribute(ProductAttributeValue attr) {
         attributeValues.values().stream().forEach(a -> {
-            if(a.attribute_definition() == attr.attribute_definition())
+            if(a.attribute_definition().equals(attr.attribute_definition()))
                 throw new RuntimeException("An attribute with the same attribute definition already exists.");
         });
 

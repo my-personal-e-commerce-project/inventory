@@ -18,6 +18,7 @@ import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinit
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.attribute.infrastructure.entity.AttributeDefinitionEntity;
 import microservice.cloud.inventory.category.infrastructure.entity.CategoryAttributeEntity;
+import microservice.cloud.inventory.category.infrastructure.entity.CategoryEntity;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
@@ -28,49 +29,40 @@ public class AttributeDefinitionRepositoryJpaImpl implements AttributeDefinition
     private final EntityManager entityManager;
 
     @Override
-    public Map<String, AttributeDefinition> getListByIds(List<String> ids) {
-        List<String> attributeDefinitionIds = new ArrayList<>(ids);
+    public List<AttributeDefinition> getByCategoryAttributeIds(List<String> ids) {
+        List<String> categoriesIds = new ArrayList<>(ids);
 
-        List<AttributeDefinitionEntity> definitions = entityManager.createQuery(
-                "SELECT a FROM AttributeDefinitionEntity a WHERE a.id IN :ids", AttributeDefinitionEntity.class
+        List<CategoryEntity> categories = entityManager.createQuery(
+                "SELECT a FROM CategoryEntity a WHERE a.id IN :ids", CategoryEntity.class
             )
-            .setParameter("ids", attributeDefinitionIds)
+            .setParameter("ids", categoriesIds)
             .getResultList();
 
-        if (definitions.size() != attributeDefinitionIds.size()) {
-            Set<String> foundIds = definitions.stream()
-                .map(AttributeDefinitionEntity::getId)
+        if (categories.size() != categories.size()) {
+            Set<String> foundIds = categories.stream()
+                .map(CategoryEntity::getId)
                 .collect(Collectors.toSet());
-            attributeDefinitionIds.removeAll(foundIds);
-            throw new EntityNotFoundException("Attribute definitions not found: " + attributeDefinitionIds);
+            categoriesIds.removeAll(foundIds);
+            throw new EntityNotFoundException("Categories not found: " + categoriesIds);
         }
 
-        Map<String, AttributeDefinition> map = new HashMap<>();
+        List<AttributeDefinitionEntity> results = new ArrayList<>();
 
-        definitions.stream().forEach(attr -> {
+        categories
+            .stream()
+            .forEach((c)->{
+                results.addAll(
+                    c.getCategoryAttributes()
+                        .stream()
+                        .map(a->a.getAttribute_definition())
+                        .toList()
+                );
+            });
 
-             map.put(attr.getId(), new AttributeDefinition(
-                new Id(attr.getId()), 
-                attr.getName(), 
-                new Slug(attr.getSlug()), 
-                DataType.valueOf(attr.getType()),
-                attr.is_global()
-            ));
-        });
-
-        return map;
-    }
-
-    @Override
-    public AttributeDefinition getByCategoryAttributeId(Id categoryAttributeId) {
-        CategoryAttributeEntity categoryAttributeEntity = entityManager.find(
-            CategoryAttributeEntity.class, 
-            categoryAttributeId.value()
-        );
-
-        AttributeDefinitionEntity attributeDefinitionEntity = categoryAttributeEntity.getAttribute_definition();
-
-        return toMap(attributeDefinitionEntity);
+        return results
+            .stream()
+            .map(a->toMap(a))
+            .toList();
     }
 
     @Transactional

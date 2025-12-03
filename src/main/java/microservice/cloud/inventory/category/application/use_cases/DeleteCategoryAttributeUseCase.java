@@ -1,6 +1,5 @@
 package microservice.cloud.inventory.category.application.use_cases;
 
-import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryAttributeUseCasePort;
 import microservice.cloud.inventory.category.application.ports.out.CategoryReadRepository;
 import microservice.cloud.inventory.category.domain.entity.Category;
