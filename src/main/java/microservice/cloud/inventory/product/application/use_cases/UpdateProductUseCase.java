@@ -2,11 +2,11 @@ package microservice.cloud.inventory.product.application.use_cases;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
+import microservice.cloud.inventory.shared.application.ports.put.EventPublishedPort;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
@@ -15,13 +15,16 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
 
     private ProductRepository productRepository;
     private AttributeDefinitionRepository attributeDefinitionRepository;
+    private EventPublishedPort eventPublishedPort;
 
     public UpdateProductUseCase(
         ProductRepository productRepository,
-        AttributeDefinitionRepository attributeDefinitionRepository
+        AttributeDefinitionRepository attributeDefinitionRepository,
+        EventPublishedPort eventPublishedPort
     ) {
         this.productRepository = productRepository;
         this.attributeDefinitionRepository = attributeDefinitionRepository;
+        this.eventPublishedPort = eventPublishedPort;
     }
 
     @Override
@@ -37,10 +40,12 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
                 categories
             );
 
-        product.validAttributes(new ArrayList<>(attrs));
-
         p.update(product);
         
+        p.validAttributes(new ArrayList<>(attrs));
+
         productRepository.update(p);
+
+        eventPublishedPort.publish(p.events());
     }
 }

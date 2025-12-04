@@ -29,6 +29,14 @@ public class AttributeDefinitionRepositoryJpaImpl implements AttributeDefinition
     private final EntityManager entityManager;
 
     @Override
+    public AttributeDefinition getById(Id id) {
+        AttributeDefinitionEntity entity = entityManager
+            .find(AttributeDefinitionEntity.class, id.value());
+
+        return toMap(entity);
+    }
+
+    @Override
     public List<AttributeDefinition> getByCategoryAttributeIds(List<String> ids) {
         List<String> categoriesIds = new ArrayList<>(ids);
 

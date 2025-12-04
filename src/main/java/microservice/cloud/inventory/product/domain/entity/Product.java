@@ -7,6 +7,7 @@ import java.util.Map;
 
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.product.domain.event.ProductCreatedEvent;
+import microservice.cloud.inventory.product.domain.event.ProductDeletedEvent;
 import microservice.cloud.inventory.product.domain.event.ProductUpdatedEvent;
 import microservice.cloud.inventory.product.domain.exception.InvalidProductException;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
@@ -169,6 +170,10 @@ public class Product extends AggregateRoot{
                 this.attributeValues()
             )
         );
+    }
+
+    public void delete() {
+        this.dispatch(new ProductDeletedEvent(id.value()));
     }
 
     public Id id() {

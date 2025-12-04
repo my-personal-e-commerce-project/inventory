@@ -7,6 +7,7 @@ import microservice.cloud.inventory.shared.domain.value_objects.Id;
 
 public interface AttributeDefinitionRepository {
 
+    public AttributeDefinition getById(Id id);
     public List<AttributeDefinition> getByCategoryAttributeIds(List<String> ids);
     public void deleteByCategoryAttributeId(Id categoryAttributeId);
     public AttributeDefinition getByProductAttributeId(Id categoryAttributeId);

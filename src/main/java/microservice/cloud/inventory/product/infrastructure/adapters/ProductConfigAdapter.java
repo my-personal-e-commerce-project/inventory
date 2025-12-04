@@ -1,7 +1,5 @@
 package microservice.cloud.inventory.product.infrastructure.adapters;
 
-import java.security.KeyStore.Entry.Attribute;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,6 +12,7 @@ import microservice.cloud.inventory.product.application.ports.in.DeleteProductAt
 import microservice.cloud.inventory.product.application.ports.in.DeleteProductUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.ListProductsUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
+import microservice.cloud.inventory.shared.application.ports.put.EventPublishedPort;
 import microservice.cloud.inventory.product.application.ports.put.ProductReadRepository;
 
 import microservice.cloud.inventory.product.application.use_cases.AddProductAttributeUseCase;
@@ -37,38 +36,55 @@ public class ProductConfigAdapter {
     @Bean
     public CreateProductUseCasePort createProductUseCasePort(
         ProductRepository productRepository,
-        AttributeDefinitionRepository attributeDefinitionRepository
+        AttributeDefinitionRepository attributeDefinitionRepository,
+        EventPublishedPort eventPublishedPort
     ) {
-        return new CreateProductUseCase(productRepository, attributeDefinitionRepository);
+        return new CreateProductUseCase(
+                productRepository, 
+                attributeDefinitionRepository, 
+                eventPublishedPort
+            );
     }
 
     @Bean
     public UpdateProductUseCasePort updateProductUseCasePort(
         ProductRepository productRepository,
-        AttributeDefinitionRepository attributeDefinitionRepository
+        AttributeDefinitionRepository attributeDefinitionRepository,
+        EventPublishedPort eventPublishedPort
     ) {
-        return new UpdateProductUseCase(productRepository, attributeDefinitionRepository);
+        return new UpdateProductUseCase(
+                productRepository, 
+                attributeDefinitionRepository, 
+                eventPublishedPort
+            );
     }
 
     @Bean
     public DeleteProductUseCasePort deleteProductUseCasePort(
-        ProductRepository productRepository
+        ProductRepository productRepository,
+        EventPublishedPort eventPublishedPort
     ) {
-        return new DeleteProductUseCase(productRepository);
+        return new DeleteProductUseCase(productRepository, eventPublishedPort);
     }
     
     @Bean
     public AddProductAttributeUseCasePort addProductAttributeUseCasePort(
         ProductRepository productRepository,
-        AttributeDefinitionRepository attributeDefinitionRepository
+        AttributeDefinitionRepository attributeDefinitionRepository,
+        EventPublishedPort eventPublishedPort
     ) {
-        return new AddProductAttributeUseCase(productRepository, attributeDefinitionRepository);
+        return new AddProductAttributeUseCase(
+                productRepository, 
+                attributeDefinitionRepository, 
+                eventPublishedPort
+            );
     }
 
     @Bean
     public DeleteProductAttributeUseCasePort deleteProductAttributeUseCasePort(
-        ProductRepository productRepository
+        ProductRepository productRepository,
+        EventPublishedPort eventPublishedPort
     ) {
-        return new DeleteProductAttributeUseCase(productRepository);
+        return new DeleteProductAttributeUseCase(productRepository, eventPublishedPort);
     }
 }

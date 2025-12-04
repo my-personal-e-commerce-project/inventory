@@ -6,7 +6,7 @@ public interface ProductRepository {
 
     public void save(Product product);
     public void update(Product product);
-    public void delete(Id id);
+    public void delete(Product product);
     public void addProductAttribute(Id productId, ProductAttributeValue attr);
     public void removeProductAttribute(Id productId, Id productAttributeId);
     public Product findById(Id id);

@@ -1,6 +1,7 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
 import microservice.cloud.inventory.product.application.ports.in.DeleteProductAttributeUseCasePort;
+import microservice.cloud.inventory.shared.application.ports.put.EventPublishedPort;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
@@ -8,11 +9,14 @@ import microservice.cloud.inventory.shared.domain.value_objects.Id;
 public class DeleteProductAttributeUseCase implements DeleteProductAttributeUseCasePort {
 
     private ProductRepository productRepository;
+    private EventPublishedPort eventPublishedPort;
 
     public DeleteProductAttributeUseCase(
-        ProductRepository productRepository
+        ProductRepository productRepository,
+        EventPublishedPort eventPublishedPort
     ) {
         this.productRepository = productRepository;
+        this.eventPublishedPort = eventPublishedPort;
     }
 
     @Override
@@ -22,5 +26,7 @@ public class DeleteProductAttributeUseCase implements DeleteProductAttributeUseC
         product.removeAttribute(productAttributeId);
 
         productRepository.removeProductAttribute(productId, productAttributeId);
+
+        eventPublishedPort.publish(product.events());
     } 
 }

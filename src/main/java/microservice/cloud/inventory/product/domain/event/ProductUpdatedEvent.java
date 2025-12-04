@@ -20,6 +20,11 @@ public record ProductUpdatedEvent(
 ) implements DomainEvent {
 
     @Override
+    public String aggregateId() {
+        return id;
+    }
+
+    @Override
     public String eventName() {
         return "product.updated";
     }

@@ -129,12 +129,16 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
 
     @Transactional
     @Override
-    public void delete(Id id) {
-        ProductEntity product = entityManager.find(ProductEntity.class, id.value());
+    public void delete(Product product) {
+        ProductEntity productDB = entityManager
+            .find(ProductEntity.class,
+                product.id().value()
+            );
 
-        if(product == null)
+        if(productDB == null)
             throw new EntityNotFoundException("Product not found");
-        entityManager.remove(product);
+
+        entityManager.remove(productDB);
     }
 
     @Transactional

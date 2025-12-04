@@ -1,11 +1,9 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.product.application.ports.in.AddProductAttributeUseCasePort;
+import microservice.cloud.inventory.shared.application.ports.put.EventPublishedPort;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
@@ -15,27 +13,24 @@ public class AddProductAttributeUseCase implements AddProductAttributeUseCasePor
 
     private ProductRepository productRepository;
     private AttributeDefinitionRepository attributeDefinitionRepository;
+    private EventPublishedPort eventPublishedPort;
 
     public AddProductAttributeUseCase(
         ProductRepository productRepository,
-        AttributeDefinitionRepository attributeDefinitionRepository
+        AttributeDefinitionRepository attributeDefinitionRepository,
+        EventPublishedPort eventPublishedPort
     ) {
         this.productRepository = productRepository;
         this.attributeDefinitionRepository = attributeDefinitionRepository;
+        this.eventPublishedPort = eventPublishedPort;
     }
 
     @Override
     public void execute(Id productId, ProductAttributeValue productAttributeValue) {
         Product product = productRepository.findById(productId);
 
-        AttributeDefinition attributeDefinition = new ArrayList<>(
-            attributeDefinitionRepository
-                .getListByIds(
-                    List.of(
-                        productAttributeValue.attribute_definition().value()
-                    )
-                ).values()
-            ).getFirst();
+        AttributeDefinition attributeDefinition = attributeDefinitionRepository
+            .getById(productAttributeValue.id());
 
         if(attributeDefinition == null)
             throw new RuntimeException(
@@ -48,5 +43,7 @@ public class AddProductAttributeUseCase implements AddProductAttributeUseCasePor
         product.addProductAttribute(productAttributeValue);
 
         productRepository.addProductAttribute(productId, productAttributeValue);
+
+        eventPublishedPort.publish(product.events());
     } 
 }
