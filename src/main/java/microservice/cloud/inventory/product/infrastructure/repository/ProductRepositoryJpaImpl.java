@@ -25,6 +25,7 @@ import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 import microservice.cloud.inventory.product.infrastructure.entity.ImageEntity;
 import microservice.cloud.inventory.product.infrastructure.entity.ProductAttributeValueEntity;
 import microservice.cloud.inventory.product.infrastructure.entity.ProductEntity;
+import microservice.cloud.inventory.product.infrastructure.entity.TagEntity;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
@@ -178,8 +179,9 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
                 new Price(entity.getPrice()), 
                 attrs, 
                 new Quantity(entity.getStock()), 
-                entity.getImages().stream().map(i -> i.getUrl()).toList()
-                );
+                entity.getImages().stream().map(i -> i.getUrl()).toList(),
+                entity.getTags().stream().map(t -> t.getName()).toList()
+            );
     }
 
     private ProductEntity toMap(Product product) {
@@ -192,6 +194,17 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
             .price(product.price().value())
             .stock(product.stock().value())
             .build();
+
+        List<TagEntity> tags = product
+            .tags() == null? null:
+            product.tags()
+            .stream()
+            .map(i -> TagEntity.builder()
+                    .id(UUID.randomUUID().toString()).name(i)
+                    .product(p)
+                    .build()
+                )
+            .toList();
 
         List<ImageEntity> images = product
             .images() == null? null:
@@ -207,6 +220,7 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
         .toList();
 
         p.setImages(images);
+        p.setTags(tags);
         p.setAttributeValues(listAttributeEntities(product, p));
 
         return p;

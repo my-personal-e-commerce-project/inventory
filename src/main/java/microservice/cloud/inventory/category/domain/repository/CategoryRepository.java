@@ -9,7 +9,7 @@ public interface CategoryRepository {
 
     public void save(Category category);
     public void update(Category category);
-    public void delete(Id id);
+    public void delete(Category category);
     public Category findById(Id id);
     public List<Category> findByIds(List<Id> ids);
 }

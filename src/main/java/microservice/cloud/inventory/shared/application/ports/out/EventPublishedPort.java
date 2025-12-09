@@ -1,4 +1,4 @@
-package microservice.cloud.inventory.shared.application.ports.put;
+package microservice.cloud.inventory.shared.application.ports.out;
 
 import java.util.List;
 

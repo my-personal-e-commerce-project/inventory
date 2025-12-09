@@ -2,7 +2,6 @@ package microservice.cloud.inventory.category.infrastructure.adapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.application.ports.in.CreateCategoryAttributeUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.CreateCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryAttributeUseCasePort;
@@ -17,6 +16,8 @@ import microservice.cloud.inventory.category.application.use_cases.DeleteCategor
 import microservice.cloud.inventory.category.application.use_cases.ListCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.UpdateCategoryUseCase;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
+import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
+import microservice.cloud.inventory.shared.application.ports.out.EventPublishedPort;
 
 @Configuration
 public class CategoryConfigAdapter {
@@ -30,42 +31,54 @@ public class CategoryConfigAdapter {
 
     @Bean
     public CreateCategoryUseCasePort createCategoryUseCasePort(
-        CategoryRepository categoryRepository
+        CategoryRepository categoryRepository,
+        EventPublishedPort eventPublishedPort,
+        GetMePort getMePort
     ) {
-        return new CreateCategoryUseCase(categoryRepository);
+        return new CreateCategoryUseCase(categoryRepository, eventPublishedPort, getMePort);
     }
 
     @Bean
     public DeleteCategoryUseCasePort deleteCategoryUseCasePort(
-        CategoryRepository categoryRepository
+        CategoryRepository categoryRepository,
+        EventPublishedPort eventPublishedPort,
+        GetMePort getMePort
     ) {
-        return new DeleteCategoryUseCase(categoryRepository);
+        return new DeleteCategoryUseCase(categoryRepository, eventPublishedPort, getMePort);
     }
 
     @Bean
     public UpdateCategoryUseCasePort updateCategoryUseCasePort(
-        CategoryRepository categoryRepository
+        CategoryRepository categoryRepository,
+        EventPublishedPort eventPublishedPort,
+        GetMePort getMePort
     ) {
-        return new UpdateCategoryUseCase(categoryRepository);
+        return new UpdateCategoryUseCase(categoryRepository, eventPublishedPort, getMePort);
     }
 
     @Bean
     public CreateCategoryAttributeUseCasePort createCategoryAttributeUseCasePort(
         CategoryRepository categoryRepository,
-        CategoryReadRepository categoryReadRepository
+        CategoryReadRepository categoryReadRepository,
+        EventPublishedPort eventPublishedPort,
+        GetMePort getMePort
     ) {
     
-        return new CreateCategoryAttributeUseCase(categoryRepository, categoryReadRepository);
+        return new CreateCategoryAttributeUseCase(categoryRepository, categoryReadRepository, eventPublishedPort, getMePort);
     }
 
     @Bean
     public DeleteCategoryAttributeUseCasePort deleteCategoryAttributeUseCasePort(
         CategoryRepository categoryRepository,
-        CategoryReadRepository categoryReadRepository
+        CategoryReadRepository categoryReadRepository,
+        EventPublishedPort eventPublishedPort,
+        GetMePort getMePort
     ) {
         return new DeleteCategoryAttributeUseCase(
             categoryRepository, 
-            categoryReadRepository
+            categoryReadRepository,
+            eventPublishedPort,
+            getMePort
         );
     }
 }

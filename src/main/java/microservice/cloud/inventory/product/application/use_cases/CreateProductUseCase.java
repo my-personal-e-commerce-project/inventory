@@ -6,41 +6,69 @@ import java.util.List;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
-import microservice.cloud.inventory.shared.application.ports.put.EventPublishedPort;
+import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
+import microservice.cloud.inventory.shared.application.ports.out.EventPublishedPort;
+import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 import microservice.cloud.inventory.product.domain.entity.Product;
+import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
+import microservice.cloud.inventory.product.domain.value_objects.Price;
+import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 
 public class CreateProductUseCase implements CreateProductUseCasePort {
 
     private ProductRepository productRepository;
     private AttributeDefinitionRepository attributeDefinitionRepository;
     private EventPublishedPort eventPublishedPort;
+    private GetMePort getMePort;
 
     public CreateProductUseCase(
         ProductRepository productRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        EventPublishedPort eventPublishedPort
+        EventPublishedPort eventPublishedPort,
+        GetMePort getMePort
     ) {
 
+        this.getMePort = getMePort;
         this.productRepository = productRepository;
         this.attributeDefinitionRepository = attributeDefinitionRepository;
         this.eventPublishedPort = eventPublishedPort;
     }
-
-    public void execute(Product product) {
-        List<String> categories = product
-            .categories();
-
+    
+    public void execute(
+        String title, 
+        Slug slug, 
+        String description,
+        List<String> categories,
+        Price price,
+        Quantity stock,
+        List<String> images,
+        List<ProductAttributeValue> attributes,
+        List<String> tags
+    ) {
         List<AttributeDefinition> attrs = 
             attributeDefinitionRepository
             .getByCategoryAttributeIds(
                 categories
             );
 
-        product.validAttributes(new ArrayList<>(attrs));
+        Product newProduct = Product.factory(
+            getMePort.execute(),
+            title, 
+            slug, 
+            description, 
+            categories, 
+            price, 
+            stock, 
+            images, 
+            attributes,
+            tags
+        );
 
-        productRepository.save(product);
+        newProduct.validAttributes(new ArrayList<>(attrs));
 
-        eventPublishedPort.publish(product.events());
+        productRepository.save(newProduct);
+
+        eventPublishedPort.publish(newProduct.events());
     }
 }

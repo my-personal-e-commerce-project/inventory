@@ -15,7 +15,7 @@ public record ProductUpdatedEvent(
         double price,
         int stock,
         List<String> images,
-        List<ProductAttributeValue> attributes,
+        List<ProductAttributeValueEvent> attributes,
         Instant occurredOn
 ) implements DomainEvent {
 
@@ -50,7 +50,15 @@ public record ProductUpdatedEvent(
             price,
             stock,
             images,
-            attributes,
+            attributes.stream().map(a -> {
+                return new ProductAttributeValueEvent(
+                    a.attribute_definition().value(),
+                    a.string_value(), 
+                    a.integer_value(), 
+                    a.double_value(), 
+                    a.boolean_value()
+                );
+            }).toList(),
             Instant.now()
         );
     }

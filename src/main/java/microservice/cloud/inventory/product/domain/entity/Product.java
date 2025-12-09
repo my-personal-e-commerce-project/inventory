@@ -15,6 +15,8 @@ import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Me;
+import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class Product extends AggregateRoot{
@@ -22,9 +24,8 @@ public class Product extends AggregateRoot{
     private String title;
     private Slug slug;
     private String description;
-    
+    private List<String> tags;
     private List<String> categories;
-    
     private Price price;
     private Quantity stock;
     private List<String> images;
@@ -39,8 +40,12 @@ public class Product extends AggregateRoot{
         Price price, 
         List<ProductAttributeValue> attributeValues,
         Quantity stock,
-        List<String> images
+        List<String> images,
+        List<String> tags
     ) {
+        if(id == null)
+            throw new RuntimeException("The id cannot be null");
+
         if(categories == null || categories.size() < 1)
             throw new InvalidProductException("Products must have at least one category");
 
@@ -56,19 +61,54 @@ public class Product extends AggregateRoot{
         this.price = price;
         this.stock = stock;
         this.images = images;
+        this.tags = tags;
+    }
 
-        this.dispatch(new ProductCreatedEvent(
-                id.value(), 
-                title, 
-                slug.value(), 
-                description, 
-                categories, 
-                price.value(), 
-                stock.value(), 
-                images, 
-                this.attributeValues()
-            )
+    public static Product factory(
+            Me me,
+            String title,
+            Slug slug,
+            String description,
+            List<String> categories,
+            Price price,
+            Quantity stock,
+            List<String> images,
+            List<ProductAttributeValue> attributeValues,
+            List<String> tags
+    ) {
+        if(me == null)
+            throw new RuntimeException("You must be authenticated to do this action");
+
+        me.IHavePermission(Permission.createProduct());
+
+        Id id = Id.generate();
+
+        Product product = new Product(
+            id, 
+            title, 
+            slug, 
+            description, 
+            categories, 
+            price, 
+            attributeValues, 
+            stock, 
+            images, 
+            tags
         );
+
+        product.dispatch(new ProductCreatedEvent(
+            id.value(),
+            title,
+            slug.value(),
+            description,
+            categories,
+            price.value(),
+            stock.value(),
+            images,
+            attributeValues
+        ));
+
+        return product;
     }
 
     public void validAttributes(List<AttributeDefinition> attrs) {
@@ -92,7 +132,12 @@ public class Product extends AggregateRoot{
         });
     }
 
-    public void addProductAttribute(ProductAttributeValue attr) {
+    public void addProductAttribute(Me me, ProductAttributeValue attr) {
+        if(me == null)
+            throw new RuntimeException("You must be authenticated to hacer this action");
+
+        me.IHavePermission(Permission.updateProduct());
+
         attributeValues.values().stream().forEach(a -> {
             if(a.attribute_definition().equals(attr.attribute_definition()))
                 throw new RuntimeException("An attribute with the same attribute definition already exists.");
@@ -114,8 +159,24 @@ public class Product extends AggregateRoot{
         );
     }
 
-    public void update(Product product) {
-        List<ProductAttributeValue> newAttrs = product.attributeValues();
+    public void update(
+        Me me,
+        String title, 
+        Slug slug, 
+        String description,
+        List<String> categories,
+        Price price,
+        Quantity stock,
+        List<String> images,
+        List<ProductAttributeValue> attributes,
+        List<String> tags
+    ) { 
+        if(me == null)
+            throw new RuntimeException("You must be authenticated to hacer this action");
+
+        me.IHavePermission(Permission.updateProduct());
+        
+        List<ProductAttributeValue> newAttrs = attributes;
 
         Map<String, ProductAttributeValue> mapNewAttrs = new HashMap<>();
 
@@ -130,13 +191,13 @@ public class Product extends AggregateRoot{
                 throw new RuntimeException("you need to thicken the attribute " + a.id().value());
         });
 
-        this.title = product.title();
-        this.description = product.description();
-        this.slug = product.slug();
-        this.categories = product.categories();
-        this.price = product.price();
-        this.stock = product.stock();
-        this.images = product.images();
+        this.title = title;
+        this.description = description;
+        this.slug = slug;
+        this.categories = categories;
+        this.price = price;
+        this.stock = stock;
+        this.images = images;
 
         this.dispatch(new ProductUpdatedEvent(
                 id.value(), 
@@ -152,7 +213,12 @@ public class Product extends AggregateRoot{
         );
     }
 
-    public void removeAttribute(Id productAttributeId) {
+    public void removeAttribute(Me me, Id productAttributeId) {
+        if(me == null)
+            throw new RuntimeException("You must be authenticated to hacer this action");
+
+        me.IHavePermission(Permission.updateProduct());
+
         if(attributeValues.get(productAttributeId.value()) == null)
             throw new DataNotFound("Product attribute not found");
 
@@ -172,7 +238,12 @@ public class Product extends AggregateRoot{
         );
     }
 
-    public void delete() {
+    public void delete(Me me) {
+        if(me == null)
+            throw new RuntimeException("You must be authenticated to hacer this action");
+
+        me.IHavePermission(Permission.deleteProduct());
+        
         this.dispatch(new ProductDeletedEvent(id.value()));
     }
 
@@ -193,7 +264,7 @@ public class Product extends AggregateRoot{
     }
 
     public List<String> categories() {
-        return categories;
+        return List.copyOf(categories);
     }
 
     public Price price() {
@@ -210,5 +281,9 @@ public class Product extends AggregateRoot{
 
     public List<String> images() {
         return images;
+    }
+
+    public List<String> tags() {
+        return tags;
     }
 }

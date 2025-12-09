@@ -12,7 +12,8 @@ import microservice.cloud.inventory.product.application.ports.in.DeleteProductAt
 import microservice.cloud.inventory.product.application.ports.in.DeleteProductUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.ListProductsUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
-import microservice.cloud.inventory.shared.application.ports.put.EventPublishedPort;
+import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
+import microservice.cloud.inventory.shared.application.ports.out.EventPublishedPort;
 import microservice.cloud.inventory.product.application.ports.put.ProductReadRepository;
 
 import microservice.cloud.inventory.product.application.use_cases.AddProductAttributeUseCase;
@@ -37,12 +38,14 @@ public class ProductConfigAdapter {
     public CreateProductUseCasePort createProductUseCasePort(
         ProductRepository productRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        EventPublishedPort eventPublishedPort
+        EventPublishedPort eventPublishedPort,
+        GetMePort getMePort
     ) {
         return new CreateProductUseCase(
                 productRepository, 
                 attributeDefinitionRepository, 
-                eventPublishedPort
+                eventPublishedPort,
+                getMePort
             );
     }
 
@@ -50,41 +53,47 @@ public class ProductConfigAdapter {
     public UpdateProductUseCasePort updateProductUseCasePort(
         ProductRepository productRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        EventPublishedPort eventPublishedPort
+        EventPublishedPort eventPublishedPort,
+        GetMePort getMePort
     ) {
         return new UpdateProductUseCase(
                 productRepository, 
                 attributeDefinitionRepository, 
-                eventPublishedPort
+                eventPublishedPort,
+                getMePort
             );
     }
 
     @Bean
     public DeleteProductUseCasePort deleteProductUseCasePort(
         ProductRepository productRepository,
-        EventPublishedPort eventPublishedPort
+        EventPublishedPort eventPublishedPort,
+        GetMePort getMePort
     ) {
-        return new DeleteProductUseCase(productRepository, eventPublishedPort);
+        return new DeleteProductUseCase(productRepository, eventPublishedPort, getMePort);
     }
     
     @Bean
     public AddProductAttributeUseCasePort addProductAttributeUseCasePort(
         ProductRepository productRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        EventPublishedPort eventPublishedPort
+        EventPublishedPort eventPublishedPort,
+        GetMePort getMePort
     ) {
         return new AddProductAttributeUseCase(
                 productRepository, 
                 attributeDefinitionRepository, 
-                eventPublishedPort
+                eventPublishedPort,
+                getMePort
             );
     }
 
     @Bean
     public DeleteProductAttributeUseCasePort deleteProductAttributeUseCasePort(
         ProductRepository productRepository,
-        EventPublishedPort eventPublishedPort
+        EventPublishedPort eventPublishedPort,
+        GetMePort getMePort
     ) {
-        return new DeleteProductAttributeUseCase(productRepository, eventPublishedPort);
+        return new DeleteProductAttributeUseCase(productRepository, eventPublishedPort, getMePort);
     }
 }

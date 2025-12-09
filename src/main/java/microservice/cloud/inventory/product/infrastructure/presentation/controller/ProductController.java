@@ -24,7 +24,6 @@ import microservice.cloud.inventory.product.application.ports.in.DeleteProductAt
 import microservice.cloud.inventory.product.application.ports.in.DeleteProductUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.ListProductsUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
-import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
@@ -74,9 +73,26 @@ public class ProductController {
                 .toList()
         );
 
-        Product product = toMap(productDTO);
-
-        createProductUseCasePort.execute(product);
+        createProductUseCasePort.execute(
+            productDTO.getTitle(),
+            new Slug(productDTO.getSlug()),
+            productDTO.getDescription(),
+            productDTO.getCategories(),
+            new Price(productDTO.getPrice()),
+            new Quantity(productDTO.getStock()),
+            productDTO.getImages(),
+            productDTO.getAttributes().stream().map(attr -> 
+                new ProductAttributeValue(
+                    new Id(attr.getId()),
+                    new Id(attr.getAttribute_definition_id()),
+                    attr.getString_value(),
+                    attr.getInteger_value(),
+                    attr.getDouble_value(),
+                    attr.getBoolean_value()
+                )
+            ).toList(),
+            productDTO.getTags()
+        );
 
         return new ResponseEntity<>(
             ResponsePayload.<ProductDTO>builder().payload(productDTO).build(),
@@ -90,9 +106,28 @@ public class ProductController {
         @Valid @RequestBody UpdateProductDTO productDTO
     ) {
         productDTO.setId(id);
-        Product p = toMap(productDTO);
 
-        updateProductUseCasePort.execute(p);
+        updateProductUseCasePort.execute(
+            new Id(productDTO.getId()),
+            productDTO.getTitle(),
+            new Slug(productDTO.getSlug()),
+            productDTO.getDescription(),
+            productDTO.getCategories(),
+            new Price(productDTO.getPrice()),
+            new Quantity(productDTO.getStock()),
+            productDTO.getImages(),
+            productDTO.getAttributes().stream().map(attr -> 
+                new ProductAttributeValue(
+                    new Id(attr.getId()),
+                    new Id(attr.getAttribute_definition_id()),
+                    attr.getString_value(),
+                    attr.getInteger_value(),
+                    attr.getDouble_value(),
+                    attr.getBoolean_value()
+                )
+            ).toList(),
+            productDTO.getTags()
+        );
 
         return new ResponseEntity<>(
             ResponsePayload.<UpdateProductDTO>builder().payload(productDTO).build(),
@@ -139,53 +174,5 @@ public class ProductController {
         deleteProductAttributeUseCasePort.execute(new Id(id), new Id(attr_id));
 
         return ResponseEntity.noContent().build();
-    }
-
-    private Product toMap(UpdateProductDTO productDTO) {
-
-        return new Product(
-            new Id(productDTO.getId()),
-            productDTO.getTitle(),
-            new Slug(productDTO.getSlug()),
-            productDTO.getDescription(),
-            productDTO.getCategories(),
-            new Price(productDTO.getPrice()),
-            productDTO.getAttributes().stream().map(attr -> 
-                new ProductAttributeValue(
-                    new Id(attr.getId()),
-                    new Id(attr.getAttribute_definition_id()),
-                    attr.getString_value(),
-                    attr.getInteger_value(),
-                    attr.getDouble_value(),
-                    attr.getBoolean_value()
-                )
-            ).toList(),
-            new Quantity(productDTO.getStock()),
-            productDTO.getImages()
-        );
-    }
-
-    private Product toMap(ProductDTO productDTO) {
-
-        return new Product(
-            Id.generate(),
-            productDTO.getTitle(),
-            new Slug(productDTO.getSlug()),
-            productDTO.getDescription(),
-            productDTO.getCategories(),
-            new Price(productDTO.getPrice()),
-            productDTO.getAttributes().stream().map(attr -> 
-                new ProductAttributeValue(
-                    Id.generate(),
-                    new Id(attr.getAttribute_definition_id()),
-                    attr.getString_value(),
-                    attr.getInteger_value(),
-                    attr.getDouble_value(),
-                    attr.getBoolean_value()
-                )
-            ).toList(),
-            new Quantity(productDTO.getStock()),
-            productDTO.getImages()
-        );
     }
 }

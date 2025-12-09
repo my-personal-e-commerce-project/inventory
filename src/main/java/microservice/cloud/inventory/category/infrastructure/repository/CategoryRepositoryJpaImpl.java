@@ -148,8 +148,8 @@ public class CategoryRepositoryJpaImpl implements CategoryRepository {
     }
 
     @Override
-    public void delete(Id id) {
-        entityManager.remove(id.value());
+    public void delete(Category category) {
+        entityManager.remove(category.id().value());
     }
 
     private boolean existBySlug(String slug) {

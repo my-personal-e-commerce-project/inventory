@@ -1,10 +1,10 @@
-package microservice.cloud.inventory.product.domain.event;
+package microservice.cloud.inventory.category.domain.event;
 
 import java.time.Instant;
 
 import microservice.cloud.inventory.shared.domain.event.DomainEvent;
 
-public record ProductDeletedEvent(
+public record CategoryDeletedEvent(
     String id,
     Instant occurredOn
 ) implements DomainEvent {
@@ -13,19 +13,18 @@ public record ProductDeletedEvent(
     public String aggregateId() {
         return id;
     }
-    
+
     @Override
     public String eventName() {
-        return "product.deleted";
+        return "category.deleted";
     }
 
-    public ProductDeletedEvent(
+    public CategoryDeletedEvent(
         String id
     ) {
         this(
             id,
             Instant.now()
         );
-    }
+    } 
 }
-

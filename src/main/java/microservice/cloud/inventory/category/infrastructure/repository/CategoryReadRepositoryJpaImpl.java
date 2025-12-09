@@ -10,6 +10,9 @@ import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
+import microservice.cloud.inventory.category.application.dtos.AttributeDefinitionReadDTO;
+import microservice.cloud.inventory.category.application.dtos.CategoryAttributeReadDTO;
+import microservice.cloud.inventory.category.application.dtos.CategoryReadDTO;
 import microservice.cloud.inventory.category.application.ports.out.CategoryReadRepository;
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
@@ -26,7 +29,7 @@ public class CategoryReadRepositoryJpaImpl implements CategoryReadRepository {
     private final EntityManager entityManager;
 
     @Override
-    public Pagination<Category> findAll(int page, int limit) {
+    public Pagination<CategoryReadDTO> findAll(int page, int limit) {
 
         if (page < 1) {
             page = 1;
@@ -48,15 +51,15 @@ public class CategoryReadRepositoryJpaImpl implements CategoryReadRepository {
 
         int totalPages = (int) Math.ceil((double) totalItems / limit);
 
-        List<Category> domainObjects = entities.stream()
+        List<CategoryReadDTO> domainObjects = entities.stream()
             .map(this::toDomain)
             .collect(Collectors.toList());
 
-        return new Pagination<Category>(domainObjects, totalPages, page);
+        return new Pagination<CategoryReadDTO>(domainObjects, totalPages, page);
     }
 
     @Override
-    public Category findById(Id id) {
+    public CategoryReadDTO findById(Id id) {
         CategoryEntity entity = entityManager.find(CategoryEntity.class, id.value());
         if(entity == null)
             throw new RuntimeException("Category not found");
@@ -64,33 +67,33 @@ public class CategoryReadRepositoryJpaImpl implements CategoryReadRepository {
         return toDomain(entity);
     }
 
-    private Category toDomain(CategoryEntity entity) {
-        List<CategoryAttribute> categoryAttributes = 
+    private CategoryReadDTO toDomain(CategoryEntity entity) {
+        List<CategoryAttributeReadDTO> categoryAttributes = 
             entity.getCategoryAttributes()
                 .stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
 
-        return new Category(
-            new Id(entity.getId()), 
+        return new CategoryReadDTO(
+            entity.getId(), 
             entity.getName(), 
-            new Slug(entity.getSlug()),
-            entity.getParent() == null? null: new Id(entity.getParent().getId()),
+            entity.getSlug(),
+            entity.getParent() == null? null: entity.getParent().getId(),
             categoryAttributes
         );
     }
 
-    private CategoryAttribute toDomain(CategoryAttributeEntity entity) {
-        AttributeDefinition categoryAttributes = new AttributeDefinition(
-            new Id(entity.getAttribute_definition().getId()), 
+    private CategoryAttributeReadDTO toDomain(CategoryAttributeEntity entity) {
+        AttributeDefinitionReadDTO categoryAttributes = new AttributeDefinitionReadDTO(
+            entity.getAttribute_definition().getId(), 
             entity.getAttribute_definition().getName(), 
-            new Slug(entity.getAttribute_definition().getSlug()),
-            DataType.valueOf(entity.getAttribute_definition().getType()),
+            entity.getAttribute_definition().getSlug(),
+            entity.getAttribute_definition().getType(),
             entity.getAttribute_definition().is_global()
         );
 
-        return new CategoryAttribute(
-            new Id(entity.getId()),
+        return new CategoryAttributeReadDTO(
+            entity.getId(),
             categoryAttributes,
             entity.getIs_required(),
             entity.getIs_filterable(),

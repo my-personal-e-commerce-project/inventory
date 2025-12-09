@@ -3,7 +3,8 @@ package microservice.cloud.inventory.product.application.use_cases;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.product.application.ports.in.AddProductAttributeUseCasePort;
-import microservice.cloud.inventory.shared.application.ports.put.EventPublishedPort;
+import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
+import microservice.cloud.inventory.shared.application.ports.out.EventPublishedPort;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
@@ -14,15 +15,18 @@ public class AddProductAttributeUseCase implements AddProductAttributeUseCasePor
     private ProductRepository productRepository;
     private AttributeDefinitionRepository attributeDefinitionRepository;
     private EventPublishedPort eventPublishedPort;
+    private GetMePort getMePort;
 
     public AddProductAttributeUseCase(
         ProductRepository productRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        EventPublishedPort eventPublishedPort
+        EventPublishedPort eventPublishedPort,
+        GetMePort getMePort
     ) {
         this.productRepository = productRepository;
         this.attributeDefinitionRepository = attributeDefinitionRepository;
         this.eventPublishedPort = eventPublishedPort;
+        this.getMePort = getMePort;
     }
 
     @Override
@@ -40,7 +44,7 @@ public class AddProductAttributeUseCase implements AddProductAttributeUseCasePor
 
         productAttributeValue.validTypes(attributeDefinition);
 
-        product.addProductAttribute(productAttributeValue);
+        product.addProductAttribute(getMePort.execute(), productAttributeValue);
 
         productRepository.addProductAttribute(productId, productAttributeValue);
 

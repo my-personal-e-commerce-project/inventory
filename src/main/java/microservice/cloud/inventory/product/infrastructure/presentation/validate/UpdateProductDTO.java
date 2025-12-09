@@ -49,4 +49,7 @@ public class UpdateProductDTO {
 
     @NotNull
     private List<String> images;
+
+    @NotNull
+    private List<String> tags;
 }

@@ -30,6 +30,7 @@ import microservice.cloud.inventory.category.infrastructure.dto.ResponsePayload;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.AttributeDefinitionDTO;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryAttributeDTO;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryDTO;
+import microservice.cloud.inventory.category.infrastructure.presentation.validate.UpdateCategoryAttributeDTO;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.UpdateCategoryDTO;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
@@ -75,8 +76,7 @@ public class CategoryController {
     ) {
         Slug slug = new Slug(category.getSlug());
 
-        Category data = new Category(
-            Id.generate(),
+        createCategoryUseCasePort.execute(
             category.getName(),
             slug,
             category.getParent_id() == null? null: new Id(category.getParent_id()),
@@ -88,16 +88,10 @@ public class CategoryController {
             }).toList() 
         );
 
-        createCategoryUseCasePort.execute(
-            data
-        );
-
-        CategoryDTO categoryDTO = toMap(data);
-
         return new ResponseEntity<>(
             ResponsePayload.<CategoryDTO>builder()
                 .message("Category created successfully")
-                .payload(categoryDTO)
+                .payload(category)
                 .build(),
                 HttpStatus.CREATED
         );
@@ -108,12 +102,22 @@ public class CategoryController {
         @PathVariable String id,
         @Valid @RequestBody UpdateCategoryDTO category
     ) {
-
         category.setId(id);
 
-        Category data = toMap(category);
+        List<CategoryAttribute> attrs = category.getCategoryAttributes()
+            .stream()
+            .map(attr -> {
+                return toMap(attr);
+            })
+            .toList();
 
-        updateCategoryUseCasePort.execute(data);
+        updateCategoryUseCasePort.execute(
+            new Id(id),
+            category.getName(), 
+            new Slug(category.getSlug()), 
+            new Id(category.getParent_id()), 
+            attrs
+        );
 
         return new ResponseEntity<>(
             ResponsePayload.<UpdateCategoryDTO>builder()
@@ -165,34 +169,20 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
     }
 
-    private Category toMap(UpdateCategoryDTO category) {
+    private CategoryAttribute toMap(UpdateCategoryAttributeDTO attr) {
 
-        List<CategoryAttribute> attrs = category.getCategoryAttributes()
-            .stream()
-            .map(attr -> {
-
-                return new CategoryAttribute(
-                    new Id(attr.getId()), 
-                    new AttributeDefinition(
-                        new Id(attr.getAttributeDefinition().getId()), 
-                        attr.getAttributeDefinition().getName(), 
-                        new Slug(attr.getAttributeDefinition().getSlug()), 
-                        DataType.valueOf(attr.getAttributeDefinition().getType()), 
-                        false
-                    ),
-                    attr.getIs_required(), 
-                    attr.getIs_filterable(), 
-                    attr.getIs_sortable()
-                );
-            })
-            .toList();
-
-        return new Category(
-            new Id(category.getId()),
-            category.getName(),
-            new Slug(category.getSlug()),
-            category.getParent_id() == null? null: new Id(category.getParent_id()),
-            attrs
+        return new CategoryAttribute(
+            new Id(attr.getId()), 
+            new AttributeDefinition(
+                new Id(attr.getAttributeDefinition().getId()), 
+                attr.getAttributeDefinition().getName(), 
+                new Slug(attr.getAttributeDefinition().getSlug()), 
+                DataType.valueOf(attr.getAttributeDefinition().getType()), 
+                false
+            ),
+            attr.getIs_required(), 
+            attr.getIs_filterable(), 
+            attr.getIs_sortable()
         );
     }
 

@@ -49,4 +49,7 @@ public class ProductDTO {
     private int stock;
 
     private List<String> images;
+
+    @NotNull
+    private List<String> tags;
 }
