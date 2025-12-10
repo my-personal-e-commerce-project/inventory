@@ -23,6 +23,6 @@ public class Me {
         boolean result = permissions.contains(permission);
 
         if(!result)
-            throw new RuntimeException("Invalid permission");
+            throw new RuntimeException("Invalid permissions. The product_create permission is required. " + permission.value());
     }
 }
