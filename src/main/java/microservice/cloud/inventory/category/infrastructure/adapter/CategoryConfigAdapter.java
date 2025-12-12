@@ -59,24 +59,21 @@ public class CategoryConfigAdapter {
     @Bean
     public CreateCategoryAttributeUseCasePort createCategoryAttributeUseCasePort(
         CategoryRepository categoryRepository,
-        CategoryReadRepository categoryReadRepository,
         EventPublishedPort eventPublishedPort,
         GetMePort getMePort
     ) {
     
-        return new CreateCategoryAttributeUseCase(categoryRepository, categoryReadRepository, eventPublishedPort, getMePort);
+        return new CreateCategoryAttributeUseCase(categoryRepository, eventPublishedPort, getMePort);
     }
 
     @Bean
     public DeleteCategoryAttributeUseCasePort deleteCategoryAttributeUseCasePort(
         CategoryRepository categoryRepository,
-        CategoryReadRepository categoryReadRepository,
         EventPublishedPort eventPublishedPort,
         GetMePort getMePort
     ) {
         return new DeleteCategoryAttributeUseCase(
             categoryRepository, 
-            categoryReadRepository,
             eventPublishedPort,
             getMePort
         );

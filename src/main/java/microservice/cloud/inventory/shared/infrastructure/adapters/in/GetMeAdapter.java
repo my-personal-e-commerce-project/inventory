@@ -1,10 +1,12 @@
 package microservice.cloud.inventory.shared.infrastructure.adapters.in;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
@@ -19,22 +21,16 @@ public class GetMeAdapter implements GetMePort {
     public Me execute() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // TODO: conseguir los datos del usuario
-       
-        String token = authentication.toString();
-        System.out.println(token);
+        JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
 
-        return new Me(new Id("user id"), 
-            new ArrayList<Permission>(
-                List.of(
-                    Permission.createCategory(),
-                    Permission.updateCategory(),
-                    Permission.deleteCategory(),
-                    Permission.createProduct(),
-                    Permission.updateProduct(),
-                    Permission.deleteProduct()
-                )
-            )
+        Jwt jwt = jwtAuth.getToken();
+
+        Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+
+        List<String> roles = (List<String>) realmAccess.get("roles");
+
+        return new Me(new Id(jwt.getSubject()), 
+            roles.stream().map(r -> new Permission(r)).toList()
         );
     }
 }

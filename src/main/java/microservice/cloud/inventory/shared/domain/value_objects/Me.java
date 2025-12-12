@@ -29,6 +29,7 @@ public class Me {
                 result = true;
         }
 
+
         if(!result)
             throw new UnauthorizedException("Invalid permissions. The " + permission.value() + " is required.");
     }
