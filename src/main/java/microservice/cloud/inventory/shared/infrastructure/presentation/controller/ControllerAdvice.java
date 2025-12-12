@@ -14,6 +14,7 @@ import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 
 import microservice.cloud.inventory.category.infrastructure.dto.ResponsePayload;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
+import microservice.cloud.inventory.shared.domain.exception.UnauthorizedException;
 
 @RestControllerAdvice
 public class ControllerAdvice {
@@ -54,6 +55,17 @@ public class ControllerAdvice {
         return new ResponseEntity<ResponsePayload<?>>(
             ResponsePayload.builder().message(ex.getMessage()).build(), 
             HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ResponsePayload<?>> handleUnauthorizedException(
+        UnauthorizedException ex
+    ) {
+
+        return new ResponseEntity<ResponsePayload<?>>(
+            ResponsePayload.builder().message(ex.getMessage()).build(), 
+            HttpStatus.UNAUTHORIZED
         );
     }
 

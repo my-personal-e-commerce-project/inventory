@@ -58,7 +58,7 @@ public class Category extends AggregateRoot {
                 category.id.value(), 
                 name, 
                 slug.value(), 
-                parent_id.value(), 
+                parent_id == null? null: parent_id.value(), 
                 categoryAttributes
             )
         );

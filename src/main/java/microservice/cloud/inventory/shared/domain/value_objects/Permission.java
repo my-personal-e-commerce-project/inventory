@@ -26,8 +26,8 @@ public class Permission {
 
         if(value == "")
             throw new RuntimeException("The value cannot be empty");
-       
-        if(permissions.contains(value))
+      
+        if(!permissions.contains(value))
             throw new RuntimeException("The value is invalid");
 
         this.value = value;

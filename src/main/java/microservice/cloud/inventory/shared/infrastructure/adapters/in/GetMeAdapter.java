@@ -20,7 +20,10 @@ public class GetMeAdapter implements GetMePort {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // TODO: conseguir los datos del usuario
-        
+       
+        String token = authentication.toString();
+        System.out.println(token);
+
         return new Me(new Id("user id"), 
             new ArrayList<Permission>(
                 List.of(
