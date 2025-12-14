@@ -7,10 +7,10 @@ public class Permission {
     public Permission(String value) {
 
         if(value == null)
-            throw new RuntimeException("The permission cannot be null");
+            throw new IllegalArgumentException("The permission cannot be null");
 
-        if(value == "")
-            throw new RuntimeException("The permission cannot be empty");
+        if(value.isBlank())
+            throw new IllegalArgumentException("The permission cannot be empty");
     
         this.value = value;
     }

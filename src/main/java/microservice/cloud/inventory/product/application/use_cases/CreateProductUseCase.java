@@ -8,6 +8,7 @@ import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinit
 import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
 import microservice.cloud.inventory.shared.application.ports.out.EventPublishedPort;
+import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
@@ -36,6 +37,7 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
     }
     
     public void execute(
+        Id id,
         String title, 
         Slug slug, 
         String description,
@@ -54,6 +56,7 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
 
         Product newProduct = Product.factory(
             getMePort.execute(),
+            id,
             title, 
             slug, 
             description, 

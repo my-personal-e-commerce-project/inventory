@@ -28,8 +28,14 @@ public class CreateCategoryUseCase implements CreateCategoryUseCasePort {
     }
 
     @Override
-    public void execute(String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
-        Category category = Category.factory(getMePort.execute(), name, slug, parent_id, categoryAttributes);
+    public void execute(
+        Id id,
+        String name, 
+        Slug slug, 
+        Id parent_id, 
+        List<CategoryAttribute> categoryAttributes
+    ) {
+        Category category = Category.factory(getMePort.execute(), id, name, slug, parent_id, categoryAttributes);
 
         categoryRepository.save(category);
         

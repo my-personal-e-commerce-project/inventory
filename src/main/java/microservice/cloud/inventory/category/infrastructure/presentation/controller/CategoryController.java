@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
+import microservice.cloud.inventory.category.application.dtos.CategoryReadDTO;
 import microservice.cloud.inventory.category.application.ports.in.CreateCategoryAttributeUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.CreateCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryAttributeUseCasePort;
@@ -50,21 +51,16 @@ public class CategoryController {
     private final DeleteCategoryAttributeUseCasePort deleteCategoryAttributeUseCasePort; 
 
     @GetMapping
-    public ResponseEntity<ResponsePayload<Pagination<CategoryDTO>>> getAttributes(
+    public ResponseEntity<ResponsePayload<Pagination<CategoryReadDTO>>> getAttributes(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
-        Pagination<Category> categories = listCategoryUseCasePort.execute(0, 10);
-        Pagination<CategoryDTO> categoriesDTO = new Pagination<>(
-            categories.getResults().stream().map(this::toMap).toList(),
-            categories.getLast_page(),
-            categories.getCurrent_page()
-        );
-
+        Pagination<CategoryReadDTO> categories = listCategoryUseCasePort.execute(0, 10);
+        
         return new ResponseEntity<>(
-            ResponsePayload.<Pagination<CategoryDTO>>builder()
+            ResponsePayload.<Pagination<CategoryReadDTO>>builder()
                 .message("Attributes retrieved successfully")
-                .payload(categoriesDTO)
+                .payload(categories)
                 .build(),
                 HttpStatus.OK
         );
@@ -74,9 +70,11 @@ public class CategoryController {
     public ResponseEntity<ResponsePayload<CategoryDTO>> createCategory(
         @Valid @RequestBody CategoryDTO category
     ) {
+        category.setId(Id.generate().value());
         Slug slug = new Slug(category.getSlug());
 
         createCategoryUseCasePort.execute(
+            new Id(category.getId()),
             category.getName(),
             slug,
             category.getParent_id() == null? null: new Id(category.getParent_id()),

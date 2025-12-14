@@ -45,13 +45,13 @@ public class Category extends AggregateRoot {
                );
     }
 
-    public static Category factory(Me me, String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
+    public static Category factory(Me me, Id id, String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
         if(me == null)
             throw new RuntimeException("You must be authenticated to do this action");
 
         me.IHavePermission(Permission.createCategory());
 
-        Category category = new Category(Id.generate(), name, slug, parent_id, categoryAttributes);
+        Category category = new Category(id, name, slug, parent_id, categoryAttributes);
 
         category.dispatch(
             new CategoryCreatedEvent(

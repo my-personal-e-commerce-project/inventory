@@ -74,6 +74,7 @@ public class ProductController {
         );
 
         createProductUseCasePort.execute(
+            new Id(productDTO.getId()),
             productDTO.getTitle(),
             new Slug(productDTO.getSlug()),
             productDTO.getDescription(),

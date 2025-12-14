@@ -1,5 +1,6 @@
 package microservice.cloud.inventory.product.domain.entity;
 
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,6 +67,7 @@ public class Product extends AggregateRoot{
 
     public static Product factory(
             Me me,
+            Id id,
             String title,
             Slug slug,
             String description,
@@ -80,8 +82,6 @@ public class Product extends AggregateRoot{
             throw new RuntimeException("You must be authenticated to do this action");
 
         me.IHavePermission(Permission.createProduct());
-
-        Id id = Id.generate();
 
         Product product = new Product(
             id, 
@@ -105,7 +105,8 @@ public class Product extends AggregateRoot{
             price.value(),
             stock.value(),
             images,
-            attributeValues
+            attributeValues,
+            tags
         ));
 
         return product;
@@ -154,7 +155,8 @@ public class Product extends AggregateRoot{
                 price.value(), 
                 stock.value(), 
                 images, 
-                this.attributeValues()
+                this.attributeValues(),
+                tags
             )
         );
     }
@@ -208,7 +210,8 @@ public class Product extends AggregateRoot{
                 price.value(), 
                 stock.value(), 
                 images, 
-                this.attributeValues()
+                this.attributeValues(),
+                tags
             )
         );
     }
@@ -233,7 +236,8 @@ public class Product extends AggregateRoot{
                 price.value(), 
                 stock.value(), 
                 images, 
-                this.attributeValues()
+                this.attributeValues(),
+                tags
             )
         );
     }

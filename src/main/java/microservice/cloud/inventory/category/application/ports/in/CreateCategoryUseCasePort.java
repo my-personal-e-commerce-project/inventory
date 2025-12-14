@@ -8,5 +8,11 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public interface CreateCategoryUseCasePort {
 
-    public void execute(String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes);
+    public void execute(
+        Id id,
+        String name, 
+        Slug slug, 
+        Id parent_id, 
+        List<CategoryAttribute> categoryAttributes
+    );
 }

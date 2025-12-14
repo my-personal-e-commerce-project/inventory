@@ -77,7 +77,8 @@ public class ProductReadRepositoryJpaImpl implements ProductReadRepository {
             product.getStock(),
             product.getImages()
                 .stream().map(i -> i.getUrl())
-                .toList()
+                .toList(),
+            product.getTags().stream().map(t -> t.getName()).toList()
         );
     }
 }

@@ -33,4 +33,6 @@ public class ProductReadDTO {
     private int stock;
 
     private List<String> images;
+    
+    private List<String> tags;
 }

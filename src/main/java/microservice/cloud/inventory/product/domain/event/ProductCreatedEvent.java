@@ -16,6 +16,7 @@ public record ProductCreatedEvent(
         int stock,
         List<String> images,
         List<ProductAttributeValueEvent> attributes,
+        List<String> tags,
         Instant occurredOn
 ) implements DomainEvent {
 
@@ -38,7 +39,8 @@ public record ProductCreatedEvent(
         double price,
         int stock,
         List<String> images,
-        List<ProductAttributeValue> attributes
+        List<ProductAttributeValue> attributes,
+        List<String> tags
     ) {
         this(
             id,
@@ -58,6 +60,7 @@ public record ProductCreatedEvent(
                     a.boolean_value()
                 );
             }).toList(),
+            tags,
             Instant.now()
         );
     } 
