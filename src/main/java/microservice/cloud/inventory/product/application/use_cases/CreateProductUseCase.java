@@ -3,11 +3,10 @@ package microservice.cloud.inventory.product.application.use_cases;
 import java.util.ArrayList;
 import java.util.List;
 
-import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
-import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
+import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
+import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
-import microservice.cloud.inventory.shared.application.ports.out.EventPublishedPort;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 import microservice.cloud.inventory.product.domain.entity.Product;
@@ -19,24 +18,22 @@ import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 public class CreateProductUseCase implements CreateProductUseCasePort {
 
     private ProductRepository productRepository;
-    private AttributeDefinitionRepository attributeDefinitionRepository;
-    private EventPublishedPort eventPublishedPort;
+    private CategoryRepository categoryRepository;
     private GetMePort getMePort;
 
     public CreateProductUseCase(
         ProductRepository productRepository,
-        AttributeDefinitionRepository attributeDefinitionRepository,
-        EventPublishedPort eventPublishedPort,
+        CategoryRepository categoryRepository,
         GetMePort getMePort
     ) {
 
         this.getMePort = getMePort;
         this.productRepository = productRepository;
-        this.attributeDefinitionRepository = attributeDefinitionRepository;
-        this.eventPublishedPort = eventPublishedPort;
+        this.categoryRepository = categoryRepository;
     }
-    
-    public void execute(
+   
+    @Override
+    public Product execute(
         Id id,
         String title, 
         Slug slug, 
@@ -48,13 +45,13 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
         List<ProductAttributeValue> attributes,
         List<String> tags
     ) {
-        List<AttributeDefinition> attrs = 
-            attributeDefinitionRepository
-            .getByCategoryAttributeIds(
+        List<CategoryAttribute> attrs = 
+           categoryRepository 
+            .getCategoryAttributesByCategoryIds(
                 categories
             );
 
-        Product newProduct = Product.factory(
+        Product newProduct = Product.create(
             getMePort.execute(),
             id,
             title, 
@@ -72,6 +69,6 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
 
         productRepository.save(newProduct);
 
-        eventPublishedPort.publish(newProduct.events());
+        return newProduct;
     }
 }

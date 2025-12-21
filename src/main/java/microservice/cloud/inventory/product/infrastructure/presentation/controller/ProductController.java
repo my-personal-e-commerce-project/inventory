@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import microservice.cloud.inventory.category.infrastructure.dto.ResponsePayload;
+import microservice.cloud.inventory.shared.infrastructure.dto.ResponsePayload;
 import microservice.cloud.inventory.product.application.dtos.ProductReadDTO;
 import microservice.cloud.inventory.product.application.ports.in.AddProductAttributeUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
@@ -54,7 +54,7 @@ public class ProductController {
         Pagination<ProductReadDTO> products = listProductsUseCasePort.execute(page, size);
 
         return ResponseEntity.ok(
-            ResponsePayload.builder().payload(products).build()
+                products
         );
     }
     

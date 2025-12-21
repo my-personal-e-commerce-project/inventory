@@ -25,10 +25,8 @@ import microservice.cloud.inventory.category.application.ports.in.DeleteCategory
 import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.ListCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryUseCasePort;
-import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
-import microservice.cloud.inventory.category.infrastructure.dto.ResponsePayload;
-import microservice.cloud.inventory.category.infrastructure.presentation.validate.AttributeDefinitionDTO;
+import microservice.cloud.inventory.shared.infrastructure.dto.ResponsePayload;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryAttributeDTO;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryDTO;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.UpdateCategoryAttributeDTO;
@@ -51,18 +49,15 @@ public class CategoryController {
     private final DeleteCategoryAttributeUseCasePort deleteCategoryAttributeUseCasePort; 
 
     @GetMapping
-    public ResponseEntity<ResponsePayload<Pagination<CategoryReadDTO>>> getAttributes(
+    public ResponseEntity<?> getAttributes(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
         Pagination<CategoryReadDTO> categories = listCategoryUseCasePort.execute(0, 10);
         
         return new ResponseEntity<>(
-            ResponsePayload.<Pagination<CategoryReadDTO>>builder()
-                .message("Attributes retrieved successfully")
-                .payload(categories)
-                .build(),
-                HttpStatus.OK
+            categories,
+            HttpStatus.OK
         );
     }
 
@@ -198,36 +193,5 @@ public class CategoryController {
             categoryAttribute.getIs_filterable(),
             categoryAttribute.getIs_sortable() 
         );
-    }
-
-    private CategoryDTO toMap(Category category) {
-
-        List<CategoryAttributeDTO> categoryAttributesDTO = 
-            category.categoryAttributes() == null? null:
-            category.categoryAttributes().stream().<CategoryAttributeDTO>map(
-            categoryAttribute -> CategoryAttributeDTO.builder()
-                .id(categoryAttribute.id().value())
-                .attributeDefinition(
-                    AttributeDefinitionDTO.builder()
-                        .id(categoryAttribute.attribute_definition().id().value())
-                        .name(categoryAttribute.attribute_definition().name())
-                        .slug(categoryAttribute.attribute_definition().slug().value())
-                        .type(categoryAttribute.attribute_definition().type().toString())
-                        .is_global(false)
-                        .build()
-                )
-                .is_required(categoryAttribute.is_required())
-                .is_filterable(categoryAttribute.is_filterable())
-                .is_sortable(categoryAttribute.is_sortable())
-                .build()
-        ).toList();
-
-        return CategoryDTO.builder()
-            .id(category.id().value())
-            .name(category.name())
-            .slug(category.slug().value())
-            .parent_id(category.parent_id() == null ? null : category.parent_id().value())
-            .categoryAttributes(categoryAttributesDTO)
-            .build();
     }
 }

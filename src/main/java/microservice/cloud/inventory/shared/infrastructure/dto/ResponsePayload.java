@@ -1,4 +1,4 @@
-package microservice.cloud.inventory.category.infrastructure.dto;
+package microservice.cloud.inventory.shared.infrastructure.dto;
 
 import java.util.Map;
 

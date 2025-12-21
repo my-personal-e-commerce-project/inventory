@@ -9,14 +9,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PreRemove;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import microservice.cloud.inventory.product.infrastructure.entity.ProductEntity;
 
 @Setter
 @Getter
@@ -52,4 +55,14 @@ public class CategoryEntity {
     @Builder.Default
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CategoryEntity> children = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "categories")
+    private List<ProductEntity> products = new ArrayList<>();
+
+    @PreRemove
+    private void preRemove() {
+        for (ProductEntity product : products) {
+            product.getCategories().remove(this);
+        }
+    }
 }

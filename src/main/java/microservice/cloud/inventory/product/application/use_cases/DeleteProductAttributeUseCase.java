@@ -1,8 +1,12 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
+import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.product.application.ports.in.DeleteProductAttributeUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
-import microservice.cloud.inventory.shared.application.ports.out.EventPublishedPort;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
@@ -10,27 +14,34 @@ import microservice.cloud.inventory.shared.domain.value_objects.Id;
 public class DeleteProductAttributeUseCase implements DeleteProductAttributeUseCasePort {
 
     private ProductRepository productRepository;
-    private EventPublishedPort eventPublishedPort;
     private GetMePort getMePort;
+    private CategoryRepository categoryRepository;
 
     public DeleteProductAttributeUseCase(
         ProductRepository productRepository,
-        EventPublishedPort eventPublishedPort,
+        CategoryRepository categoryRepository,
         GetMePort getMePort
     ) {
         this.productRepository = productRepository;
-        this.eventPublishedPort = eventPublishedPort;
         this.getMePort = getMePort;
     }
 
     @Override
-    public void execute(Id productId, Id productAttributeId) {
+    public Product execute(Id productId, Id productAttributeId) {
         Product product = productRepository.findById(productId);
 
         product.removeAttribute(getMePort.execute(), productAttributeId);
 
-        productRepository.removeProductAttribute(productId, productAttributeId);
+        List<CategoryAttribute> attrs = 
+           categoryRepository 
+            .getCategoryAttributesByCategoryIds(
+                product.categories()
+            );
 
-        eventPublishedPort.publish(product.events());
+        product.validAttributes(new ArrayList<>(attrs));
+
+        productRepository.update(product);
+
+        return product;
     } 
 }

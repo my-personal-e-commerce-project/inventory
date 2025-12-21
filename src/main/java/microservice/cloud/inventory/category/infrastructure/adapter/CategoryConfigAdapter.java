@@ -16,6 +16,11 @@ import microservice.cloud.inventory.category.application.use_cases.DeleteCategor
 import microservice.cloud.inventory.category.application.use_cases.ListCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.UpdateCategoryUseCase;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
+import microservice.cloud.inventory.category.infrastructure.adapter.in.CreateCategoryAttributeUseCaseDispatchEventDecorator;
+import microservice.cloud.inventory.category.infrastructure.adapter.in.CreateCategoryUseCaseDispatchEventDecorator;
+import microservice.cloud.inventory.category.infrastructure.adapter.in.DeleteCategoryAttributeUseCaseDispatchEventDecorator;
+import microservice.cloud.inventory.category.infrastructure.adapter.in.DeleteCategoryUseCaseDispatchEventDecorator;
+import microservice.cloud.inventory.category.infrastructure.adapter.in.UpdateCategoryUseCaseDispatchEventDecorator;
 import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
 import microservice.cloud.inventory.shared.application.ports.out.EventPublishedPort;
 
@@ -32,50 +37,64 @@ public class CategoryConfigAdapter {
     @Bean
     public CreateCategoryUseCasePort createCategoryUseCasePort(
         CategoryRepository categoryRepository,
-        EventPublishedPort eventPublishedPort,
-        GetMePort getMePort
+        GetMePort getMePort,
+        EventPublishedPort eventPublishedPort
     ) {
-        return new CreateCategoryUseCase(categoryRepository, eventPublishedPort, getMePort);
+        return new CreateCategoryUseCaseDispatchEventDecorator(
+            new CreateCategoryUseCase(categoryRepository, getMePort),
+            eventPublishedPort
+        );
     }
 
     @Bean
     public DeleteCategoryUseCasePort deleteCategoryUseCasePort(
         CategoryRepository categoryRepository,
-        EventPublishedPort eventPublishedPort,
-        GetMePort getMePort
+        GetMePort getMePort,
+        EventPublishedPort eventPublishedPort
     ) {
-        return new DeleteCategoryUseCase(categoryRepository, eventPublishedPort, getMePort);
+        return new DeleteCategoryUseCaseDispatchEventDecorator(
+            new DeleteCategoryUseCase(categoryRepository, getMePort),
+            eventPublishedPort
+        );
     }
 
     @Bean
     public UpdateCategoryUseCasePort updateCategoryUseCasePort(
         CategoryRepository categoryRepository,
-        EventPublishedPort eventPublishedPort,
-        GetMePort getMePort
+        GetMePort getMePort,
+        EventPublishedPort eventPublishedPort
     ) {
-        return new UpdateCategoryUseCase(categoryRepository, eventPublishedPort, getMePort);
+        return new UpdateCategoryUseCaseDispatchEventDecorator(
+            eventPublishedPort,
+            new UpdateCategoryUseCase(categoryRepository, getMePort)
+        );
     }
 
     @Bean
     public CreateCategoryAttributeUseCasePort createCategoryAttributeUseCasePort(
         CategoryRepository categoryRepository,
-        EventPublishedPort eventPublishedPort,
-        GetMePort getMePort
+        GetMePort getMePort,
+        EventPublishedPort eventPublishedPort
     ) {
     
-        return new CreateCategoryAttributeUseCase(categoryRepository, eventPublishedPort, getMePort);
+        return new CreateCategoryAttributeUseCaseDispatchEventDecorator(
+            new CreateCategoryAttributeUseCase(categoryRepository, getMePort),
+            eventPublishedPort
+        );
     }
 
     @Bean
     public DeleteCategoryAttributeUseCasePort deleteCategoryAttributeUseCasePort(
         CategoryRepository categoryRepository,
-        EventPublishedPort eventPublishedPort,
-        GetMePort getMePort
+        GetMePort getMePort,
+        EventPublishedPort eventPublishedPort
     ) {
-        return new DeleteCategoryAttributeUseCase(
-            categoryRepository, 
-            eventPublishedPort,
-            getMePort
+        return new DeleteCategoryAttributeUseCaseDispatchEventDecorator(
+            new DeleteCategoryAttributeUseCase(
+                categoryRepository, 
+                getMePort
+            ),
+            eventPublishedPort
         );
     }
 }

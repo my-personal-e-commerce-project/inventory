@@ -1,15 +1,14 @@
 package microservice.cloud.inventory.product.domain.entity;
 
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
-import microservice.cloud.inventory.product.domain.event.ProductCreatedEvent;
-import microservice.cloud.inventory.product.domain.event.ProductDeletedEvent;
-import microservice.cloud.inventory.product.domain.event.ProductUpdatedEvent;
+import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.product.domain.exception.InvalidProductException;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
@@ -65,7 +64,7 @@ public class Product extends AggregateRoot{
         this.tags = tags;
     }
 
-    public static Product factory(
+    public static Product create(
             Me me,
             Id id,
             String title,
@@ -96,41 +95,33 @@ public class Product extends AggregateRoot{
             tags
         );
 
-        product.dispatch(new ProductCreatedEvent(
-            id.value(),
-            title,
-            slug.value(),
-            description,
-            categories,
-            price.value(),
-            stock.value(),
-            images,
-            attributeValues,
-            tags
-        ));
-
         return product;
     }
 
-    public void validAttributes(List<AttributeDefinition> attrs) {
-        Map<String, ProductAttributeValue> attributeDefinitionPerProductAttributeValue = new HashMap<>();
+    public void validAttributes(List<CategoryAttribute> attrs) {
 
-        this.attributeValues().stream().forEach(attr -> {
-            attributeDefinitionPerProductAttributeValue.put(attr.attribute_definition().value(), attr);
-        });
+        Map<String, ProductAttributeValue> productByDefinitionId =
+            attributeValues.values().stream()
+                .collect(Collectors.toMap(
+                    pav -> pav.attribute_definition().value(),
+                    Function.identity()
+                ));
 
-        attrs.stream().forEach(a -> {
-            ProductAttributeValue attr = attributeDefinitionPerProductAttributeValue
-                .get(a.id().value());
+        for (CategoryAttribute categoryAttr : attrs) {
 
-            if(attr == null)
-                throw new RuntimeException(
-                        "undeclared attribute for the definition attribute: " 
-                        + a.id().value()
-                    );
+            String defId = categoryAttr.attribute_definition().id().value();
+            ProductAttributeValue productAttr = productByDefinitionId.get(defId);
 
-            attr.validTypes(a);
-        });
+            if (categoryAttr.is_required() && productAttr == null) {
+                throw new IllegalStateException(
+                    "The product attribute is missing for: " + defId
+                );
+            }
+
+            if (productAttr != null) {
+                productAttr.validTypes(categoryAttr.attribute_definition());
+            }
+        }
     }
 
     public void addProductAttribute(Me me, ProductAttributeValue attr) {
@@ -145,20 +136,6 @@ public class Product extends AggregateRoot{
         });
 
         attributeValues.put(attr.id().value(), attr);
-
-        this.dispatch(new ProductUpdatedEvent(
-                id.value(), 
-                title, 
-                slug.value(), 
-                description, 
-                categories, 
-                price.value(), 
-                stock.value(), 
-                images, 
-                this.attributeValues(),
-                tags
-            )
-        );
     }
 
     public void update(
@@ -200,20 +177,7 @@ public class Product extends AggregateRoot{
         this.price = price;
         this.stock = stock;
         this.images = images;
-
-        this.dispatch(new ProductUpdatedEvent(
-                id.value(), 
-                title, 
-                slug.value(), 
-                description, 
-                categories, 
-                price.value(), 
-                stock.value(), 
-                images, 
-                this.attributeValues(),
-                tags
-            )
-        );
+        this.tags = tags;
     }
 
     public void removeAttribute(Me me, Id productAttributeId) {
@@ -226,20 +190,6 @@ public class Product extends AggregateRoot{
             throw new DataNotFound("Product attribute not found");
 
         attributeValues.remove(productAttributeId.value());
-
-        this.dispatch(new ProductUpdatedEvent(
-                id.value(), 
-                title, 
-                slug.value(), 
-                description, 
-                categories, 
-                price.value(), 
-                stock.value(), 
-                images, 
-                this.attributeValues(),
-                tags
-            )
-        );
     }
 
     public void delete(Me me) {
@@ -247,8 +197,6 @@ public class Product extends AggregateRoot{
             throw new RuntimeException("You must be authenticated to hacer this action");
 
         me.IHavePermission(Permission.deleteProduct());
-        
-        this.dispatch(new ProductDeletedEvent(id.value()));
     }
 
     public Id id() {

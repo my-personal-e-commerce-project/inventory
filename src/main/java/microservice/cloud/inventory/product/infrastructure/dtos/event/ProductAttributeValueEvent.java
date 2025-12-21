@@ -1,4 +1,4 @@
-package microservice.cloud.inventory.product.domain.event;
+package microservice.cloud.inventory.product.infrastructure.dtos.event;
 
 public record ProductAttributeValueEvent (
     String attribute_definition,

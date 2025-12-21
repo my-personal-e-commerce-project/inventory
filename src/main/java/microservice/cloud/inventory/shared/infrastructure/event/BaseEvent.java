@@ -1,8 +1,8 @@
-package microservice.cloud.inventory.shared.domain.event;
+package microservice.cloud.inventory.shared.infrastructure.event;
 
 import java.time.Instant;
 
-public interface DomainEvent {
+public interface BaseEvent {
     String eventName();
     String aggregateId();
     Instant occurredOn();

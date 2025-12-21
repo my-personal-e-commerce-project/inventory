@@ -1,6 +1,9 @@
 package microservice.cloud.inventory.category.infrastructure.repository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +15,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
-import microservice.cloud.inventory.attribute.infrastructure.entity.AttributeDefinitionEntity;
+import microservice.cloud.inventory.attribute.infrastructure.persistence.model.AttributeDefinitionEntity;
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
@@ -28,19 +31,46 @@ public class CategoryRepositoryJpaImpl implements CategoryRepository {
     private final EntityManager entityManager;
 
     @Override
-    public List<Category> findByIds(List<Id> ids) {
-        // TODO Auto-generated method stub
-        return null;
+    public Category findById(Id id) {
+        CategoryEntity entity = entityManager
+            .find(CategoryEntity.class, id.value());
+
+        if(entity == null)
+            throw new EntityNotFoundException("Category not found");
+
+        return toMap(entity);
     }
 
     @Override
-    public Category findById(Id id) {
-        CategoryEntity category = entityManager.find(CategoryEntity.class, id.value());
+    public List<CategoryAttribute> getCategoryAttributesByCategoryIds(List<String> categoriesIds) {
+        List<CategoryEntity> categories = entityManager.createQuery(
+                "SELECT a FROM CategoryEntity a WHERE a.id IN :ids", CategoryEntity.class
+            )
+            .setParameter("ids", categoriesIds)
+            .getResultList();
 
-        if(category == null)
-            throw new EntityNotFoundException("Category not found");
+        if (categories.size() != categories.size()) {
+            Set<String> foundIds = categories.stream()
+                .map(CategoryEntity::getId)
+                .collect(Collectors.toSet());
+            categoriesIds.removeAll(foundIds);
+            throw new EntityNotFoundException("Categories not found: " + categoriesIds);
+        }
 
-        return toMap(category);
+        List<CategoryAttributeEntity> results = new ArrayList<>();
+
+        categories
+            .stream()
+            .forEach((c)->{
+                results.addAll(
+                    c.getCategoryAttributes()
+                );
+            });
+
+        return results
+            .stream()
+            .map(a->toMap(a))
+            .toList();
     }
 
     @Transactional
@@ -147,9 +177,11 @@ public class CategoryRepositoryJpaImpl implements CategoryRepository {
         entityManager.merge(entity);
     }
 
+    @Transactional
     @Override
     public void delete(Category category) {
-        entityManager.remove(category.id().value());
+        CategoryEntity entity = entityManager.find(CategoryEntity.class, category.id().value());
+        entityManager.remove(entity);
     }
 
     private boolean existBySlug(String slug) {
@@ -180,25 +212,26 @@ public class CategoryRepositoryJpaImpl implements CategoryRepository {
         }
     }
 
+    private CategoryAttribute toMap(CategoryAttributeEntity attr) {
+        return new CategoryAttribute(
+            new Id(attr.getId()), 
+            new AttributeDefinition(
+                new Id(attr.getAttribute_definition().getId()), 
+                attr.getAttribute_definition().getName(), 
+                new Slug(attr.getAttribute_definition().getSlug()), 
+                DataType.valueOf(attr.getAttribute_definition().getType()), 
+                false
+            ),
+            attr.getIs_required(), 
+            attr.getIs_filterable(), 
+            attr.getIs_sortable()
+        );
+    }
+
     private Category toMap(CategoryEntity category) {
         List<CategoryAttribute> attrs = category.getCategoryAttributes()
             .stream()
-            .map(attr -> {
-
-                return new CategoryAttribute(
-                    new Id(attr.getId()), 
-                    new AttributeDefinition(
-                        new Id(attr.getAttribute_definition().getId()), 
-                        attr.getAttribute_definition().getName(), 
-                        new Slug(attr.getAttribute_definition().getSlug()), 
-                        DataType.valueOf(attr.getAttribute_definition().getType()), 
-                        false
-                    ),
-                    attr.getIs_required(), 
-                    attr.getIs_filterable(), 
-                    attr.getIs_sortable()
-                );
-            })
+            .map(attr -> toMap(attr))
             .toList();
 
         return new Category(

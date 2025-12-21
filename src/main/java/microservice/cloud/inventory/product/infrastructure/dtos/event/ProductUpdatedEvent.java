@@ -1,10 +1,10 @@
-package microservice.cloud.inventory.product.domain.event;
+package microservice.cloud.inventory.product.infrastructure.dtos.event;
 
 import java.time.Instant;
 import java.util.List;
 
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
-import microservice.cloud.inventory.shared.domain.event.DomainEvent;
+import microservice.cloud.inventory.shared.infrastructure.event.BaseEvent;
 
 public record ProductUpdatedEvent(
         String id,
@@ -18,7 +18,7 @@ public record ProductUpdatedEvent(
         List<ProductAttributeValueEvent> attributes,
         List<String> tags,
         Instant occurredOn
-) implements DomainEvent {
+) implements BaseEvent {
 
     @Override
     public String aggregateId() {

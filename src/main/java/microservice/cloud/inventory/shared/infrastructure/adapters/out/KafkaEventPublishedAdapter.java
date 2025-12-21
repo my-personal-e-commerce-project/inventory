@@ -6,7 +6,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import microservice.cloud.inventory.shared.application.ports.out.EventPublishedPort;
-import microservice.cloud.inventory.shared.domain.event.DomainEvent;
+import microservice.cloud.inventory.shared.infrastructure.event.BaseEvent;
 
 @Component
 public class KafkaEventPublishedAdapter implements EventPublishedPort {
@@ -18,7 +18,7 @@ public class KafkaEventPublishedAdapter implements EventPublishedPort {
     }
 
     @Override
-    public void publish(List<DomainEvent> events) {
+    public void publish(List<BaseEvent> events) {
         events.stream().forEach(e -> {
             kafkaTemplate.send(e.eventName(), e.aggregateId(), e);
         });

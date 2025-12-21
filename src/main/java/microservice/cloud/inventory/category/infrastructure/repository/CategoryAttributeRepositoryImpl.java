@@ -4,7 +4,7 @@ import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import microservice.cloud.inventory.attribute.infrastructure.entity.AttributeDefinitionEntity;
+import microservice.cloud.inventory.attribute.infrastructure.persistence.model.AttributeDefinitionEntity;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryAttributeRepository;
 import microservice.cloud.inventory.category.infrastructure.entity.CategoryAttributeEntity;

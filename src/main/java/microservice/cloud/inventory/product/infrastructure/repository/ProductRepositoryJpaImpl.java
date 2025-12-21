@@ -15,7 +15,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import microservice.cloud.inventory.attribute.infrastructure.entity.AttributeDefinitionEntity;
+import microservice.cloud.inventory.attribute.infrastructure.persistence.model.AttributeDefinitionEntity;
 import microservice.cloud.inventory.category.infrastructure.entity.CategoryEntity;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
@@ -55,6 +55,23 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
         if (entity == null)
             throw new EntityNotFoundException("Product not found");
 
+        entity.getTags().clear();
+
+        List<TagEntity> tags = product.images() == null
+            ? Collections.emptyList()
+            : product.tags()
+            .stream()
+            .map((item) -> {
+                return TagEntity.builder()
+                    .id(UUID.randomUUID().toString())
+                    .product(entity)
+                    .name(item)
+                    .build();
+            })
+        .toList();
+
+        entity.getTags().addAll(tags);
+
         entity.getImages().clear();
 
         List<ImageEntity> images = product.images() == null
@@ -84,39 +101,8 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
         entityManager.flush();
 
         entity.getAttributeValues().addAll(listAttributeEntities(product, entity));
-    }
 
-    @Override
-    @Transactional
-    public void addProductAttribute(Id productId, ProductAttributeValue attr) {
-        ProductEntity product = entityManager.find(
-                ProductEntity.class, 
-                productId.value()
-                );
-
-        AttributeDefinitionEntity definition = entityManager.find(
-                AttributeDefinitionEntity.class, 
-                attr.attribute_definition().value()
-                );
-
-        if(product == null)
-            throw new EntityNotFoundException("Product not found");
-
-        if(definition == null)
-            throw new EntityNotFoundException("Attribute definition not found");
-
-        product.getAttributeValues().add(
-                ProductAttributeValueEntity.builder()
-                .id(attr.id().value())
-                .product(product)
-                .attribute_definition(definition)
-                .string_value(attr.string_value())
-                .integer_value(attr.integer_value())
-                .double_value(attr.double_value())
-                .build()
-            );
-
-        entityManager.merge(product);
+        entityManager.merge(entity);
     }
 
     @Override
@@ -140,22 +126,6 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
             throw new EntityNotFoundException("Product not found");
 
         entityManager.remove(productDB);
-    }
-
-    @Transactional
-    @Override
-    public void removeProductAttribute(Id productId, Id productAttributeId) {
-        ProductEntity product = entityManager.find(ProductEntity.class, productId.value());
-
-        ProductAttributeValueEntity toRemove = product.getAttributeValues()
-            .stream()
-            .filter(attr -> attr.getId().equals(productAttributeId.value()))
-            .findFirst()
-            .orElseThrow(() -> new EntityNotFoundException("Product attribute not found"));
-
-        product.getAttributeValues().remove(toRemove);
-
-        entityManager.flush();
     }
 
     private Product toModel(ProductEntity entity) {

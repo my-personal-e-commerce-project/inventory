@@ -1,4 +1,4 @@
-package microservice.cloud.inventory.attribute.infrastructure.entity;
+package microservice.cloud.inventory.attribute.infrastructure.persistence.model;
 
 import java.util.List;
 

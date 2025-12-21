@@ -12,7 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import microservice.cloud.inventory.attribute.infrastructure.entity.AttributeDefinitionEntity;
+import microservice.cloud.inventory.attribute.infrastructure.persistence.model.AttributeDefinitionEntity;
 
 @Entity
 @Table(name = "product_attribute_values")

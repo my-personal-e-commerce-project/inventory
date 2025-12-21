@@ -1,13 +1,13 @@
-package microservice.cloud.inventory.category.domain.event;
+package microservice.cloud.inventory.category.infrastructure.dto.event;
 
 import java.time.Instant;
 
-import microservice.cloud.inventory.shared.domain.event.DomainEvent;
+import microservice.cloud.inventory.shared.infrastructure.event.BaseEvent;
 
 public record CategoryDeletedEvent(
     String id,
     Instant occurredOn
-) implements DomainEvent {
+) implements BaseEvent {
 
     @Override
     public String aggregateId() {

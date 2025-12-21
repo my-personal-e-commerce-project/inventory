@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import microservice.cloud.inventory.category.domain.event.CategoryCreatedEvent;
-import microservice.cloud.inventory.category.domain.event.CategoryDeletedEvent;
-import microservice.cloud.inventory.category.domain.event.CategoryUpdatedEvent;
 import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
@@ -45,23 +42,13 @@ public class Category extends AggregateRoot {
                );
     }
 
-    public static Category factory(Me me, Id id, String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
+    public static Category create(Me me, Id id, String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
         if(me == null)
             throw new RuntimeException("You must be authenticated to do this action");
 
         me.IHavePermission(Permission.createCategory());
 
         Category category = new Category(id, name, slug, parent_id, categoryAttributes);
-
-        category.dispatch(
-            new CategoryCreatedEvent(
-                category.id.value(), 
-                name, 
-                slug.value(), 
-                parent_id == null? null: parent_id.value(), 
-                categoryAttributes
-            )
-        );
 
         return category;
     }
@@ -73,7 +60,7 @@ public class Category extends AggregateRoot {
         if(me == null)
             throw new RuntimeException("You must be authenticated to do this action");
 
-        me.IHavePermission(Permission.updateProduct());
+        me.IHavePermission(Permission.updateCategory());
 
         if(attr.attribute_definition().is_global() == true)
             throw new 
@@ -82,23 +69,13 @@ public class Category extends AggregateRoot {
                 );
         
         this.categoryAttributes.put(attr.id().value(), attr);
-
-        this.dispatch(
-            new CategoryUpdatedEvent(
-                id.value(), 
-                name, 
-                slug.value(), 
-                parent_id.value(),
-                categoryAttributes()
-            )
-        );
     }
 
     public void update(Me me, String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
         if(me == null)
             throw new RuntimeException("You must be authenticated to do this action");
 
-        me.IHavePermission(Permission.updateProduct());
+        me.IHavePermission(Permission.updateCategory());
 
         categoryAttributes().stream().forEach(attr -> {
             if(this.categoryAttributes.get(attr.id().value())==null)
@@ -121,23 +98,13 @@ public class Category extends AggregateRoot {
         this.name = name;
         this.slug = slug;
         this.parent_id = parent_id;
-
-        this.dispatch(
-            new CategoryUpdatedEvent(
-                id.value(), 
-                name, 
-                slug.value(), 
-                parent_id.value(),
-                categoryAttributes()
-            )
-        );
     }
 
     public void removeCategoryAttribute(Me me, Id id) {
         if(me == null)
             throw new RuntimeException("You must be authenticated to do this action");
 
-        me.IHavePermission(Permission.updateProduct());
+        me.IHavePermission(Permission.updateCategory());
 
         if(id == null)
             throw new RuntimeException("Id can not be null");
@@ -152,29 +119,13 @@ public class Category extends AggregateRoot {
         this.categoryAttributes.remove(
             id.value()
         );
-
-        this.dispatch(
-            new CategoryUpdatedEvent(
-                id.value(), 
-                name, 
-                slug.value(), 
-                parent_id.value(),
-                categoryAttributes()
-            )
-        );
     }
    
     public void delete(Me me) {
         if(me == null)
             throw new RuntimeException("You must be authenticated to do this action");
 
-        me.IHavePermission(Permission.updateProduct());
-
-        this.dispatch(
-            new CategoryDeletedEvent(
-                id.value()
-            )
-        );
+        me.IHavePermission(Permission.deleteCategory());
     }
 
     public Id id() {
