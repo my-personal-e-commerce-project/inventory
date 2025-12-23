@@ -21,6 +21,7 @@ import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.category.infrastructure.entity.CategoryAttributeEntity;
 import microservice.cloud.inventory.category.infrastructure.entity.CategoryEntity;
+import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
@@ -36,7 +37,7 @@ public class CategoryRepositoryJpaImpl implements CategoryRepository {
             .find(CategoryEntity.class, id.value());
 
         if(entity == null)
-            throw new EntityNotFoundException("Category not found");
+            throw new DataNotFound("Category not found");
 
         return toMap(entity);
     }
@@ -54,7 +55,7 @@ public class CategoryRepositoryJpaImpl implements CategoryRepository {
                 .map(CategoryEntity::getId)
                 .collect(Collectors.toSet());
             categoriesIds.removeAll(foundIds);
-            throw new EntityNotFoundException("Categories not found: " + categoriesIds);
+            throw new DataNotFound("Categories not found: " + categoriesIds);
         }
 
         List<CategoryAttributeEntity> results = new ArrayList<>();
@@ -128,7 +129,7 @@ public class CategoryRepositoryJpaImpl implements CategoryRepository {
         );
 
         if(entity == null) {
-            throw new EntityNotFoundException("Category not found");
+            throw new DataNotFound("Category not found");
         }
 
         entity.setName(category.name());

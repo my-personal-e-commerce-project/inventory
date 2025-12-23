@@ -8,19 +8,15 @@ import org.springframework.stereotype.Repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
-import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
-import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.category.application.dtos.AttributeDefinitionReadDTO;
 import microservice.cloud.inventory.category.application.dtos.CategoryAttributeReadDTO;
 import microservice.cloud.inventory.category.application.dtos.CategoryReadDTO;
 import microservice.cloud.inventory.category.application.ports.out.CategoryReadRepository;
-import microservice.cloud.inventory.category.domain.entity.Category;
-import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.infrastructure.entity.CategoryAttributeEntity;
 import microservice.cloud.inventory.category.infrastructure.entity.CategoryEntity;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
+import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
-import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 @Repository
 @RequiredArgsConstructor
@@ -62,7 +58,7 @@ public class CategoryReadRepositoryJpaImpl implements CategoryReadRepository {
     public CategoryReadDTO findById(Id id) {
         CategoryEntity entity = entityManager.find(CategoryEntity.class, id.value());
         if(entity == null)
-            throw new RuntimeException("Category not found");
+            throw new DataNotFound("Category not found");
 
         return toDomain(entity);
     }

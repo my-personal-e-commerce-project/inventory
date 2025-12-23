@@ -19,16 +19,6 @@ import microservice.cloud.inventory.shared.domain.exception.UnauthorizedExceptio
 @RestControllerAdvice
 public class ControllerAdvice {
 
-    @ExceptionHandler(DataNotFound.class)
-    public ResponseEntity<ResponsePayload<?>> handleDataNotFound(
-            DataNotFound ex) {
-        
-        return new ResponseEntity<ResponsePayload<?>>(
-            ResponsePayload.builder().message(ex.getMessage()).build(), 
-            HttpStatus.NOT_FOUND
-        );
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleValidationErrors(MethodArgumentNotValidException ex) {
@@ -69,7 +59,7 @@ public class ControllerAdvice {
         );
     }
 
-    @ExceptionHandler(JpaObjectRetrievalFailureException.class)
+    @ExceptionHandler(DataNotFound.class)
     public ResponseEntity<ResponsePayload<?>> handleEntityNotFoundException(
             JpaObjectRetrievalFailureException ex) {
 

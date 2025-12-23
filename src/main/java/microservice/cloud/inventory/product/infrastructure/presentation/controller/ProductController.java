@@ -85,7 +85,7 @@ public class ProductController {
             productDTO.getAttributes().stream().map(attr -> 
                 new ProductAttributeValue(
                     new Id(attr.getId()),
-                    new Id(attr.getAttribute_definition_id()),
+                    new Slug(attr.getAttribute_definition_slug()),
                     attr.getString_value(),
                     attr.getInteger_value(),
                     attr.getDouble_value(),
@@ -120,7 +120,7 @@ public class ProductController {
             productDTO.getAttributes().stream().map(attr -> 
                 new ProductAttributeValue(
                     new Id(attr.getId()),
-                    new Id(attr.getAttribute_definition_id()),
+                    new Slug(attr.getAttribute_definition_slug()),
                     attr.getString_value(),
                     attr.getInteger_value(),
                     attr.getDouble_value(),
@@ -152,7 +152,7 @@ public class ProductController {
         attr.setId(UUID.randomUUID().toString());
         ProductAttributeValue productAttributeValue = new ProductAttributeValue(
             new Id(attr.getId()),
-            new Id(attr.getAttribute_definition_id()),
+            new Slug(attr.getAttribute_definition_slug()),
             attr.getString_value(),
             attr.getInteger_value(),
             attr.getDouble_value(),

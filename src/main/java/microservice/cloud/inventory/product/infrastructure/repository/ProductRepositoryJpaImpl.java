@@ -26,6 +26,7 @@ import microservice.cloud.inventory.product.infrastructure.entity.ImageEntity;
 import microservice.cloud.inventory.product.infrastructure.entity.ProductAttributeValueEntity;
 import microservice.cloud.inventory.product.infrastructure.entity.ProductEntity;
 import microservice.cloud.inventory.product.infrastructure.entity.TagEntity;
+import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
@@ -41,7 +42,7 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
             .find(ProductEntity.class, id.value());
 
         if(product == null)
-            throw new EntityNotFoundException("Product not found");
+            throw new DataNotFound("Product not found");
 
         return toModel(product);
     }
@@ -53,7 +54,7 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
             .find(ProductEntity.class, product.id().value());
 
         if (entity == null)
-            throw new EntityNotFoundException("Product not found");
+            throw new DataNotFound("Product not found");
 
         entity.getTags().clear();
 
@@ -123,7 +124,7 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
             );
 
         if(productDB == null)
-            throw new EntityNotFoundException("Product not found");
+            throw new DataNotFound("Product not found");
 
         entityManager.remove(productDB);
     }
@@ -132,7 +133,7 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
         List<ProductAttributeValue> attrs = entity.getAttributeValues().stream().map(a -> {
             return new ProductAttributeValue(
                     new Id(a.getId()), 
-                    new Id(a.getAttribute_definition().getId()), 
+                    new Slug(a.getAttribute_definition().getSlug()), 
                     a.getString_value(), 
                     a.getInteger_value(), 
                     a.getDouble_value(), 
@@ -203,7 +204,7 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
 
         List<String> attributeDefinitionIds = product.attributeValues()
             .stream()
-            .map(av -> av.attribute_definition().value())
+            .map(av -> av.attribute_definition_slug().value())
             .toList();
 
         List<AttributeDefinitionEntity> definitions = entityManager.createQuery(
@@ -219,11 +220,11 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
             .attributeValues()
             .stream()
             .map((ProductAttributeValue item) -> {
-                AttributeDefinitionEntity definition = definitionMap.get(item.attribute_definition().value());
+                AttributeDefinitionEntity definition = definitionMap.get(item.attribute_definition_slug().value());
 
                 if(definition == null)
                     throw new EntityNotFoundException(
-                            "Attribute definition " + item.attribute_definition().value() + " not found"
+                            "Attribute definition " + item.attribute_definition_slug().value() + " not found"
                             );
 
                 return ProductAttributeValueEntity.builder()
@@ -275,6 +276,4 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
             return false;
         }
     }
-
-
 }

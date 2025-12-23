@@ -54,7 +54,7 @@ public class ProductReadRepositoryJpaImpl implements ProductReadRepository {
             attr -> {
                 return ProductAttributeValueReadDTO.builder()
                     .id(attr.getId())
-                    .attribute_definition_id(attr.getAttribute_definition().getId())
+                    .attribute_definition_slug(attr.getAttribute_definition().getSlug())
                     .string_value(attr.getString_value())
                     .boolean_value(attr.getBoolean_value())
                     .integer_value(attr.getInteger_value())

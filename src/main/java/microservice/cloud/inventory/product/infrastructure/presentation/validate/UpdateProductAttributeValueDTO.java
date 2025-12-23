@@ -18,10 +18,10 @@ public class UpdateProductAttributeValueDTO {
     @NotNull
     @NotEmpty
     private String id;
-
+   
     @NotNull
     @NotEmpty
-    private String attribute_definition_id;
+    private String attribute_definition_slug;
 
     private String string_value;
     private Integer integer_value;
