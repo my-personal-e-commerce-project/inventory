@@ -44,7 +44,7 @@ public class AddProductAttributeUseCase implements AddProductAttributeUseCasePor
         if(attributeDefinition == null)
             throw new DataNotFound(
                     "Attribute definition not found: " 
-                    + productAttributeValue.attribute_definition().value()
+                    + productAttributeValue.attribute_definition_slug().value()
                 );
 
         product.addProductAttribute(getMePort.execute(), productAttributeValue);

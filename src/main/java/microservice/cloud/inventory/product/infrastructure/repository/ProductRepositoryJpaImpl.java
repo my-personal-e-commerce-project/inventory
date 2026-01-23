@@ -146,7 +146,7 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
                 entity.getTitle(), 
                 new Slug(entity.getSlug()), 
                 entity.getDescription(), 
-                entity.getCategories().stream().map(c -> c.getId()).toList(), 
+                entity.getCategories().stream().map(c -> c.getSlug()).toList(), 
                 new Price(entity.getPrice()), 
                 attrs, 
                 new Quantity(entity.getStock()), 
@@ -208,13 +208,13 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
             .toList();
 
         List<AttributeDefinitionEntity> definitions = entityManager.createQuery(
-                "SELECT a FROM AttributeDefinitionEntity a WHERE a.id IN :ids", AttributeDefinitionEntity.class
+                "SELECT a FROM AttributeDefinitionEntity a WHERE a.slug IN :slugs", AttributeDefinitionEntity.class
                 )
-            .setParameter("ids", attributeDefinitionIds)
+            .setParameter("slugs", attributeDefinitionIds)
             .getResultList();
 
         Map<String, AttributeDefinitionEntity> definitionMap = definitions.stream()
-            .collect(Collectors.toMap(AttributeDefinitionEntity::getId, Function.identity()));
+            .collect(Collectors.toMap(AttributeDefinitionEntity::getSlug, Function.identity()));
 
         List<ProductAttributeValueEntity> attributeValues = product
             .attributeValues()
@@ -239,25 +239,23 @@ public class ProductRepositoryJpaImpl implements ProductRepository {
         .toList();
 
         return attributeValues;
-
     }
 
     private List<CategoryEntity> listCategories(Product product) {
-
-        List<String> categoryIds = product.categories();
+        List<String> categorySlugs = product.categories();
 
         List<CategoryEntity> categories = entityManager.createQuery(
-                "SELECT c FROM CategoryEntity c WHERE c.id IN :ids", CategoryEntity.class
+                "SELECT c FROM CategoryEntity c WHERE c.slug IN :slugs", CategoryEntity.class
                 )
-            .setParameter("ids", categoryIds)
+            .setParameter("slugs", categorySlugs)
             .getResultList();
 
-        if (categories.size() != categoryIds.size()) {
+        if (categories.size() != categorySlugs.size()) {
             Set<String> foundIds = categories.stream()
                 .map(CategoryEntity::getId)
                 .collect(Collectors.toSet());
-            categoryIds.removeAll(foundIds);
-            throw new EntityNotFoundException("Categories not found: " + categoryIds);
+            categorySlugs.removeAll(foundIds);
+            throw new EntityNotFoundException("Category slugs not found: " + categorySlugs);
         }
 
         return categories;

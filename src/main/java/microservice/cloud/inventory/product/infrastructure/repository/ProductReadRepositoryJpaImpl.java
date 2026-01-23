@@ -70,7 +70,7 @@ public class ProductReadRepositoryJpaImpl implements ProductReadRepository {
             product.getDescription(),
             product.getCategories()
                 .stream()
-                .map(c -> c.getId())
+                .map(c -> c.getSlug())
                 .toList(),
             attrs,
             product.getPrice(),

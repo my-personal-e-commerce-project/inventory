@@ -42,9 +42,9 @@ public class Category extends AggregateRoot {
                );
     }
 
-    public static Category create(Me me, Id id, String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
+    public static Category factory(Me me, Id id, String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
         if(me == null)
-            throw new RuntimeException("You must be authenticated to do this action");
+            throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.createCategory());
 
@@ -58,7 +58,7 @@ public class Category extends AggregateRoot {
         CategoryAttribute attr
     ) {
         if(me == null)
-            throw new RuntimeException("You must be authenticated to do this action");
+            throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.updateCategory());
 
@@ -67,13 +67,20 @@ public class Category extends AggregateRoot {
                 RuntimeException(
                     "The definition of the attribute cannot be global"
                 );
-        
+       
+        if (!attr.attribute_definition().slug().value().startsWith(this.slug().value()+"-"))
+            throw new RuntimeException(String.format(
+                "Invalid attribute namespace: The attribute slug '%s' must be prefixed with the category slug '%s:'",
+                attr.attribute_definition().slug().value(),
+                this.slug().value()
+            ));
+
         this.categoryAttributes.put(attr.id().value(), attr);
     }
 
     public void update(Me me, String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
         if(me == null)
-            throw new RuntimeException("You must be authenticated to do this action");
+            throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.updateCategory());
 
@@ -102,7 +109,7 @@ public class Category extends AggregateRoot {
 
     public void removeCategoryAttribute(Me me, Id id) {
         if(me == null)
-            throw new RuntimeException("You must be authenticated to do this action");
+            throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.updateCategory());
 
@@ -121,9 +128,9 @@ public class Category extends AggregateRoot {
         );
     }
    
-    public void delete(Me me) {
+    public void canIDeleteThisCategory(Me me) {
         if(me == null)
-            throw new RuntimeException("You must be authenticated to do this action");
+            throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.deleteCategory());
     }

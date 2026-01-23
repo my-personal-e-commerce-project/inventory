@@ -56,7 +56,8 @@ public class CategoryEntity {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CategoryEntity> children = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "categories")
+    @Builder.Default
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
     private List<ProductEntity> products = new ArrayList<>();
 
     @PreRemove

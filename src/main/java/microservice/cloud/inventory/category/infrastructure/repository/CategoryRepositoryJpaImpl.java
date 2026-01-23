@@ -21,6 +21,7 @@ import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.category.infrastructure.entity.CategoryAttributeEntity;
 import microservice.cloud.inventory.category.infrastructure.entity.CategoryEntity;
+import microservice.cloud.inventory.product.infrastructure.entity.ProductEntity;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
@@ -182,6 +183,14 @@ public class CategoryRepositoryJpaImpl implements CategoryRepository {
     @Override
     public void delete(Category category) {
         CategoryEntity entity = entityManager.find(CategoryEntity.class, category.id().value());
+
+        for (ProductEntity product : entity.getProducts()) {
+            product.getCategories().remove(entity);
+
+            if (product.getCategories().isEmpty()) {
+                entityManager.remove(product);
+            }
+        }
         entityManager.remove(entity);
     }
 

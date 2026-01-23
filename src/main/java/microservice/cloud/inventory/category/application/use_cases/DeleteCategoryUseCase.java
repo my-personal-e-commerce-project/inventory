@@ -23,7 +23,7 @@ public class DeleteCategoryUseCase implements DeleteCategoryUseCasePort {
     public void execute(Id id) {
         Category category = categoryRepository.findById(id);
 
-        category.delete(getMePort.execute());
+        category.canIDeleteThisCategory(getMePort.execute());
 
         categoryRepository.delete(category);
     }

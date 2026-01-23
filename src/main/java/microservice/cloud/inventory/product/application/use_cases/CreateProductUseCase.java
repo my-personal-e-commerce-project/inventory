@@ -51,7 +51,7 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
                 categories
             );
 
-        Product newProduct = Product.create(
+        Product newProduct = Product.factory(
             getMePort.execute(),
             id,
             title, 

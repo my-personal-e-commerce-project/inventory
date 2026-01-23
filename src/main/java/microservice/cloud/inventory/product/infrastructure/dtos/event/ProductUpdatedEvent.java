@@ -54,7 +54,6 @@ public record ProductUpdatedEvent(
             images,
             attributes.stream().map(a -> {
                 return new ProductAttributeValueEvent(
-                    a.attribute_definition().value(),
                     a.attribute_definition_slug().value(),
                     a.string_value(), 
                     a.integer_value(), 

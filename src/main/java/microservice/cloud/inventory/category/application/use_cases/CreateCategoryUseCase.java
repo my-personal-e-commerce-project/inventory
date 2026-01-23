@@ -31,7 +31,7 @@ public class CreateCategoryUseCase implements CreateCategoryUseCasePort {
         Id parent_id, 
         List<CategoryAttribute> categoryAttributes
     ) {
-        Category category = Category.create(getMePort.execute(), id, name, slug, parent_id, categoryAttributes);
+        Category category = Category.factory(getMePort.execute(), id, name, slug, parent_id, categoryAttributes);
 
         categoryRepository.save(category);
         

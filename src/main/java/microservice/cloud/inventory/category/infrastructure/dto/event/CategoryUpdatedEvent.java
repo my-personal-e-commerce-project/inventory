@@ -40,6 +40,7 @@ public record CategoryUpdatedEvent(
                 attributes
                 .stream()
                 .map((a) -> new CategoryAttributeEvent(
+                        a.id().value(),
                         new AttributeDefinitionEvent(
                             a.attribute_definition().id().value(),
                             a.attribute_definition().name(),

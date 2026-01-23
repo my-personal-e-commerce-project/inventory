@@ -31,7 +31,11 @@ public class AttributeDefinitionEntity {
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private String id;
     private String name;
+
+    @Column(name = "slug", unique = false, nullable = false)
     private String slug;
+   
+    @Column(name = "type", nullable = false)
     private String type;
 
     @Builder.Default

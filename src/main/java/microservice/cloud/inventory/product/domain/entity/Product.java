@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -25,7 +24,7 @@ public class Product extends AggregateRoot{
     private Slug slug;
     private String description;
     private List<String> tags;
-    private List<String> categories;
+    private List<String> categorySlugs;
     private Price price;
     private Quantity stock;
     private List<String> images;
@@ -56,7 +55,7 @@ public class Product extends AggregateRoot{
         this.title = title;
         this.slug = slug;
         this.description = description;
-        this.categories = categories;
+        this.categorySlugs = categories;
         attributeValues.stream().forEach(attr -> this.attributeValues.put(attr.id().value(), attr));
         this.price = price;
         this.stock = stock;
@@ -64,7 +63,7 @@ public class Product extends AggregateRoot{
         this.tags = tags;
     }
 
-    public static Product create(
+    public static Product factory(
             Me me,
             Id id,
             String title,
@@ -78,7 +77,7 @@ public class Product extends AggregateRoot{
             List<String> tags
     ) {
         if(me == null)
-            throw new RuntimeException("You must be authenticated to do this action");
+            throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.createProduct());
 
@@ -103,18 +102,18 @@ public class Product extends AggregateRoot{
         Map<String, ProductAttributeValue> productByDefinitionId =
             attributeValues.values().stream()
                 .collect(Collectors.toMap(
-                    pav -> pav.attribute_definition().value(),
+                    pav -> pav.attribute_definition_slug().value(),
                     Function.identity()
                 ));
 
         for (CategoryAttribute categoryAttr : attrs) {
 
-            String defId = categoryAttr.attribute_definition().id().value();
-            ProductAttributeValue productAttr = productByDefinitionId.get(defId);
+            String defSlug = categoryAttr.attribute_definition().slug().value();
+            ProductAttributeValue productAttr = productByDefinitionId.get(defSlug);
 
             if (categoryAttr.is_required() && productAttr == null) {
                 throw new IllegalStateException(
-                    "The product attribute is missing for: " + defId
+                    "The product attribute is missing for: " + defSlug
                 );
             }
 
@@ -126,12 +125,12 @@ public class Product extends AggregateRoot{
 
     public void addProductAttribute(Me me, ProductAttributeValue attr) {
         if(me == null)
-            throw new RuntimeException("You must be authenticated to hacer this action");
+            throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.updateProduct());
 
         attributeValues.values().stream().forEach(a -> {
-            if(a.attribute_definition().equals(attr.attribute_definition()))
+            if(a.attribute_definition_slug().equals(attr.attribute_definition_slug()))
                 throw new RuntimeException("An attribute with the same attribute definition already exists.");
         });
 
@@ -151,7 +150,7 @@ public class Product extends AggregateRoot{
         List<String> tags
     ) { 
         if(me == null)
-            throw new RuntimeException("You must be authenticated to hacer this action");
+            throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.updateProduct());
         
@@ -173,7 +172,7 @@ public class Product extends AggregateRoot{
         this.title = title;
         this.description = description;
         this.slug = slug;
-        this.categories = categories;
+        this.categorySlugs = categories;
         this.price = price;
         this.stock = stock;
         this.images = images;
@@ -182,7 +181,7 @@ public class Product extends AggregateRoot{
 
     public void removeAttribute(Me me, Id productAttributeId) {
         if(me == null)
-            throw new RuntimeException("You must be authenticated to hacer this action");
+            throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.updateProduct());
 
@@ -192,7 +191,7 @@ public class Product extends AggregateRoot{
         attributeValues.remove(productAttributeId.value());
     }
 
-    public void delete(Me me) {
+    public void canIDeleteThisProduct(Me me) {
         if(me == null)
             throw new RuntimeException("You must be authenticated to hacer this action");
 
@@ -216,7 +215,7 @@ public class Product extends AggregateRoot{
     }
 
     public List<String> categories() {
-        return List.copyOf(categories);
+        return List.copyOf(categorySlugs);
     }
 
     public Price price() {
