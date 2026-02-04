@@ -1,5 +1,56 @@
 services:
-    service:
+  postgres:
+    image: quay.io/debezium/example-postgres:2.4
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=inventory
+    networks:
+      - e-commerce-network
+  debezium:
+    image: quay.io/debezium/connect:2.4
+    container_name: debezium
+    ports:
+      - 8083:8083
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=inventory_configs
+      - OFFSET_STORAGE_TOPIC=inventory_offsets
+      - STATUS_STORAGE_TOPIC=inventory_statuses
+    depends_on:
+      - postgres
+    command: >
+      sh -c "
+      /docker-entrypoint.sh start & 
+      until curl -s http://localhost:8083/connectors > /dev/null; do 
+        sleep 5; 
+      done;
+      curl -i -X POST -H 'Accept:application/json' -H 'Content-Type:application/json' \
+      http://debezium:8083/connectors/ -d '{
+        \"name\": \"inventory-connector\",
+        \"config\": {
+          \"connector.class\": \"io.debezium.connector.postgresql.PostgresConnector\",
+          \"database.hostname\": \"postgres\",
+          \"database.port\": \"5432\",
+          \"database.user\": \"root\",
+          \"database.password\": \"root\",
+          \"database.dbname\": \"inventory\",
+          \"topic.prefix\": \"inventory\",
+          \"table.include.list\": \"public.attribute_definition\",
+          \"plugin.name\": \"pgoutput\",
+          \"transforms\": \"filterGlobal\",
+          \"transforms.filterGlobal.type\": \"io.debezium.transforms.Filter\",
+          \"transforms.filterGlobal.language\": \"jsr223\",
+          \"transforms.filterGlobal.condition\": \"(value.after != null && value.after.is_global == true) || (value.before != null && value.before.is_global == true)\"
+        }
+      }'"
+    networks:
+      - e-commerce-network
+  service:
         build:
           context: .
           dockerfile: Dockerfile.dev
@@ -8,27 +59,14 @@ services:
         environment:
           SERVER_PORT: 80
         networks:
-          - sail 
+          - e-commerce-network
         volumes:
           - ./src:/app/src
           - .env:/app/.env
           - ./pom.xml:/app/pom.xml
           - ./target:/app/target
-    pgsql:
-        image: 'postgres:17'
-        ports:
-            - "5432:5432"
-        environment:
-            PGPASSWORD: root
-            POSTGRES_DB: inventory
-            POSTGRES_USER: root
-            POSTGRES_PASSWORD: root
-        volumes:
-            - 'pgsql:/var/lib/postgresql/data'
-        networks:
-            - sail
 networks:
-    sail:
+    e-commerce-network:
         external: true
 volumes:
     pgsql:

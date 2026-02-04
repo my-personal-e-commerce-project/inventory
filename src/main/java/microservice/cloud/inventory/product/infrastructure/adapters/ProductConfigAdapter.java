@@ -4,11 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
-import microservice.cloud.inventory.product.infrastructure.adapters.in.AddProductAttributeUseCaseDispatchEventDecorator;
-import microservice.cloud.inventory.product.infrastructure.adapters.in.CreateProductUseCaseDispatchEventDecorator;
-import microservice.cloud.inventory.product.infrastructure.adapters.in.DeleteProductAttributeUseCasePortDispatchEventDecorator;
-import microservice.cloud.inventory.product.infrastructure.adapters.in.DeleteProductUseCaseDispatchEventDecorator;
-import microservice.cloud.inventory.product.infrastructure.adapters.in.UpdateProductUseCaseDispatchEventDecorator;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.product.application.ports.in.AddProductAttributeUseCasePort;
@@ -18,7 +13,6 @@ import microservice.cloud.inventory.product.application.ports.in.DeleteProductUs
 import microservice.cloud.inventory.product.application.ports.in.ListProductsUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
-import microservice.cloud.inventory.shared.application.ports.out.EventPublishedPort;
 import microservice.cloud.inventory.product.application.ports.put.ProductReadRepository;
 
 import microservice.cloud.inventory.product.application.use_cases.AddProductAttributeUseCase;
@@ -43,46 +37,34 @@ public class ProductConfigAdapter {
     public CreateProductUseCasePort createProductUseCasePort(
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
-        GetMePort getMePort,
-        EventPublishedPort eventPublishedPort
+        GetMePort getMePort
     ) {
-        return new CreateProductUseCaseDispatchEventDecorator( 
-                new CreateProductUseCase(
-                    productRepository,
-                    categoryRepository,
-                    getMePort
-                ),
-                eventPublishedPort
-            );
+        return new CreateProductUseCase(
+            productRepository,
+            categoryRepository,
+            getMePort
+        );
     }
 
     @Bean
     public UpdateProductUseCasePort updateProductUseCasePort(
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
-        GetMePort getMePort,
-        EventPublishedPort eventPublishedPort
+        GetMePort getMePort
     ) {
-        return new UpdateProductUseCaseDispatchEventDecorator( 
-                new UpdateProductUseCase(
-                    productRepository, 
-                    categoryRepository, 
-                    getMePort
-                ),
-                eventPublishedPort
-            );
+        return new UpdateProductUseCase(
+            productRepository, 
+            categoryRepository, 
+            getMePort
+        );
     }
 
     @Bean
     public DeleteProductUseCasePort deleteProductUseCasePort(
         ProductRepository productRepository,
-        GetMePort getMePort,
-        EventPublishedPort eventPublishedPort
+        GetMePort getMePort
     ) {
-        return new DeleteProductUseCaseDispatchEventDecorator (
-                new DeleteProductUseCase(productRepository, getMePort),
-                eventPublishedPort
-            );
+        return new DeleteProductUseCase(productRepository, getMePort);
     }
     
     @Bean
@@ -90,34 +72,26 @@ public class ProductConfigAdapter {
         ProductRepository productRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
         CategoryRepository categoryRepository,
-        EventPublishedPort eventPublishedPort,
         GetMePort getMePort
     ) {
-        return new AddProductAttributeUseCaseDispatchEventDecorator(
-                new AddProductAttributeUseCase(
-                    productRepository,
-                    attributeDefinitionRepository,
-                    categoryRepository, 
-                    getMePort
-                ),
-                eventPublishedPort
-            );
+        return new AddProductAttributeUseCase(
+            productRepository,
+            attributeDefinitionRepository,
+            categoryRepository, 
+            getMePort
+        );
     }
 
     @Bean
     public DeleteProductAttributeUseCasePort deleteProductAttributeUseCasePort(
         ProductRepository productRepository,
         GetMePort getMePort,
-        CategoryRepository categoryRepository,
-        EventPublishedPort eventPublishedPort
+        CategoryRepository categoryRepository
     ) {
-        return new DeleteProductAttributeUseCasePortDispatchEventDecorator(
-                new DeleteProductAttributeUseCase(
-                    productRepository,
-                    categoryRepository,
-                    getMePort
-                ), 
-                eventPublishedPort
-            );
+        return new DeleteProductAttributeUseCase(
+            productRepository,
+            categoryRepository,
+            getMePort
+        );
     }
 }
