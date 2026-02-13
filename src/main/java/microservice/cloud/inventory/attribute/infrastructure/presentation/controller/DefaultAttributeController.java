@@ -37,7 +37,7 @@ public class DefaultAttributeController {
     private final ListAttributeDefinitionUseCasePort listAttributeDefinitionUseCasePort;
 
     @GetMapping
-    public ResponseEntity<?> createDefaultAttribute(
+    public ResponseEntity<?> listDefaultAttributes(
     ) {
         return ResponseEntity.ok(
             listAttributeDefinitionUseCasePort.execute(1, 15)

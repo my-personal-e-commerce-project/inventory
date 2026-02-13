@@ -1,0 +1,2 @@
+2026.02.06 16:13:36 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/mauroc/project/microservice_ecommerce/inventory/src/main/resources/db/migration/.metals/lsp.trace.json or /home/mauroc/.cache/metals/lsp.trace.json[0m
+2026.02.06 16:13:36 INFO  logging to file /home/mauroc/project/microservice_ecommerce/inventory/.metals/metals.log[0m

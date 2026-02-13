@@ -1,5 +1,6 @@
 package microservice.cloud.inventory.product.domain.entity;
 
+import java.security.KeyStore.Entry.Attribute;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.product.domain.exception.InvalidProductException;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
@@ -97,19 +99,47 @@ public class Product extends AggregateRoot{
         return product;
     }
 
-    public void validAttributes(List<CategoryAttribute> attrs) {
+    public void validDefaultAttributes(List<AttributeDefinition> attrs) {
 
-        Map<String, ProductAttributeValue> productByDefinitionId =
+        Map<String, ProductAttributeValue> productAttributeByAttributeDefinitionSlug =
             attributeValues.values().stream()
                 .collect(Collectors.toMap(
                     pav -> pav.attribute_definition_slug().value(),
                     Function.identity()
                 ));
 
-        for (CategoryAttribute categoryAttr : attrs) {
+        for (AttributeDefinition attr : attrs) {
+
+            String defSlug = attr.slug().value();
+            ProductAttributeValue productAttr = 
+                productAttributeByAttributeDefinitionSlug
+                .get(defSlug);
+
+            if (productAttr == null) {
+                throw new IllegalStateException(
+                    "The product attribute is missing for: " + defSlug
+                );
+            }
+
+            if (productAttr != null) {
+                productAttr.validTypes(attr);
+            }
+        }
+    }
+
+    public void validAttributes(List<CategoryAttribute> category_attrs) {
+
+        Map<String, ProductAttributeValue> productAttributeByAttributeDefinitionSlug =
+            attributeValues.values().stream()
+                .collect(Collectors.toMap(
+                    pav -> pav.attribute_definition_slug().value(),
+                    Function.identity()
+                ));
+
+        for (CategoryAttribute categoryAttr : category_attrs) {
 
             String defSlug = categoryAttr.attribute_definition().slug().value();
-            ProductAttributeValue productAttr = productByDefinitionId.get(defSlug);
+            ProductAttributeValue productAttr = productAttributeByAttributeDefinitionSlug.get(defSlug);
 
             if (categoryAttr.is_required() && productAttr == null) {
                 throw new IllegalStateException(

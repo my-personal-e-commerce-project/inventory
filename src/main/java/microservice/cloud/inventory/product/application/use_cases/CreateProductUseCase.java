@@ -3,6 +3,8 @@ package microservice.cloud.inventory.product.application.use_cases;
 import java.util.ArrayList;
 import java.util.List;
 
+import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
+import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
@@ -19,14 +21,17 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
 
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
+    private AttributeDefinitionRepository attributeDefinitionRepository;
     private GetMePort getMePort;
 
     public CreateProductUseCase(
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
+        AttributeDefinitionRepository attributeDefinitionRepository,
         GetMePort getMePort
     ) {
 
+        this.attributeDefinitionRepository = attributeDefinitionRepository;
         this.getMePort = getMePort;
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
@@ -45,6 +50,9 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
         List<ProductAttributeValue> attributes,
         List<String> tags
     ) {
+        List<AttributeDefinition> default_attributes = attributeDefinitionRepository
+            .getGlobalAttributes();
+
         List<CategoryAttribute> attrs = 
            categoryRepository 
             .getCategoryAttributesByCategoryIds(
@@ -66,6 +74,8 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
         );
 
         newProduct.validAttributes(new ArrayList<>(attrs));
+
+        newProduct.validDefaultAttributes(default_attributes);
 
         productRepository.save(newProduct);
 

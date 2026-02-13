@@ -32,7 +32,7 @@ public class AttributeDefinitionEntity {
     private String id;
     private String name;
 
-    @Column(name = "slug", unique = false, nullable = false)
+    @Column(name = "slug", unique = true, nullable = false)
     private String slug;
    
     @Column(name = "type", nullable = false)

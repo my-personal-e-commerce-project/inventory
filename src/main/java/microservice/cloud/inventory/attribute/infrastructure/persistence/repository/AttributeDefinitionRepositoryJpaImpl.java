@@ -1,5 +1,7 @@
 package microservice.cloud.inventory.attribute.infrastructure.persistence.repository;
 
+import java.util.List;
+
 import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.EntityManager;
@@ -19,6 +21,15 @@ public class AttributeDefinitionRepositoryJpaImpl implements AttributeDefinition
     private final EntityManager entityManager;
 
     @Override
+    public List<AttributeDefinition> getGlobalAttributes() {
+        String hql = "FROM AttributeDefinitionEntity a WHERE is_global = true";
+
+        List<AttributeDefinitionEntity> result = entityManager.createQuery(hql, AttributeDefinitionEntity.class)
+            .getResultList();
+
+        return result.stream().map(a -> toMap(a)).toList();
+    }
+
     public AttributeDefinition getById(Id id) {
         AttributeDefinitionEntity entity = entityManager
             .find(AttributeDefinitionEntity.class, id.value());

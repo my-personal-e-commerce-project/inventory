@@ -85,7 +85,7 @@ public class CategoryRepositoryJpaImpl implements CategoryRepository {
         if(existByName(category.name())){
             throw new RuntimeException("Category with name " + category.name() + " already exists");
         }
-        
+       
         CategoryEntity entity = CategoryEntity.builder()
             .id(category.id().value())
             .name(category.name())

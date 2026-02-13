@@ -37,11 +37,13 @@ public class ProductConfigAdapter {
     public CreateProductUseCasePort createProductUseCasePort(
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
+        AttributeDefinitionRepository attributeDefinitionRepository,
         GetMePort getMePort
     ) {
         return new CreateProductUseCase(
             productRepository,
             categoryRepository,
+            attributeDefinitionRepository,
             getMePort
         );
     }
@@ -50,11 +52,13 @@ public class ProductConfigAdapter {
     public UpdateProductUseCasePort updateProductUseCasePort(
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
+        AttributeDefinitionRepository attributeDefinitionRepository,
         GetMePort getMePort
     ) {
         return new UpdateProductUseCase(
             productRepository, 
-            categoryRepository, 
+            categoryRepository,
+            attributeDefinitionRepository,
             getMePort
         );
     }

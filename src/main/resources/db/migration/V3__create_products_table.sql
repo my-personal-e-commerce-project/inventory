@@ -1,0 +1,139 @@
+CREATE TABLE products (
+    id VARCHAR(255) PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    description TEXT,
+    price DOUBLE PRECISION NOT NULL,
+    stock INTEGER NOT NULL
+);
+
+CREATE TABLE product_categories (
+    product_id VARCHAR(255) NOT NULL,
+    category_id VARCHAR(255) NOT NULL,
+    PRIMARY KEY (product_id, category_id),
+    CONSTRAINT fk_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE,
+    CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE CASCADE
+);
+
+CREATE TABLE images (
+    id VARCHAR(255) PRIMARY KEY,
+    url TEXT NOT NULL,
+    product_id VARCHAR(255) NOT NULL,
+    CONSTRAINT fk_product_images FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
+);
+
+CREATE TABLE tags (
+    id VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    product_id VARCHAR(255) NOT NULL,
+    CONSTRAINT fk_product_tags FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
+);
+
+CREATE TABLE product_attribute_values (
+    id VARCHAR(255) PRIMARY KEY,
+    product_id VARCHAR(255) NOT NULL,
+    attribute_definition_id VARCHAR(255) NOT NULL,
+    string_value TEXT,
+    integer_value INTEGER,
+    double_value DOUBLE PRECISION,
+    boolean_value BOOLEAN,
+    
+    CONSTRAINT fk_pav_product 
+        FOREIGN KEY (product_id) 
+        REFERENCES products (id) 
+        ON DELETE CASCADE,
+        
+    CONSTRAINT fk_pav_definition 
+        FOREIGN KEY (attribute_definition_id) 
+        REFERENCES attribute_definition (id) 
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_pav_product ON product_attribute_values(product_id);
+CREATE INDEX idx_pav_definition ON product_attribute_values(attribute_definition_id);
+
+CREATE OR REPLACE FUNCTION fn_build_product_outbox()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_payload JSONB;
+BEGIN
+    IF (TG_OP = 'DELETE') THEN
+        INSERT INTO outbox (id, aggregate_type, aggregate_id, type, payload, created_at)
+        VALUES (gen_random_uuid(), 'product', OLD.id, 'PRODUCT_DELETED', jsonb_build_object('id', OLD.id, 'deleted', true), now());
+    ELSIF (TG_OP = 'INSERT') THEN
+        SELECT jsonb_build_object(
+            'id', NEW.id,
+            'title', NEW.title,
+            'slug', NEW.slug,
+            'description', NEW.description,
+            'price', NEW.price,
+            'stock', NEW.stock,
+            'images', (SELECT coalesce(jsonb_agg(img), '[]'::jsonb) FROM (SELECT id, url FROM images WHERE product_id = NEW.id) img),
+            'tags', (SELECT coalesce(jsonb_agg(t.name), '[]'::jsonb) FROM tags t WHERE t.product_id = NEW.id),
+            'category_ids', (SELECT coalesce(jsonb_agg(category_id), '[]'::jsonb) FROM product_categories WHERE product_id = NEW.id),
+            'attributes', (
+                SELECT coalesce(jsonb_agg(attr), '[]'::jsonb) 
+                FROM (
+                    SELECT id, attribute_definition_id, string_value, integer_value, double_value, boolean_value 
+                    FROM product_attribute_values 
+                    WHERE product_id = NEW.id
+                ) attr
+            )
+        ) INTO v_payload;
+
+        INSERT INTO outbox (id, aggregate_type, aggregate_id, type, payload, created_at)
+        VALUES (gen_random_uuid(), 'product', NEW.id, 'PRODUCT_CREATED', v_payload, now());
+    ELSE
+        SELECT jsonb_build_object(
+            'id', NEW.id,
+            'title', NEW.title,
+            'slug', NEW.slug,
+            'description', NEW.description,
+            'price', NEW.price,
+            'stock', NEW.stock,
+            'images', (SELECT coalesce(jsonb_agg(img), '[]'::jsonb) FROM (SELECT id, url FROM images WHERE product_id = NEW.id) img),
+            'tags', (SELECT coalesce(jsonb_agg(t.name), '[]'::jsonb) FROM tags t WHERE t.product_id = NEW.id),
+            'category_ids', (SELECT coalesce(jsonb_agg(category_id), '[]'::jsonb) FROM product_categories WHERE product_id = NEW.id),
+            'attributes', (
+                SELECT coalesce(jsonb_agg(attr), '[]'::jsonb) 
+                FROM (
+                    SELECT id, attribute_definition_id, string_value, integer_value, double_value, boolean_value 
+                    FROM product_attribute_values 
+                    WHERE product_id = NEW.id
+                ) attr
+            )
+        ) INTO v_payload;
+
+        INSERT INTO outbox (id, aggregate_type, aggregate_id, type, payload, created_at)
+        VALUES (gen_random_uuid(), 'product', NEW.id, 'PRODUCT_UPDATED', v_payload, now());
+    END IF;
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_product_changes
+AFTER INSERT OR UPDATE OR DELETE ON products
+FOR EACH ROW EXECUTE FUNCTION fn_build_product_outbox();
+
+CREATE OR REPLACE FUNCTION fn_trigger_product_refresh()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE products SET id = id WHERE id = COALESCE(NEW.product_id, OLD.product_id);
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_refresh_from_images AFTER INSERT OR UPDATE OR DELETE ON images FOR EACH ROW EXECUTE FUNCTION fn_trigger_product_refresh();
+CREATE TRIGGER trg_refresh_from_tags AFTER INSERT OR UPDATE OR DELETE ON tags FOR EACH ROW EXECUTE FUNCTION fn_trigger_product_refresh();
+CREATE TRIGGER trg_refresh_from_pav AFTER INSERT OR UPDATE OR DELETE ON product_attribute_values FOR EACH ROW EXECUTE FUNCTION fn_trigger_product_refresh();
+
+CREATE OR REPLACE FUNCTION fn_trigger_product_refresh_from_cat()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE products SET id = id WHERE id = COALESCE(NEW.product_id, OLD.product_id);
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_refresh_from_prod_cat AFTER INSERT OR UPDATE OR DELETE ON product_categories FOR EACH ROW EXECUTE FUNCTION fn_trigger_product_refresh_from_cat();

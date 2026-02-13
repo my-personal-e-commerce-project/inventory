@@ -3,6 +3,8 @@ package microservice.cloud.inventory.product.application.use_cases;
 import java.util.ArrayList;
 import java.util.List;
 
+import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
+import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
@@ -19,14 +21,17 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
 
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
+    private AttributeDefinitionRepository attributeDefinitionRepository;
     private GetMePort getMePort;
 
     public UpdateProductUseCase(
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
+        AttributeDefinitionRepository attributeDefinitionRepository,
         GetMePort getMePort
     ) {
         this.productRepository = productRepository;
+        this.attributeDefinitionRepository = attributeDefinitionRepository;
         this.categoryRepository = categoryRepository;
         this.getMePort = getMePort;
     }
@@ -45,7 +50,10 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
         List<String> tags
     ) {
         Product p = productRepository.findById(new Id(id.value()));
-      
+     
+        List<AttributeDefinition> default_attributes = attributeDefinitionRepository
+            .getGlobalAttributes();
+
         List<CategoryAttribute> attrs = 
            categoryRepository 
             .getCategoryAttributesByCategoryIds(
@@ -66,6 +74,8 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
         );
         
         p.validAttributes(new ArrayList<>(attrs));
+
+        p.validDefaultAttributes(default_attributes);
 
         productRepository.update(p);
 

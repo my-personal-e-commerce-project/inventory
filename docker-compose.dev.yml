@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: quay.io/debezium/example-postgres:2.4
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=inventory
+    networks:
+      - e-commerce-network
+  service:
+        build:
+          context: .
+          dockerfile: Dockerfile.dev
+        ports:
+          - 8001:80
+        environment:
+          SERVER_PORT: 80
+        networks:
+          - e-commerce-network
+        volumes:
+          - ./src:/app/src
+          - .env:/app/.env
+          - ./pom.xml:/app/pom.xml
+          - ./target:/app/target
+networks:
+    e-commerce-network:
+        external: true
+volumes:
+    pgsql:
+        driver: local
