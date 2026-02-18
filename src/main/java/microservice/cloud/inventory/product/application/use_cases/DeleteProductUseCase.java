@@ -23,7 +23,7 @@ public class DeleteProductUseCase implements DeleteProductUseCasePort {
     public void execute(Id id) {
         Product product = productRepository.findById(id);
 
-        product.canIDeleteThisProduct(getMePort.execute());
+        product.delete(getMePort.execute());
 
         productRepository.delete(product);
     }

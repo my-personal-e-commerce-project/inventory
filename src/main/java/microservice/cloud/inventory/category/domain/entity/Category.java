@@ -49,8 +49,28 @@ public class Category extends AggregateRoot {
         me.IHavePermission(Permission.createCategory());
 
         Category category = new Category(id, name, slug, parent_id, categoryAttributes);
-
+        
+        categoryAttributes.stream().forEach(catAttr -> {
+            category.validCategoryAttribute(catAttr);
+        });
+        
         return category;
+    }
+
+    private void validCategoryAttribute(CategoryAttribute categoryAttribute) {
+
+        if(categoryAttribute.attribute_definition().is_global() == true)
+            throw new 
+                RuntimeException(
+                    "The definition of the attribute cannot be global"
+                );
+       
+        if (!categoryAttribute.attribute_definition().slug().value().startsWith(this.slug().value()+":"))
+            throw new RuntimeException(String.format(
+                "Invalid attribute namespace: The attribute slug '%s' must be prefixed with the category slug '%s:'",
+                categoryAttribute.attribute_definition().slug().value(),
+                this.slug().value()
+            ));
     }
 
     public void addCategoryAttribute(
@@ -62,18 +82,7 @@ public class Category extends AggregateRoot {
 
         me.IHavePermission(Permission.updateCategory());
 
-        if(attr.attribute_definition().is_global() == true)
-            throw new 
-                RuntimeException(
-                    "The definition of the attribute cannot be global"
-                );
-       
-        if (!attr.attribute_definition().slug().value().startsWith(this.slug().value()+"-"))
-            throw new RuntimeException(String.format(
-                "Invalid attribute namespace: The attribute slug '%s' must be prefixed with the category slug '%s:'",
-                attr.attribute_definition().slug().value(),
-                this.slug().value()
-            ));
+        this.validCategoryAttribute(attr);
 
         this.categoryAttributes.put(attr.id().value(), attr);
     }
@@ -90,9 +99,8 @@ public class Category extends AggregateRoot {
 
             CategoryAttribute attribute = this.categoryAttributes.get(attr.id().value());
 
-            if(!attr.attribute_definition().id().equals(attribute.attribute_definition().id())) {
-                throw new RuntimeException("The id of your attribute definition does not match: " + attribute.attribute_definition().id().value());
-            }
+            this.removeCategoryAttribute(me, attribute.id());
+            this.addCategoryAttribute(me, attr);
         });
 
         Map<String, CategoryAttribute> attrsMap = new HashMap<>();

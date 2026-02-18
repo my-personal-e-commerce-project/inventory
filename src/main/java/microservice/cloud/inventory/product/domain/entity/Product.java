@@ -1,6 +1,5 @@
 package microservice.cloud.inventory.product.domain.entity;
 
-import java.security.KeyStore.Entry.Attribute;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -221,7 +220,7 @@ public class Product extends AggregateRoot{
         attributeValues.remove(productAttributeId.value());
     }
 
-    public void canIDeleteThisProduct(Me me) {
+    public void delete(Me me) {
         if(me == null)
             throw new RuntimeException("You must be authenticated to hacer this action");
 
@@ -245,7 +244,7 @@ public class Product extends AggregateRoot{
     }
 
     public List<String> categories() {
-        return List.copyOf(categorySlugs);
+        return new ArrayList<>(categorySlugs);
     }
 
     public Price price() {

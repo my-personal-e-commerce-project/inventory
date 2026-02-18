@@ -2,6 +2,8 @@ package microservice.cloud.inventory.attribute.domain.entity;
 
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Me;
+import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class AttributeDefinition {
@@ -26,6 +28,27 @@ public class AttributeDefinition {
         this.slug = slug;
         this.type = type;
         this.is_global = is_global;
+    }
+
+    public void create(Me me) {
+        if(me == null)
+            throw new RuntimeException("You do not have permission to perform this action");
+
+        me.IHavePermission(Permission.createAttributeDefinition());
+    }
+
+    public void update(Me me) {
+        if(me == null)
+            throw new RuntimeException("You do not have permission to perform this action");
+
+        me.IHavePermission(Permission.updateAttributeDefinition());
+    }
+
+    public void delete(Me me) {
+        if(me == null)
+            throw new RuntimeException("You do not have permission to perform this action");
+
+        me.IHavePermission(Permission.deleteAttributeDefinition());
     }
 
     public Id id() {

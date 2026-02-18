@@ -38,6 +38,7 @@ public class AttributeDefinitionEntity {
     @Column(name = "type", nullable = false)
     private String type;
 
+    @Column(name = "is_global")
     @Builder.Default
     private boolean is_global = false;
 

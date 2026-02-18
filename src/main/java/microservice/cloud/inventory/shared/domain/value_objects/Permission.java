@@ -46,5 +46,17 @@ public class Permission {
     public static Permission deleteProduct() {
         return new Permission("update_product");
     }
+ 
+    public static Permission createAttributeDefinition() {
+        return new Permission("create_product");
+    }
+
+    public static Permission updateAttributeDefinition() {
+        return new Permission("update_product");
+    }
+
+    public static Permission deleteAttributeDefinition() {
+        return new Permission("update_product");
+    }
     
 }

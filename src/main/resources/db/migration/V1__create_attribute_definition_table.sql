@@ -3,10 +3,7 @@ CREATE TABLE attribute_definition (
     name VARCHAR(255),
     slug VARCHAR(255) NOT NULL UNIQUE,
     type VARCHAR(255) NOT NULL,
-    is_global BOOLEAN DEFAULT FALSE,
-    is_required BOOLEAN DEFAULT NULL,
-    is_filterable BOOLEAN DEFAULT NULL,
-    is_sortable BOOLEAN DEFAULT NULL
+    is_global BOOLEAN DEFAULT FALSE
 );
 
 ALTER TABLE attribute_definition REPLICA IDENTITY FULL;
@@ -23,10 +20,7 @@ BEGIN
             'name', NEW.name,
             'slug', NEW.slug,
             'type', NEW.type,
-            'is_global', NEW.is_global,
-            'is_required', NEW.is_required,
-            'is_filterable', NEW.is_filterable,
-            'is_sortable', NEW.is_sortable
+            'is_global', NEW.is_global
         );
 
         INSERT INTO outbox (id, aggregate_type, aggregate_id, type, payload, created_at)
@@ -37,10 +31,7 @@ BEGIN
             'name', NEW.name,
             'slug', NEW.slug,
             'type', NEW.type,
-            'is_global', NEW.is_global,
-            'is_required', NEW.is_required,
-            'is_filterable', NEW.is_filterable,
-            'is_sortable', NEW.is_sortable
+            'is_global', NEW.is_global
         );
 
         INSERT INTO outbox (id, aggregate_type, aggregate_id, type, payload, created_at)

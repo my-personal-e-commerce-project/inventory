@@ -68,9 +68,19 @@ BEGIN
             'description', NEW.description,
             'price', NEW.price,
             'stock', NEW.stock,
-            'images', (SELECT coalesce(jsonb_agg(img), '[]'::jsonb) FROM (SELECT id, url FROM images WHERE product_id = NEW.id) img),
-            'tags', (SELECT coalesce(jsonb_agg(t.name), '[]'::jsonb) FROM tags t WHERE t.product_id = NEW.id),
-            'category_ids', (SELECT coalesce(jsonb_agg(category_id), '[]'::jsonb) FROM product_categories WHERE product_id = NEW.id),
+            'images', (SELECT coalesce(jsonb_agg(url), '[]'::jsonb) 
+                FROM images 
+                WHERE product_id = NEW.id),
+
+            'tags', (SELECT coalesce(jsonb_agg(name), '[]'::jsonb) 
+                 FROM tags 
+                 WHERE product_id = NEW.id),
+            'categories', (
+                SELECT coalesce(jsonb_agg(c.slug), '[]'::jsonb)
+                FROM product_categories pc
+                JOIN categories c ON pc.category_id = c.id
+                WHERE pc.product_id = NEW.id
+            ),
             'attributes', (
                 SELECT coalesce(jsonb_agg(attr), '[]'::jsonb) 
                 FROM (
@@ -91,9 +101,19 @@ BEGIN
             'description', NEW.description,
             'price', NEW.price,
             'stock', NEW.stock,
-            'images', (SELECT coalesce(jsonb_agg(img), '[]'::jsonb) FROM (SELECT id, url FROM images WHERE product_id = NEW.id) img),
-            'tags', (SELECT coalesce(jsonb_agg(t.name), '[]'::jsonb) FROM tags t WHERE t.product_id = NEW.id),
-            'category_ids', (SELECT coalesce(jsonb_agg(category_id), '[]'::jsonb) FROM product_categories WHERE product_id = NEW.id),
+            'images', (SELECT coalesce(jsonb_agg(url), '[]'::jsonb) 
+                FROM images 
+                WHERE product_id = NEW.id),
+
+            'tags', (SELECT coalesce(jsonb_agg(name), '[]'::jsonb) 
+                 FROM tags 
+                 WHERE product_id = NEW.id),
+            'categories', (
+                SELECT coalesce(jsonb_agg(c.slug), '[]'::jsonb)
+                FROM product_categories pc
+                JOIN categories c ON pc.category_id = c.id
+                WHERE pc.product_id = NEW.id
+            ),
             'attributes', (
                 SELECT coalesce(jsonb_agg(attr), '[]'::jsonb) 
                 FROM (

@@ -51,9 +51,15 @@ BEGIN
             'attributes', (
                 SELECT coalesce(jsonb_agg(attr), '[]'::jsonb)
                 FROM (
-                    SELECT id, attribute_definition_id, is_required, is_filterable, is_sortable
-                    FROM category_attributes
-                    WHERE category_id = NEW.id
+                    SELECT 
+                        ca.id, 
+                        ca.is_required, 
+                        ca.is_filterable, 
+                        ca.is_sortable,
+                        row_to_json(ad)::jsonb AS attribute
+                    FROM category_attributes ca
+                    INNER JOIN attribute_definition ad ON ca.attribute_definition_id = ad.id
+                    WHERE ca.category_id = NEW.id
                 ) attr
             )
         ) INTO v_payload;
@@ -69,9 +75,15 @@ BEGIN
             'attributes', (
                 SELECT coalesce(jsonb_agg(attr), '[]'::jsonb)
                 FROM (
-                    SELECT id, attribute_definition_id, is_required, is_filterable, is_sortable
-                    FROM category_attributes
-                    WHERE category_id = NEW.id
+                    SELECT 
+                        ca.id, 
+                        ca.is_required, 
+                        ca.is_filterable, 
+                        ca.is_sortable,
+                        row_to_json(ad)::jsonb AS attribute_definition
+                    FROM category_attributes ca
+                    INNER JOIN attribute_definition ad ON ca.attribute_definition_id = ad.id
+                    WHERE ca.category_id = NEW.id
                 ) attr
             )
         ) INTO v_payload;
