@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
@@ -30,6 +31,7 @@ public class AttributeDefinitionRepositoryJpaImpl implements AttributeDefinition
         return result.stream().map(a -> toMap(a)).toList();
     }
 
+    @Override
     public AttributeDefinition getById(Id id) {
         AttributeDefinitionEntity entity = entityManager
             .find(AttributeDefinitionEntity.class, id.value());
@@ -38,7 +40,10 @@ public class AttributeDefinitionRepositoryJpaImpl implements AttributeDefinition
     }
 
     @Override
-    public void save(AttributeDefinition attr) {
+    @Transactional
+    public void save(
+        AttributeDefinition attr
+    ) {
         entityManager.persist(toMap(attr));
     }
 

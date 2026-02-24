@@ -13,6 +13,7 @@ import microservice.cloud.inventory.attribute.application.use_cases.DeleteAttrib
 import microservice.cloud.inventory.attribute.application.use_cases.ListAttributeDefinitionUseCase;
 import microservice.cloud.inventory.attribute.application.use_cases.UpdateAttributeDefinitionUseCase;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
+import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 
 @Configuration
 public class AttributeDefinitionConfig {
@@ -26,22 +27,25 @@ public class AttributeDefinitionConfig {
 
     @Bean
     public CreateAttributeDefinitionUseCasePort createAttributeDefinitionUseCasePort(
-        AttributeDefinitionRepository attributeDefinitionRepository
+        AttributeDefinitionRepository attributeDefinitionRepository,
+        GetMePort getMePort
     ) {
-        return new CreateAttributeDefinitionUseCase(attributeDefinitionRepository);
+        return new CreateAttributeDefinitionUseCase(attributeDefinitionRepository, getMePort);
     }
 
     @Bean
     public UpdateAttributeDefinitionUseCasePort UpdateAttributeDefinitionUseCase(
-        AttributeDefinitionRepository attributeDefinitionRepository
+        AttributeDefinitionRepository attributeDefinitionRepository,
+        GetMePort getMePort
     ) {
-        return new UpdateAttributeDefinitionUseCase(attributeDefinitionRepository);
+        return new UpdateAttributeDefinitionUseCase(attributeDefinitionRepository, getMePort);
     }
     
     @Bean
     public DeleteAttributeDefinitionUseCasePort deleteAttributeDefinitionUseCasePort(
-        AttributeDefinitionRepository attributeDefinitionRepository
+        AttributeDefinitionRepository attributeDefinitionRepository,
+        GetMePort getMePort
     ) {
-        return new DeleteAttributeDefinitionUseCase(attributeDefinitionRepository);
+        return new DeleteAttributeDefinitionUseCase(attributeDefinitionRepository, getMePort);
     }
 }

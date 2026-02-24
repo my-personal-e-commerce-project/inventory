@@ -27,7 +27,7 @@ import microservice.cloud.inventory.shared.infrastructure.dto.ResponsePayload;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 
 @RestController
-@RequestMapping(name = "/api/v1/default_attribute")
+@RequestMapping("/api/v1/default_attributes")
 @RequiredArgsConstructor
 public class DefaultAttributeController {
 

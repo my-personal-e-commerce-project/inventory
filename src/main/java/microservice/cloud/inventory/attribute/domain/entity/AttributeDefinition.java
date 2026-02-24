@@ -23,6 +23,15 @@ public class AttributeDefinition {
         if(id == null)
             throw new RuntimeException("The id cannot be null");
 
+        if(name == null)
+            throw new RuntimeException("The name cannot be null");
+
+        if(slug == null)
+            throw new RuntimeException("The slug cannot be null");
+
+        if(type == null)
+            throw new RuntimeException("The type cannot be null");
+
         this.id = id;
         this.name = name;
         this.slug = slug;
@@ -44,7 +53,7 @@ public class AttributeDefinition {
         me.IHavePermission(Permission.updateAttributeDefinition());
     }
 
-    public void delete(Me me) {
+    public static void delete(Me me) {
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
 

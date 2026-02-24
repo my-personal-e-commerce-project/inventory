@@ -64,38 +64,13 @@ public class Product extends AggregateRoot{
         this.tags = tags;
     }
 
-    public static Product factory(
-            Me me,
-            Id id,
-            String title,
-            Slug slug,
-            String description,
-            List<String> categories,
-            Price price,
-            Quantity stock,
-            List<String> images,
-            List<ProductAttributeValue> attributeValues,
-            List<String> tags
+    public void create(
+            Me me
     ) {
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.createProduct());
-
-        Product product = new Product(
-            id, 
-            title, 
-            slug, 
-            description, 
-            categories, 
-            price, 
-            attributeValues, 
-            stock, 
-            images, 
-            tags
-        );
-
-        return product;
     }
 
     public void validDefaultAttributes(List<AttributeDefinition> attrs) {
@@ -220,7 +195,7 @@ public class Product extends AggregateRoot{
         attributeValues.remove(productAttributeId.value());
     }
 
-    public void delete(Me me) {
+    public static void delete(Me me) {
         if(me == null)
             throw new RuntimeException("You must be authenticated to hacer this action");
 

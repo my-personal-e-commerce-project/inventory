@@ -12,7 +12,7 @@ import microservice.cloud.inventory.product.application.ports.in.DeleteProductAt
 import microservice.cloud.inventory.product.application.ports.in.DeleteProductUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.ListProductsUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
-import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
+import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.product.application.ports.put.ProductReadRepository;
 
 import microservice.cloud.inventory.product.application.use_cases.AddProductAttributeUseCase;

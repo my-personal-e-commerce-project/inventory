@@ -42,19 +42,11 @@ public class Category extends AggregateRoot {
                );
     }
 
-    public static Category factory(Me me, Id id, String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
+    public void create(Me me) {
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.createCategory());
-
-        Category category = new Category(id, name, slug, parent_id, categoryAttributes);
-        
-        categoryAttributes.stream().forEach(catAttr -> {
-            category.validCategoryAttribute(catAttr);
-        });
-        
-        return category;
     }
 
     private void validCategoryAttribute(CategoryAttribute categoryAttribute) {

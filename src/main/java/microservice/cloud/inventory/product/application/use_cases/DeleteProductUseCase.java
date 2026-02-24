@@ -1,7 +1,7 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
 import microservice.cloud.inventory.product.application.ports.in.DeleteProductUseCasePort;
-import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
+import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
@@ -23,7 +23,7 @@ public class DeleteProductUseCase implements DeleteProductUseCasePort {
     public void execute(Id id) {
         Product product = productRepository.findById(id);
 
-        product.delete(getMePort.execute());
+        Product.delete(getMePort.execute());
 
         productRepository.delete(product);
     }

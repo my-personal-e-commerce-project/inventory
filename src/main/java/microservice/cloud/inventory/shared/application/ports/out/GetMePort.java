@@ -1,4 +1,4 @@
-package microservice.cloud.inventory.shared.application.ports.in;
+package microservice.cloud.inventory.shared.application.ports.out;
 
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 

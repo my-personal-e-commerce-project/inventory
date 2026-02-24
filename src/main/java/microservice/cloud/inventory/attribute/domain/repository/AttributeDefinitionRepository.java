@@ -7,6 +7,7 @@ import microservice.cloud.inventory.shared.domain.value_objects.Id;
 
 public interface AttributeDefinitionRepository {
 
+    public AttributeDefinition getById(Id id);
     public List<AttributeDefinition> getGlobalAttributes();
     public void save(AttributeDefinition attr);
     public void update(AttributeDefinition attr);

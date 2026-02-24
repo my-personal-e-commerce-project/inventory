@@ -24,6 +24,7 @@ import microservice.cloud.inventory.product.application.ports.in.DeleteProductAt
 import microservice.cloud.inventory.product.application.ports.in.DeleteProductUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.ListProductsUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
+import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
@@ -74,25 +75,27 @@ public class ProductController {
         );
 
         createProductUseCasePort.execute(
-            new Id(productDTO.getId()),
-            productDTO.getTitle(),
-            new Slug(productDTO.getSlug()),
-            productDTO.getDescription(),
-            productDTO.getCategories(),
-            new Price(productDTO.getPrice()),
-            new Quantity(productDTO.getStock()),
-            productDTO.getImages(),
-            productDTO.getAttributes().stream().map(attr -> 
-                new ProductAttributeValue(
-                    new Id(attr.getId()),
-                    new Slug(attr.getAttribute_definition_slug()),
-                    attr.getString_value(),
-                    attr.getInteger_value(),
-                    attr.getDouble_value(),
-                    attr.getBoolean_value()
-                )
-            ).toList(),
-            productDTO.getTags()
+            new Product(
+                new Id(productDTO.getId()),
+                productDTO.getTitle(),
+                new Slug(productDTO.getSlug()),
+                productDTO.getDescription(),
+                productDTO.getCategories(),
+                new Price(productDTO.getPrice()),
+                productDTO.getAttributes().stream().map(attr -> 
+                    new ProductAttributeValue(
+                        new Id(attr.getId()),
+                        new Slug(attr.getAttribute_definition_slug()),
+                        attr.getString_value(),
+                        attr.getInteger_value(),
+                        attr.getDouble_value(),
+                        attr.getBoolean_value()
+                    )
+                ).toList(),
+                new Quantity(productDTO.getStock()),
+                productDTO.getImages(),
+                productDTO.getTags()
+            )
         );
 
         return new ResponseEntity<>(

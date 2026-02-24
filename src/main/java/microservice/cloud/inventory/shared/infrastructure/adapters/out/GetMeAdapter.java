@@ -1,4 +1,4 @@
-package microservice.cloud.inventory.shared.infrastructure.adapters.in;
+package microservice.cloud.inventory.shared.infrastructure.adapters.out;
 
 import java.util.List;
 import java.util.Map;
@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
-import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
+import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;

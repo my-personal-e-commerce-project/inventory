@@ -16,7 +16,7 @@ import microservice.cloud.inventory.category.application.use_cases.DeleteCategor
 import microservice.cloud.inventory.category.application.use_cases.ListCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.UpdateCategoryUseCase;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
-import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
+import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 
 @Configuration
 public class CategoryConfigAdapter {

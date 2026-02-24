@@ -3,7 +3,7 @@ package microservice.cloud.inventory.category.application.use_cases;
 import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryAttributeUseCasePort;
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
-import microservice.cloud.inventory.shared.application.ports.in.GetMePort;
+import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 
 public class DeleteCategoryAttributeUseCase implements DeleteCategoryAttributeUseCasePort {
