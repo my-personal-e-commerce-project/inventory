@@ -1,17 +1,17 @@
-CREATE TABLE categories (
-    id VARCHAR(255) PRIMARY KEY,
+CREATE TABLE Category (
+    id VARCHAR(255) PRIMARY KEY UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL UNIQUE,
     slug VARCHAR(255) NOT NULL UNIQUE,
     parent_id VARCHAR(255),
     
     CONSTRAINT fk_category_parent 
         FOREIGN KEY (parent_id) 
-        REFERENCES categories (id) 
+        REFERENCES Category (id) 
         ON DELETE SET NULL
 );
 
-CREATE TABLE category_attributes (
-    id VARCHAR(255) PRIMARY KEY,
+CREATE TABLE CategoryAttribute (
+    id VARCHAR(255) PRIMARY KEY UNIQUE NOT NULL,
     category_id VARCHAR(255) NOT NULL,
     attribute_definition_id VARCHAR(255) NOT NULL,
     is_required BOOLEAN DEFAULT NULL,
@@ -20,12 +20,12 @@ CREATE TABLE category_attributes (
 
     CONSTRAINT fk_cat_attr_category 
         FOREIGN KEY (category_id) 
-        REFERENCES categories (id) 
+        REFERENCES category (id) 
         ON DELETE CASCADE,
         
     CONSTRAINT fk_cat_attr_definition 
         FOREIGN KEY (attribute_definition_id) 
-        REFERENCES attribute_definition (id) 
+        REFERENCES attributedefinition (id) 
         ON DELETE CASCADE
 );
 
@@ -57,8 +57,8 @@ BEGIN
                         ca.is_filterable, 
                         ca.is_sortable,
                         row_to_json(ad)::jsonb AS attribute
-                    FROM category_attributes ca
-                    INNER JOIN attribute_definition ad ON ca.attribute_definition_id = ad.id
+                    FROM CategoryAttribute ca
+                    INNER JOIN AttributeDefinition ad ON ca.attribute_definition_id = ad.id
                     WHERE ca.category_id = NEW.id
                 ) attr
             )
@@ -81,8 +81,8 @@ BEGIN
                         ca.is_filterable, 
                         ca.is_sortable,
                         row_to_json(ad)::jsonb AS attribute_definition
-                    FROM category_attributes ca
-                    INNER JOIN attribute_definition ad ON ca.attribute_definition_id = ad.id
+                    FROM CategoryAttribute ca
+                    INNER JOIN AttributeDefinition ad ON ca.attribute_definition_id = ad.id
                     WHERE ca.category_id = NEW.id
                 ) attr
             )
@@ -97,17 +97,17 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_category_changes
-AFTER INSERT OR UPDATE OR DELETE ON categories
+AFTER INSERT OR UPDATE OR DELETE ON Category
 FOR EACH ROW EXECUTE FUNCTION fn_build_category_outbox();
 
 CREATE OR REPLACE FUNCTION fn_refresh_parent_category()
 RETURNS TRIGGER AS $$
 BEGIN
-    UPDATE categories SET id = id WHERE id = COALESCE(NEW.category_id, OLD.category_id);
+    UPDATE Category SET id = id WHERE id = COALESCE(NEW.category_id, OLD.category_id);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_attribute_changes
-AFTER INSERT OR UPDATE OR DELETE ON category_attributes
+AFTER INSERT OR UPDATE OR DELETE ON CategoryAttribute
 FOR EACH ROW EXECUTE FUNCTION fn_refresh_parent_category();

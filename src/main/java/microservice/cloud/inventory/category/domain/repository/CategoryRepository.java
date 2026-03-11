@@ -13,4 +13,5 @@ public interface CategoryRepository {
     public void delete(Category category);
     public Category findById(Id id);
     public List<CategoryAttribute> getCategoryAttributesByCategoryIds(List<String> ids);
+    public CategoryAttribute getCategoryAttributeByAttributeDefinitionId(Id id);
 }

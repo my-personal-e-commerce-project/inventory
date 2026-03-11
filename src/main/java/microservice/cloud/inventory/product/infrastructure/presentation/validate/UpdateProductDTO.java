@@ -42,7 +42,7 @@ public class UpdateProductDTO {
     private List<UpdateProductAttributeValueDTO> attributes;
 
     @NotNull
-    private double price;
+    private Double price;
 
     @NotNull
     private int stock;

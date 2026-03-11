@@ -3,21 +3,19 @@ package microservice.cloud.inventory.product.domain.entity;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
-import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class ProductAttributeValue {
     private Id id;
-    private Slug attribute_definition_slug;
-
+    private Id attribute_definition_id;
     private String string_value;
     private Integer integer_value; 
     private Double double_value;
     private Boolean boolean_value;
 
-    public ProductAttributeValue(Id id, Slug attribute_definition_slug, String string_value, Integer integer_value, Double double_value, Boolean boolean_value) {
+    public ProductAttributeValue(Id id, Id attribute_definition_id, String string_value, Integer integer_value, Double double_value, Boolean boolean_value) {
 
         this.id = id;
-        this.attribute_definition_slug = attribute_definition_slug;
+        this.attribute_definition_id = attribute_definition_id;
         this.string_value = string_value;
         this.integer_value = integer_value;
         this.double_value = double_value;
@@ -44,8 +42,8 @@ public class ProductAttributeValue {
         return id;
     }
 
-    public Slug attribute_definition_slug() {
-        return attribute_definition_slug;
+    public Id attribute_definition_id() {
+        return attribute_definition_id;
     }
 
     public String string_value() {

@@ -45,12 +45,14 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
                 product.categories()
             );
 
+        if(attrs != null)
+            product.validAttributes(new ArrayList<>(attrs));
+
+        if(default_attributes != null)
+            product.validDefaultAttributes(default_attributes);
+
         product.create(getMePort.execute());
-
-        product.validAttributes(new ArrayList<>(attrs));
-
-        product.validDefaultAttributes(default_attributes);
-
+        
         productRepository.save(product);
 
         return product;

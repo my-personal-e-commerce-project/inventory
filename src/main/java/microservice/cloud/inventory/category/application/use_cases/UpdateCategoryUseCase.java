@@ -1,6 +1,6 @@
 package microservice.cloud.inventory.category.application.use_cases;
 
-import java.util.List;
+import java.util.Set;
 
 import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryUseCasePort;
 import microservice.cloud.inventory.category.domain.entity.Category;
@@ -24,13 +24,13 @@ public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
     }
 
     @Override
-    public Category execute(Id id, String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
-        Category categoryDB = categoryRepository.findById(id);
+    public Category execute(Id id, String name, Slug slug, Id parent_id, Set<CategoryAttribute> categoryAttributes) {
+        Category category = categoryRepository.findById(id);
 
-        categoryDB.update(getMePort.execute(), name, slug, parent_id, categoryAttributes);
+        category.update(getMePort.execute(), name, slug, parent_id, categoryAttributes);
 
-        categoryRepository.update(categoryDB);
+        categoryRepository.update(category);
 
-        return categoryDB;
+        return category;
     }
 }

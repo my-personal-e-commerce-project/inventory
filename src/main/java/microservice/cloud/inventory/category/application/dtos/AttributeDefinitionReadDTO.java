@@ -12,17 +12,9 @@ import lombok.Setter;
 @Setter
 @Getter
 public class AttributeDefinitionReadDTO {
-
-    @Builder.Default
-    public String id = null;
-
+    public String id;
     public String name;
-    
     public String slug;
-
     public String type;
-
-    @Builder.Default
-    public Boolean is_global = null;
+    public Boolean is_global;
 }
-    

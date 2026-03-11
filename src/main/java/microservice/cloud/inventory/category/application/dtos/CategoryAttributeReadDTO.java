@@ -12,9 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 public class CategoryAttributeReadDTO {
-
-    @Builder.Default
-    private String id = null;
+    private String id;
   
     private AttributeDefinitionReadDTO attributeDefinition;
 

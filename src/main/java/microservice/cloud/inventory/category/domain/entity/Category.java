@@ -1,25 +1,22 @@
 package microservice.cloud.inventory.category.domain.entity;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
-import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
-public class Category extends AggregateRoot {
-    
+public class Category {
     private Id id;
     private String name;
     private Slug slug;
     private Id parent_id;
-    private Map<String, CategoryAttribute> categoryAttributes;
+    private Set<CategoryAttribute> categoryAttributes = new HashSet<>();
 
-    public Category(Id id, String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
+    public Category(Id id, String name, Slug slug, Id parent_id, Set<CategoryAttribute> categoryAttributes) {
         
         if(id == null)
             throw new RuntimeException("The id cannot be null");
@@ -29,17 +26,7 @@ public class Category extends AggregateRoot {
         this.slug = slug;
         this.parent_id = parent_id;
 
-        this.categoryAttributes = new HashMap<>();
-        if(categoryAttributes != null)
-            categoryAttributes.stream()
-                .forEach(
-                   categoryAttribute -> {
-                       this.categoryAttributes.put(
-                           categoryAttribute.id().value(), 
-                           categoryAttribute
-                       );
-                   }
-               );
+        this.categoryAttributes = new HashSet<>(categoryAttributes);
     }
 
     public void create(Me me) {
@@ -47,6 +34,10 @@ public class Category extends AggregateRoot {
             throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.createCategory());
+
+        categoryAttributes().stream().forEach((attr) -> {
+            validCategoryAttribute(attr);
+        });
     }
 
     private void validCategoryAttribute(CategoryAttribute categoryAttribute) {
@@ -73,35 +64,25 @@ public class Category extends AggregateRoot {
             throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.updateCategory());
-
+        
         this.validCategoryAttribute(attr);
-
-        this.categoryAttributes.put(attr.id().value(), attr);
+        this.categoryAttributes.add(attr);
     }
 
-    public void update(Me me, String name, Slug slug, Id parent_id, List<CategoryAttribute> categoryAttributes) {
+    public void update(Me me, String name, Slug slug, Id parent_id, Set<CategoryAttribute> categoryAttributes) {
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.updateCategory());
 
-        categoryAttributes().stream().forEach(attr -> {
-            if(this.categoryAttributes.get(attr.id().value())==null)
+        categoryAttributes.stream().forEach(attr -> {
+            if(this.categoryAttributes.contains(attr))
                 throw new DataNotFound("Category attribute " + attr.id().value() + " not found");
 
-            CategoryAttribute attribute = this.categoryAttributes.get(attr.id().value());
-
-            this.removeCategoryAttribute(me, attribute.id());
-            this.addCategoryAttribute(me, attr);
+            this.validCategoryAttribute(attr);
         });
 
-        Map<String, CategoryAttribute> attrsMap = new HashMap<>();
-
-        categoryAttributes().forEach(attr -> {
-            attrsMap.put(attr.id().value(), attr);
-        });
-
-        this.categoryAttributes = attrsMap;
+        this.categoryAttributes = categoryAttributes;
         this.name = name;
         this.slug = slug;
         this.parent_id = parent_id;
@@ -116,16 +97,9 @@ public class Category extends AggregateRoot {
         if(id == null)
             throw new RuntimeException("Id can not be null");
 
-        CategoryAttribute data = this.categoryAttributes.get(
-            id.value()
-        );
-
-        if(data == null)
-            throw new DataNotFound("Category attribute not found");
-
-        this.categoryAttributes.remove(
-            id.value()
-        );
+        boolean removed = this.categoryAttributes.removeIf(attr -> attr.id().equals(id));
+    
+        if(!removed) throw new DataNotFound("Category attribute not found");
     }
    
     public void canIDeleteThisCategory(Me me) {
@@ -151,9 +125,7 @@ public class Category extends AggregateRoot {
         return parent_id;
     }
 
-    public List<CategoryAttribute> categoryAttributes() {
-        if(categoryAttributes == null)
-            return null;
-        return List.copyOf(categoryAttributes.values());
+    public Set<CategoryAttribute> categoryAttributes() {
+        return categoryAttributes;
     }
 }

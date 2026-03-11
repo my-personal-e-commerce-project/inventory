@@ -74,14 +74,10 @@ public class ProductConfigAdapter {
     @Bean
     public AddProductAttributeUseCasePort addProductAttributeUseCasePort(
         ProductRepository productRepository,
-        AttributeDefinitionRepository attributeDefinitionRepository,
-        CategoryRepository categoryRepository,
         GetMePort getMePort
     ) {
         return new AddProductAttributeUseCase(
             productRepository,
-            attributeDefinitionRepository,
-            categoryRepository, 
             getMePort
         );
     }
@@ -89,8 +85,8 @@ public class ProductConfigAdapter {
     @Bean
     public DeleteProductAttributeUseCasePort deleteProductAttributeUseCasePort(
         ProductRepository productRepository,
-        GetMePort getMePort,
-        CategoryRepository categoryRepository
+        CategoryRepository categoryRepository,
+        GetMePort getMePort
     ) {
         return new DeleteProductAttributeUseCase(
             productRepository,

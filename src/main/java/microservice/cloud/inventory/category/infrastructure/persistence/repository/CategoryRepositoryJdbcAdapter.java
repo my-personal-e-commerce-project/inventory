@@ -1,0 +1,272 @@
+package microservice.cloud.inventory.category.infrastructure.persistence.repository;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
+import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
+import microservice.cloud.inventory.attribute.infrastructure.persistence.model.AttributeDefinitionEntity;
+import microservice.cloud.inventory.category.domain.entity.Category;
+import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
+import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
+import microservice.cloud.inventory.category.infrastructure.persistence.model.*;
+import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
+import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Slug;
+
+@Repository
+@RequiredArgsConstructor
+public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
+
+    private final CategoryAttributeJdbcRepository categoryAttributeJdbcRepository;
+    private final JdbcAggregateTemplate aggregateTemplate;
+    private final JdbcTemplate jdbcTemplate;
+
+    @Override
+    public CategoryAttribute getCategoryAttributeByAttributeDefinitionId(Id id) {
+        CategoryAttributeEntity attr = categoryAttributeJdbcRepository
+            .findByAttributeDefinitionId(id.value());
+
+        if(attr == null)
+            throw new DataNotFound("Category attribute not found");
+
+        return toMap(attr);
+    }
+
+    @Override
+    public Category findById(Id id) {
+        String sql = """ 
+            SELECT 
+                c.id AS cat_id, 
+                c.name AS cat_name, 
+                c.slug AS cat_slug, 
+                c.parent_id AS cat_parent_id,
+                p.slug AS cat_parent_slug, 
+                ca.id AS attr_id, 
+                ca.category_id AS attr_cat_id, 
+                ca.is_required AS attr_is_required, 
+                ca.is_sortable AS attr_is_sortable, 
+                ca.is_filterable AS attr_is_filterable,
+                ca.attribute_definition_id AS attr_def_id,
+                ad.id AS def_id, 
+                ad.name AS def_name, 
+                ad.slug AS def_slug, 
+                ad.type AS def_type, 
+                ad.is_global AS def_is_global
+            FROM (
+                SELECT * FROM category 
+                WHERE id = ?
+            ) c
+            LEFT JOIN category p ON c.parent_id = p.id 
+            LEFT JOIN categoryattribute ca ON c.id = ca.category_id
+            LEFT JOIN attributedefinition ad ON ca.attribute_definition_id = ad.id
+        """;
+            
+        CategoryEntity entity = jdbcTemplate
+            .query(
+                sql, 
+                ps -> ps.setString(1, id.value()), 
+                new CategoryResultSetExtractor()
+            );
+
+        if(entity == null)
+            throw new DataNotFound("Category not found");
+
+        return toMap(entity);
+    }
+
+    @Override
+    public List<CategoryAttribute> getCategoryAttributesByCategoryIds(List<String> categoriesIds) {
+        List<CategoryAttribute> catAttrs = getCategoryAttributesByCategoryIdsHelper(categoriesIds)
+                .stream()
+                .map(attr -> {
+                return toMap(attr);
+            }).toList();
+
+        return catAttrs;
+    }
+
+    private Set<CategoryAttributeEntity> getCategoryAttributesByCategoryIdsHelper(List<String> categoriesIds) {
+        if (categoriesIds == null || categoriesIds.isEmpty()) return Collections.emptySet();
+
+        String sql = """
+            SELECT ca.*, ad.name, ad.slug, ad.type, ad.is_global 
+            FROM categoryattribute ca
+            JOIN attributedefinition ad ON ca.attribute_definition_id = ad.id
+            WHERE ca.category_id IN (:ids)
+        """;
+        
+        MapSqlParameterSource parameters = new MapSqlParameterSource("ids", categoriesIds);
+        NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(jdbcTemplate);
+
+        List<CategoryAttributeEntity> queryResults = template.query(sql, parameters, (rs, rowNum) -> {
+            AttributeDefinitionEntity attrDef = new AttributeDefinitionEntity(
+                rs.getString("attribute_definition_id"),
+                rs.getString("name"),
+                rs.getString("slug"),
+                rs.getString("type"),
+                rs.getBoolean("is_global")
+            );
+
+            return new CategoryAttributeEntity(
+                rs.getString("id"),
+                rs.getString("category_id"),
+                attrDef.getId(),
+                attrDef,
+                rs.getBoolean("is_required"),
+                rs.getBoolean("is_filterable"),
+                rs.getBoolean("is_sortable")
+            );
+        });
+
+        Set<String> foundCategoryIds = queryResults.stream()
+                .map(CategoryAttributeEntity::getCategory_id)
+                .collect(Collectors.toSet());
+
+        List<String> missingIds = categoriesIds.stream()
+                .filter(id -> !foundCategoryIds.contains(id))
+                .toList();
+
+        if (!missingIds.isEmpty()) {
+            throw new RuntimeException("No attributes were found or the following categories do not exist: " + missingIds);
+        }
+
+        return new HashSet<>(queryResults);
+    }
+
+    @Transactional
+    @Override
+    public void save(Category category) {
+        try {
+            aggregateTemplate.insertAll(category.categoryAttributes().stream().map((CategoryAttribute attr) -> toMap(attr.attribute_definition())).toList());
+            aggregateTemplate.insert(toMap(category));
+        } catch(DataIntegrityViolationException e) {
+            if (e.getMessage() != null && e.getMessage().contains("name")) {
+                throw new RuntimeException("The name already exists");
+            }
+            if (e.getMessage() != null && e.getMessage().contains("slug")) {
+                throw new RuntimeException("The slug already exists");
+            }
+            throw e;
+        }
+    }
+
+    @Transactional
+    @Override
+    public void update(Category category) {
+        try {
+            aggregateTemplate.updateAll(
+                category.categoryAttributes()
+                    .stream()
+                    .map(attr -> toMap(attr.attribute_definition()))
+                    .toList()
+                );
+
+            aggregateTemplate.update(toMap(category));
+        } catch(DataIntegrityViolationException e) {
+            if (e.getMessage() != null && e.getMessage().contains("name")) {
+                throw new RuntimeException("The name already exists");
+            }
+            if (e.getMessage() != null && e.getMessage().contains("slug")) {
+                throw new RuntimeException("The slug already exists");
+            }
+            throw e;
+        }
+    }
+
+    @Transactional
+    @Override
+    public void delete(Category category) {
+        aggregateTemplate.deleteAll(
+                category.categoryAttributes()
+                .stream()
+                .map(attr -> toMap(attr.attribute_definition()))
+                .toList()
+            );
+        aggregateTemplate.delete(toMap(category));
+    }
+
+    private Category toMap(CategoryEntity entity) {
+        return new Category(
+            new Id(entity.getId()), 
+            entity.getName(), 
+            new Slug(entity.getSlug()), 
+            entity.getParent_id() != null? new Id(entity.getParent_id()): null, 
+            entity.getCategoryAttributes()
+                .stream()
+                .map(attr -> toMap(attr))
+                .collect(Collectors.toSet())
+        );
+    }
+
+    private CategoryAttribute toMap(CategoryAttributeEntity entity) {
+        AttributeDefinition attrDef = new AttributeDefinition(
+                new Id(entity.getAttribute_definition().getId()), 
+                entity.getAttribute_definition().getName(), 
+                new Slug(entity.getAttribute_definition().getSlug()), 
+                DataType.valueOf(entity.getAttribute_definition().getType()),
+                entity.getAttribute_definition().is_global());
+
+        CategoryAttribute catAttr = new CategoryAttribute(
+            new Id(entity.getId()),
+            attrDef.id(),
+            entity.getIs_required(), 
+            entity.getIs_filterable(), 
+            entity.getIs_sortable()
+        );
+
+        catAttr.load_attribute_definition(attrDef);
+
+        return catAttr;
+    }
+
+    private CategoryEntity toMap(Category entity) {
+        return new CategoryEntity(
+            entity.id().value(), 
+            entity.name(), 
+            entity.slug().value(), 
+            entity.parent_id() != null? entity.parent_id().value(): null,
+            entity.categoryAttributes()
+                .stream()
+                .map(attr -> {
+                return toMap(entity.id(), attr);
+            }).collect(Collectors.toSet())
+        );
+    }
+
+    private CategoryAttributeEntity toMap(Id cat, CategoryAttribute entity) {
+
+        return new CategoryAttributeEntity(
+            entity.id().value(),
+            cat.value(),
+            entity.attribute_definition_id().value(),
+            null,
+            entity.is_required(), 
+            entity.is_filterable(), 
+            entity.is_sortable()
+        );
+    }
+
+    private AttributeDefinitionEntity toMap(AttributeDefinition attr) {
+   
+        return new AttributeDefinitionEntity(
+            attr.id().value(), 
+            attr.name(), 
+            attr.slug().value(), 
+            attr.type().toString(), 
+            attr.is_global()
+        );
+    }
+}

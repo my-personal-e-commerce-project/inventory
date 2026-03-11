@@ -1,12 +1,12 @@
-CREATE TABLE attribute_definition (
-    id VARCHAR(255) PRIMARY KEY,
+CREATE TABLE AttributeDefinition (
+    id VARCHAR(255) PRIMARY KEY UNIQUE NOT NULL,
     name VARCHAR(255),
     slug VARCHAR(255) NOT NULL UNIQUE,
     type VARCHAR(255) NOT NULL,
     is_global BOOLEAN DEFAULT FALSE
 );
 
-ALTER TABLE attribute_definition REPLICA IDENTITY FULL;
+ALTER TABLE AttributeDefinition REPLICA IDENTITY FULL;
 
 CREATE OR REPLACE FUNCTION fn_build_attribute_definition_outbox()
 RETURNS TRIGGER AS $$
@@ -46,5 +46,5 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_attribute_definition_changes
-AFTER INSERT OR UPDATE OR DELETE ON attribute_definition
+AFTER INSERT OR UPDATE OR DELETE ON AttributeDefinition
 FOR EACH ROW EXECUTE FUNCTION fn_build_attribute_definition_outbox();

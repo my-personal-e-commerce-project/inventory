@@ -1,6 +1,5 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
@@ -50,7 +49,7 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
         List<String> tags
     ) {
         Product p = productRepository.findById(new Id(id.value()));
-     
+
         List<AttributeDefinition> default_attributes = attributeDefinitionRepository
             .getGlobalAttributes();
 
@@ -72,10 +71,13 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
             attributes, 
             tags
         );
-        
-        p.validAttributes(new ArrayList<>(attrs));
+     
+        if(attrs != null)
+            p.validAttributes(attrs);
 
-        p.validDefaultAttributes(default_attributes);
+        if(default_attributes != null)
+            p.validDefaultAttributes(default_attributes);
+
 
         productRepository.update(p);
 

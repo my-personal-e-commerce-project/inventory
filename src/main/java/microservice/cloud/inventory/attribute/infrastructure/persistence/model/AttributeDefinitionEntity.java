@@ -1,25 +1,15 @@
 package microservice.cloud.inventory.attribute.infrastructure.persistence.model;
 
-import java.util.List;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import microservice.cloud.inventory.product.infrastructure.entity.ProductAttributeValueEntity;
 
-@Entity
-@Table(name = "attribute_definition")
+@Table("attributedefinition")
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
@@ -28,24 +18,12 @@ import microservice.cloud.inventory.product.infrastructure.entity.ProductAttribu
 public class AttributeDefinitionEntity {
 
     @Id
-    @Column(name = "id", unique = true, nullable = false, updatable = false)
     private String id;
     private String name;
-
-    @Column(name = "slug", unique = true, nullable = false)
     private String slug;
    
-    @Column(name = "type", nullable = false)
     private String type;
 
-    @Column(name = "is_global")
     @Builder.Default
     private boolean is_global = false;
-
-    @OneToMany(
-        mappedBy = "attribute_definition",
-        fetch = FetchType.LAZY
-    )
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<ProductAttributeValueEntity> productAttributes;
 }

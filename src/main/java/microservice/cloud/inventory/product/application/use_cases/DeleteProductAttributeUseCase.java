@@ -1,21 +1,18 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.product.application.ports.in.DeleteProductAttributeUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.product.domain.entity.Product;
+import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 
 public class DeleteProductAttributeUseCase implements DeleteProductAttributeUseCasePort {
 
     private ProductRepository productRepository;
-    private GetMePort getMePort;
     private CategoryRepository categoryRepository;
+    private GetMePort getMePort;
 
     public DeleteProductAttributeUseCase(
         ProductRepository productRepository,
@@ -23,6 +20,7 @@ public class DeleteProductAttributeUseCase implements DeleteProductAttributeUseC
         GetMePort getMePort
     ) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
         this.getMePort = getMePort;
     }
 
@@ -30,15 +28,16 @@ public class DeleteProductAttributeUseCase implements DeleteProductAttributeUseC
     public Product execute(Id productId, Id productAttributeId) {
         Product product = productRepository.findById(productId);
 
-        product.removeAttribute(getMePort.execute(), productAttributeId);
+        ProductAttributeValue productAttributeValue = productRepository 
+            .findProductAttributeValueById(productAttributeId);
 
-        List<CategoryAttribute> attrs = 
-           categoryRepository 
-            .getCategoryAttributesByCategoryIds(
-                product.categories()
-            );
-
-        product.validAttributes(new ArrayList<>(attrs));
+        product.removeAttribute(
+            getMePort.execute(), 
+            productAttributeId, 
+            categoryRepository.getCategoryAttributeByAttributeDefinitionId(
+                productAttributeValue.id()
+            )
+        );
 
         productRepository.update(product);
 

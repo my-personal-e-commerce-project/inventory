@@ -1,6 +1,7 @@
 package microservice.cloud.inventory.category.infrastructure.presentation.validate;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -34,5 +35,5 @@ public class UpdateCategoryDTO {
 
     @Valid
     @NotNull
-    private List<UpdateCategoryAttributeDTO> categoryAttributes;
+    private Set<UpdateCategoryAttributeDTO> categoryAttributes = new HashSet<>();
 }

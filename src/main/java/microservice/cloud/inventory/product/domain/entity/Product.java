@@ -19,13 +19,13 @@ import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
-public class Product extends AggregateRoot{
+public class Product extends AggregateRoot {
     private Id id;
     private String title;
     private Slug slug;
     private String description;
     private List<String> tags;
-    private List<String> categorySlugs;
+    private List<String> categories;
     private Price price;
     private Quantity stock;
     private List<String> images;
@@ -43,12 +43,6 @@ public class Product extends AggregateRoot{
         List<String> images,
         List<String> tags
     ) {
-        if(id == null)
-            throw new RuntimeException("The id cannot be null");
-
-        if(categories == null || categories.size() < 1)
-            throw new InvalidProductException("Products must have at least one category");
-
         if(title == null)
             throw new InvalidProductException("Products must have at least one category");
 
@@ -56,7 +50,7 @@ public class Product extends AggregateRoot{
         this.title = title;
         this.slug = slug;
         this.description = description;
-        this.categorySlugs = categories;
+        this.categories = categories;
         attributeValues.stream().forEach(attr -> this.attributeValues.put(attr.id().value(), attr));
         this.price = price;
         this.stock = stock;
@@ -74,24 +68,22 @@ public class Product extends AggregateRoot{
     }
 
     public void validDefaultAttributes(List<AttributeDefinition> attrs) {
-
-        Map<String, ProductAttributeValue> productAttributeByAttributeDefinitionSlug =
+        Map<String, ProductAttributeValue> productAttributeByAttributeDefinitionId =
             attributeValues.values().stream()
                 .collect(Collectors.toMap(
-                    pav -> pav.attribute_definition_slug().value(),
+                    pav -> pav.attribute_definition_id().value(),
                     Function.identity()
                 ));
 
         for (AttributeDefinition attr : attrs) {
-
-            String defSlug = attr.slug().value();
+            String def = attr.slug().value();
             ProductAttributeValue productAttr = 
-                productAttributeByAttributeDefinitionSlug
-                .get(defSlug);
+                productAttributeByAttributeDefinitionId
+                .get(def);
 
             if (productAttr == null) {
                 throw new IllegalStateException(
-                    "The product attribute is missing for: " + defSlug
+                    "The product attribute is missing for: " + attr.slug().value() + ", go create a new attribute in the appropriate endpoint"
                 );
             }
 
@@ -103,21 +95,25 @@ public class Product extends AggregateRoot{
 
     public void validAttributes(List<CategoryAttribute> category_attrs) {
 
-        Map<String, ProductAttributeValue> productAttributeByAttributeDefinitionSlug =
+        Map<String, ProductAttributeValue> productAttributeByAttributeDefinitionId =
             attributeValues.values().stream()
                 .collect(Collectors.toMap(
-                    pav -> pav.attribute_definition_slug().value(),
+                    pav -> pav.attribute_definition_id().value(),
                     Function.identity()
                 ));
 
         for (CategoryAttribute categoryAttr : category_attrs) {
 
-            String defSlug = categoryAttr.attribute_definition().slug().value();
-            ProductAttributeValue productAttr = productAttributeByAttributeDefinitionSlug.get(defSlug);
+            String def = categoryAttr.attribute_definition_id().value();
+
+            ProductAttributeValue productAttr = productAttributeByAttributeDefinitionId.get(def);
 
             if (categoryAttr.is_required() && productAttr == null) {
                 throw new IllegalStateException(
-                    "The product attribute is missing for: " + defSlug
+                    "The product attribute is missing for the attribute definition: " 
+                    + categoryAttr.attribute_definition().slug().value() + " with id:" 
+                    + categoryAttr.attribute_definition().id().value() 
+                    + ", go create a new attribute in the appropriate endpoint"
                 );
             }
 
@@ -134,7 +130,7 @@ public class Product extends AggregateRoot{
         me.IHavePermission(Permission.updateProduct());
 
         attributeValues.values().stream().forEach(a -> {
-            if(a.attribute_definition_slug().equals(attr.attribute_definition_slug()))
+            if(a.attribute_definition_id().equals(attr.attribute_definition_id()))
                 throw new RuntimeException("An attribute with the same attribute definition already exists.");
         });
 
@@ -156,13 +152,14 @@ public class Product extends AggregateRoot{
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
 
+        if(categories == null || categories.size() < 1)
+            throw new InvalidProductException("Products must have at least one category");
+
         me.IHavePermission(Permission.updateProduct());
         
-        List<ProductAttributeValue> newAttrs = attributes;
-
         Map<String, ProductAttributeValue> mapNewAttrs = new HashMap<>();
 
-        newAttrs.stream().forEach(a -> {
+        attributes.stream().forEach(a -> {
             mapNewAttrs.put(a.id().value(), a);
         });
 
@@ -170,27 +167,47 @@ public class Product extends AggregateRoot{
             ProductAttributeValue attr = mapNewAttrs.get(a.id().value());
 
             if(attr == null)
-                throw new RuntimeException("you need to thicken the attribute " + a.id().value());
+                throw new RuntimeException("You need to thicken the attribute " + a.id().value());
+
+            if(!attr.attribute_definition_id().equals(a.attribute_definition_id()))
+                throw new RuntimeException("The id of the attribute definition: " + a.attribute_definition_id().value() + ", should be in the attribute: " + a.id().value());
+
         });
 
+        this.attributeValues = mapNewAttrs;
         this.title = title;
         this.description = description;
         this.slug = slug;
-        this.categorySlugs = categories;
+        this.categories = categories;
         this.price = price;
         this.stock = stock;
         this.images = images;
         this.tags = tags;
     }
 
-    public void removeAttribute(Me me, Id productAttributeId) {
+    public void removeAttribute(Me me, Id productAttributeId, CategoryAttribute categoryAttribute) {
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.updateProduct());
 
-        if(attributeValues.get(productAttributeId.value()) == null)
-            throw new DataNotFound("Product attribute not found");
+        ProductAttributeValue attr = attributeValues.get(productAttributeId.value());
+
+        if(attr == null)
+            throw new DataNotFound("The attribute " + productAttributeId.value() + " is not of this product");
+
+        if(categoryAttribute == null)
+            throw new RuntimeException("The category attribute must not null");
+
+        if(attr.attribute_definition_id().equals(categoryAttribute.attribute_definition().id()))
+            throw 
+                new RuntimeException(
+                    "The ID of the provided attribute definition is not the same as the ID of the product attribute."
+                );
+
+        if(categoryAttribute.is_required())
+            throw 
+                new RuntimeException("The attribute definition is required, this product attribute cannot be deleted");
 
         attributeValues.remove(productAttributeId.value());
     }
@@ -219,7 +236,7 @@ public class Product extends AggregateRoot{
     }
 
     public List<String> categories() {
-        return new ArrayList<>(categorySlugs);
+        return new ArrayList<>(categories);
     }
 
     public Price price() {

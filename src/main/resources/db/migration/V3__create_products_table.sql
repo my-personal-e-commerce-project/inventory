@@ -1,8 +1,10 @@
 CREATE TABLE products (
-    id VARCHAR(255) PRIMARY KEY,
+    id VARCHAR(255) PRIMARY KEY UNIQUE NOT NULL,
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
+    images varchar[],
+    tags varchar[],
     price DOUBLE PRECISION NOT NULL,
     stock INTEGER NOT NULL
 );
@@ -12,25 +14,11 @@ CREATE TABLE product_categories (
     category_id VARCHAR(255) NOT NULL,
     PRIMARY KEY (product_id, category_id),
     CONSTRAINT fk_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE,
-    CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE CASCADE
-);
-
-CREATE TABLE images (
-    id VARCHAR(255) PRIMARY KEY,
-    url TEXT NOT NULL,
-    product_id VARCHAR(255) NOT NULL,
-    CONSTRAINT fk_product_images FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
-);
-
-CREATE TABLE tags (
-    id VARCHAR(255) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    product_id VARCHAR(255) NOT NULL,
-    CONSTRAINT fk_product_tags FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
+    CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES Category (id) ON DELETE CASCADE
 );
 
 CREATE TABLE product_attribute_values (
-    id VARCHAR(255) PRIMARY KEY,
+    id VARCHAR(255) PRIMARY KEY UNIQUE NOT NULL,
     product_id VARCHAR(255) NOT NULL,
     attribute_definition_id VARCHAR(255) NOT NULL,
     string_value TEXT,
@@ -45,7 +33,7 @@ CREATE TABLE product_attribute_values (
         
     CONSTRAINT fk_pav_definition 
         FOREIGN KEY (attribute_definition_id) 
-        REFERENCES attribute_definition (id) 
+        REFERENCES AttributeDefinition (id) 
         ON DELETE CASCADE
 );
 
@@ -68,17 +56,12 @@ BEGIN
             'description', NEW.description,
             'price', NEW.price,
             'stock', NEW.stock,
-            'images', (SELECT coalesce(jsonb_agg(url), '[]'::jsonb) 
-                FROM images 
-                WHERE product_id = NEW.id),
-
-            'tags', (SELECT coalesce(jsonb_agg(name), '[]'::jsonb) 
-                 FROM tags 
-                 WHERE product_id = NEW.id),
+            'images', NEW.images,
+            'tags', NEW.tags,
             'categories', (
                 SELECT coalesce(jsonb_agg(c.slug), '[]'::jsonb)
                 FROM product_categories pc
-                JOIN categories c ON pc.category_id = c.id
+                JOIN category c ON pc.category_id = c.id
                 WHERE pc.product_id = NEW.id
             ),
             'attributes', (
@@ -101,17 +84,12 @@ BEGIN
             'description', NEW.description,
             'price', NEW.price,
             'stock', NEW.stock,
-            'images', (SELECT coalesce(jsonb_agg(url), '[]'::jsonb) 
-                FROM images 
-                WHERE product_id = NEW.id),
-
-            'tags', (SELECT coalesce(jsonb_agg(name), '[]'::jsonb) 
-                 FROM tags 
-                 WHERE product_id = NEW.id),
+            'images', NEW.images,
+            'tags', NEW.tags,
             'categories', (
                 SELECT coalesce(jsonb_agg(c.slug), '[]'::jsonb)
                 FROM product_categories pc
-                JOIN categories c ON pc.category_id = c.id
+                JOIN category c ON pc.category_id = c.id
                 WHERE pc.product_id = NEW.id
             ),
             'attributes', (
@@ -144,8 +122,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_refresh_from_images AFTER INSERT OR UPDATE OR DELETE ON images FOR EACH ROW EXECUTE FUNCTION fn_trigger_product_refresh();
-CREATE TRIGGER trg_refresh_from_tags AFTER INSERT OR UPDATE OR DELETE ON tags FOR EACH ROW EXECUTE FUNCTION fn_trigger_product_refresh();
 CREATE TRIGGER trg_refresh_from_pav AFTER INSERT OR UPDATE OR DELETE ON product_attribute_values FOR EACH ROW EXECUTE FUNCTION fn_trigger_product_refresh();
 
 CREATE OR REPLACE FUNCTION fn_trigger_product_refresh_from_cat()

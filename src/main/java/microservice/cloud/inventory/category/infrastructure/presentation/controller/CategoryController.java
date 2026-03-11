@@ -1,6 +1,7 @@
 package microservice.cloud.inventory.category.infrastructure.presentation.controller;
 
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,11 +51,16 @@ public class CategoryController {
     private final DeleteCategoryAttributeUseCasePort deleteCategoryAttributeUseCasePort; 
 
     @GetMapping
-    public ResponseEntity<?> getAttributes(
+    public ResponseEntity<?> getCategories(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
-        Pagination<CategoryReadDTO> categories = listCategoryUseCasePort.execute(0, 10);
+        if(page < 1 || size < 0) {
+            page = 0;
+            size = 10;
+        }
+
+        Pagination<CategoryReadDTO> categories = listCategoryUseCasePort.execute(page, size);
         
         return new ResponseEntity<>(
             categories,
@@ -80,7 +86,7 @@ public class CategoryController {
                     attr.setId(Id.generate().value());
                     attr.getAttributeDefinition().setId(Id.generate().value());
                     return toMap(attr);
-                }).toList()
+                }).collect(Collectors.toSet())
             )
         );
 
@@ -100,18 +106,20 @@ public class CategoryController {
     ) {
         category.setId(id);
 
-        List<CategoryAttribute> attrs = category.getCategoryAttributes()
+        Set<CategoryAttribute> attrs = category.getCategoryAttributes()
             .stream()
             .map(attr -> {
                 return toMap(attr);
             })
-            .toList();
+            .collect(Collectors.toSet());
 
         updateCategoryUseCasePort.execute(
             new Id(id),
             category.getName(), 
             new Slug(category.getSlug()), 
-            new Id(category.getParent_id()), 
+            category.getParent_id() != null
+                ? new Id(category.getParent_id())
+                : null, 
             attrs
         );
 
@@ -142,16 +150,19 @@ public class CategoryController {
     ) {
         categoryAttribute.setId(Id.generate().value());
 
-        CategoryAttribute attr = toMap(categoryAttribute);
-        
-        createCategoryAttributeUseCasePort.execute(new Id(id), attr);
+        categoryAttribute.getAttributeDefinition().setId(Id.generate().value());
+
+        createCategoryAttributeUseCasePort.execute(
+            new Id(id), 
+            toMap(categoryAttribute)
+        );
 
         return new ResponseEntity<>(
             ResponsePayload.<CategoryAttributeDTO>builder()
                 .message("Category attribute added successfully")
                 .payload(categoryAttribute)
                 .build(),
-                HttpStatus.OK
+                HttpStatus.CREATED
         );    
     }
 
@@ -166,35 +177,46 @@ public class CategoryController {
     }
 
     private CategoryAttribute toMap(UpdateCategoryAttributeDTO attr) {
+        AttributeDefinition attrDef = new AttributeDefinition(
+            new Id(attr.getAttributeDefinition().getId()), 
+            attr.getAttributeDefinition().getName(), 
+            new Slug(attr.getAttributeDefinition().getSlug()), 
+            DataType.valueOf(attr.getAttributeDefinition().getType()), 
+            false
+        );
 
-        return new CategoryAttribute(
-            new Id(attr.getId()), 
-            new AttributeDefinition(
-                new Id(attr.getAttributeDefinition().getId()), 
-                attr.getAttributeDefinition().getName(), 
-                new Slug(attr.getAttributeDefinition().getSlug()), 
-                DataType.valueOf(attr.getAttributeDefinition().getType()), 
-                false
-            ),
-            attr.getIs_required(), 
+        CategoryAttribute catAttr = new CategoryAttribute(
+            new Id(attr.getId()),
+            attrDef.id(),
+            attr.getIs_required(),
             attr.getIs_filterable(), 
             attr.getIs_sortable()
         );
+
+        catAttr.load_attribute_definition(attrDef);
+
+        return catAttr;
     }
 
     private CategoryAttribute toMap(CategoryAttributeDTO categoryAttribute) {
-        return new CategoryAttribute(
+        AttributeDefinition attrDef = new AttributeDefinition(
+            new Id(categoryAttribute.getAttributeDefinition().getId()), 
+            categoryAttribute.getAttributeDefinition().getName(), 
+            new Slug(categoryAttribute.getAttributeDefinition().getSlug()), 
+            DataType.valueOf(categoryAttribute.getAttributeDefinition().getType()), 
+            false
+        );
+
+        CategoryAttribute catAttr = new CategoryAttribute(
             new Id(categoryAttribute.getId()),
-            new AttributeDefinition(
-                Id.generate(),
-                categoryAttribute.getAttributeDefinition().getName(),
-                new Slug(categoryAttribute.getAttributeDefinition().getSlug()),
-                DataType.valueOf(categoryAttribute.getAttributeDefinition().getType()),
-               false 
-            ),
+            attrDef.id(),
             categoryAttribute.getIs_required(),
             categoryAttribute.getIs_filterable(),
             categoryAttribute.getIs_sortable() 
         );
+
+        catAttr.load_attribute_definition(attrDef);
+
+        return catAttr;
     }
 }

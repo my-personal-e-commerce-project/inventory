@@ -1,277 +1,167 @@
 package microservice.cloud.inventory.product.infrastructure.repository;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.NoResultException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import microservice.cloud.inventory.attribute.infrastructure.persistence.model.AttributeDefinitionEntity;
-import microservice.cloud.inventory.category.infrastructure.entity.CategoryEntity;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
-import microservice.cloud.inventory.product.infrastructure.entity.ImageEntity;
 import microservice.cloud.inventory.product.infrastructure.entity.ProductAttributeValueEntity;
+import static microservice.cloud.inventory.product.infrastructure.entity.ProductEntity.ProductCategoryReference;
 import microservice.cloud.inventory.product.infrastructure.entity.ProductEntity;
-import microservice.cloud.inventory.product.infrastructure.entity.TagEntity;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
-@RequiredArgsConstructor
 @Repository
+@RequiredArgsConstructor
 public class ProductRepositoryJpaImpl implements ProductRepository {
 
-    private final EntityManager entityManager;
+    private final JdbcAggregateTemplate aggregateTemplate;
+    private final ProductAttributeValueJdbcRepository productAttributeValueJdbcRepository;
+
+    @Override
+    public ProductAttributeValue findProductAttributeValueById(Id id) {
+        return toMap(
+            productAttributeValueJdbcRepository
+            .findByAttributeDefinitionId(id.value())
+        );
+    }
 
     @Override
     public Product findById(Id id) {
-        ProductEntity product = entityManager
-            .find(ProductEntity.class, id.value());
+        ProductEntity entity = aggregateTemplate.findById(id.value(), ProductEntity.class);
 
-        if(product == null)
+        if(entity == null)
             throw new DataNotFound("Product not found");
 
-        return toModel(product);
+        return toMap(entity);
+    }
+
+    @Transactional
+    @Override
+    public void save(Product product) {
+        try {
+            aggregateTemplate.insert(toMap(product));
+        } catch(DataIntegrityViolationException e) {
+            if (e.getMessage() != null && e.getMessage().contains("slug")) {
+                throw new RuntimeException("The slug already exists");
+            }
+            throw e;
+        }
     }
 
     @Transactional
     @Override
     public void update(Product product) {
-        ProductEntity entity = entityManager
-            .find(ProductEntity.class, product.id().value());
-
-        if (entity == null)
-            throw new DataNotFound("Product not found");
-
-        entity.getTags().clear();
-
-        List<TagEntity> tags = product.images() == null
-            ? Collections.emptyList()
-            : product.tags()
-            .stream()
-            .map((item) -> {
-                return TagEntity.builder()
-                    .id(UUID.randomUUID().toString())
-                    .product(entity)
-                    .name(item)
-                    .build();
-            })
-        .toList();
-
-        entity.getTags().addAll(tags);
-
-        entity.getImages().clear();
-
-        List<ImageEntity> images = product.images() == null
-            ? Collections.emptyList()
-            : product.images()
-            .stream()
-            .map((item) -> {
-                return ImageEntity.builder()
-                    .id(UUID.randomUUID().toString())
-                    .product(entity)
-                    .url(item)
-                    .build();
-            })
-        .toList();
-
-        entity.getImages().addAll(images);
-
-        entity.setTitle(product.title());
-        entity.setDescription(product.description());
-        entity.setSlug(product.slug().value());
-        entity.setStock(product.stock().value());
-        entity.setPrice(product.price().value());
-        entity.setCategories(listCategories(product));
-
-        entity.getAttributeValues().clear();
-
-        entityManager.flush();
-
-        entity.getAttributeValues().addAll(listAttributeEntities(product, entity));
-
-        entityManager.merge(entity);
-    }
-
-    @Override
-    @Transactional
-    public void save(Product product) {
-        if(existBySlug(product.slug().value())) {
-            throw new RuntimeException("Product with slug " + product.slug().value() + " already exists");
+        try {
+            aggregateTemplate.update(toMap(product));
+        } catch (Throwable t) { 
+            Throwable root = t;
+            while (root != null) {
+                String msg = root.getMessage();
+                if (msg != null) {
+                    if (msg.contains("fk_pav_definition")) {
+                        throw new RuntimeException("The attribute definition not found");
+                    }
+                    if (msg.contains("products_slug_key")) {
+                        throw new RuntimeException("The slug already exists");
+                    }
+                }
+                root = root.getCause();
+            }
+            throw t; 
         }
-        entityManager.persist(toMap(product));
+        
     }
 
-    @Transactional
     @Override
     public void delete(Product product) {
-        ProductEntity productDB = entityManager
-            .find(ProductEntity.class,
-                product.id().value()
-            );
-
-        if(productDB == null)
-            throw new DataNotFound("Product not found");
-
-        entityManager.remove(productDB);
-    }
-
-    private Product toModel(ProductEntity entity) {
-        List<ProductAttributeValue> attrs = entity.getAttributeValues().stream().map(a -> {
-            return new ProductAttributeValue(
-                    new Id(a.getId()), 
-                    new Slug(a.getAttribute_definition().getSlug()), 
-                    a.getString_value(), 
-                    a.getInteger_value(), 
-                    a.getDouble_value(), 
-                    a.getBoolean_value()
-                    );
-        }).toList();
-
-        return new Product(
-                new Id(entity.getId()),
-                entity.getTitle(), 
-                new Slug(entity.getSlug()), 
-                entity.getDescription(), 
-                entity.getCategories().stream().map(c -> c.getSlug()).toList(), 
-                new Price(entity.getPrice()), 
-                attrs, 
-                new Quantity(entity.getStock()), 
-                entity.getImages().stream().map(i -> i.getUrl()).toList(),
-                entity.getTags().stream().map(t -> t.getName()).toList()
-            );
+        aggregateTemplate.delete(toMap(product));
     }
 
     private ProductEntity toMap(Product product) {
-        ProductEntity p = ProductEntity.builder()
-            .id(product.id().value())
-            .title(product.title())
-            .slug(product.slug().value())
-            .description(product.description())
-            .categories(listCategories(product))
-            .price(product.price().value())
-            .stock(product.stock().value())
-            .build();
 
-        List<TagEntity> tags = product
-            .tags() == null? null:
-            product.tags()
-            .stream()
-            .map(i -> TagEntity.builder()
-                    .id(UUID.randomUUID().toString()).name(i)
-                    .product(p)
-                    .build()
-                )
-            .toList();
-
-        List<ImageEntity> images = product
-            .images() == null? null:
-            product.images()
-            .stream()
-            .map((item) -> {
-                return ImageEntity.builder()
-                    .id(UUID.randomUUID().toString())
-                    .url(item)
-                    .product(p)
-                    .build();
-            })
-        .toList();
-
-        p.setImages(images);
-        p.setTags(tags);
-        p.setAttributeValues(listAttributeEntities(product, p));
-
-        return p;
-    }
-
-    private List<ProductAttributeValueEntity> listAttributeEntities(Product product, ProductEntity entity){
-
-        if(product.attributeValues() == null)
-            return null;
-
-        List<String> attributeDefinitionIds = product.attributeValues()
-            .stream()
-            .map(av -> av.attribute_definition_slug().value())
-            .toList();
-
-        List<AttributeDefinitionEntity> definitions = entityManager.createQuery(
-                "SELECT a FROM AttributeDefinitionEntity a WHERE a.slug IN :slugs", AttributeDefinitionEntity.class
-                )
-            .setParameter("slugs", attributeDefinitionIds)
-            .getResultList();
-
-        Map<String, AttributeDefinitionEntity> definitionMap = definitions.stream()
-            .collect(Collectors.toMap(AttributeDefinitionEntity::getSlug, Function.identity()));
-
-        List<ProductAttributeValueEntity> attributeValues = product
-            .attributeValues()
-            .stream()
-            .map((ProductAttributeValue item) -> {
-                AttributeDefinitionEntity definition = definitionMap.get(item.attribute_definition_slug().value());
-
-                if(definition == null)
-                    throw new EntityNotFoundException(
-                            "Attribute definition " + item.attribute_definition_slug().value() + " not found"
-                            );
-
-                return ProductAttributeValueEntity.builder()
-                    .id(item.id().value())
-                    .product(entity)
-                    .attribute_definition(definition)
-                    .string_value(item.string_value())
-                    .integer_value(item.integer_value())
-                    .double_value(item.double_value())
-                    .build();
-            })
-        .toList();
-
-        return attributeValues;
-    }
-
-    private List<CategoryEntity> listCategories(Product product) {
-        List<String> categorySlugs = product.categories();
-
-        List<CategoryEntity> categories = entityManager.createQuery(
-                "SELECT c FROM CategoryEntity c WHERE c.slug IN :slugs", CategoryEntity.class
-                )
-            .setParameter("slugs", categorySlugs)
-            .getResultList();
-
-        if (categories.size() != categorySlugs.size()) {
-            Set<String> foundIds = categories.stream()
-                .map(CategoryEntity::getId)
+        Set<ProductCategoryReference> categories = product.categories()
+                .stream()
+                .map(cat -> new ProductCategoryReference(cat))
                 .collect(Collectors.toSet());
-            categorySlugs.removeAll(foundIds);
-            throw new EntityNotFoundException("Category slugs not found: " + categorySlugs);
-        }
 
-        return categories;
+        return new ProductEntity(
+            product.id().value(),
+            product.title(),
+            product.slug().value(),
+            product.description(),
+            categories,
+            product.price().value(),
+            product.stock().value(),
+            product.images(),
+            product.attributeValues()
+                .stream()
+                .map(attr -> new ProductAttributeValueEntity(
+                        attr.id().value(),
+                        product.id().value(),
+                        attr.attribute_definition_id().value(),
+                        attr.string_value(),
+                        attr.integer_value(),
+                        attr.double_value(),
+                        attr.boolean_value()
+                    )
+                ).collect(Collectors.toSet()),
+            product.tags()
+        );
     }
 
-    private boolean existBySlug(String slug) {
-        String jpql = "SELECT COUNT(c) FROM ProductEntity c WHERE c.slug = :slug";
+    private Product toMap(ProductEntity product) {
+        List<String> categories = product.getCategories()
+                .stream()
+                .map(cat -> cat.categoryId())
+                .toList();
 
-        try {
-            Long count = entityManager.createQuery(jpql, Long.class)
-                .setParameter("slug", slug)
-                .getSingleResult(); 
-            
-            return count > 0;
-        } catch (NoResultException e) {
-            return false;
-        }
+        return new Product(
+            new Id(product.getId()),
+            product.getTitle(),
+            new Slug(product.getSlug()),
+            product.getDescription(),
+            categories,
+            new Price(product.getPrice()),
+            product.getAttributeValues()
+                .stream()
+                .map(attr -> new ProductAttributeValue(
+                        new Id(attr.getId()),
+                        new Id(
+                            attr.getAttribute_definition_id()
+                        ),
+                        attr.getString_value(),
+                        attr.getInteger_value(),
+                        attr.getDouble_value(),
+                        attr.getBoolean_value()
+                    )
+                ).toList(),
+            new Quantity(product.getStock()),
+            product.getImages(),
+            product.getTags()
+        );
+    }
+
+    private ProductAttributeValue toMap(ProductAttributeValueEntity entity) {
+
+        return new ProductAttributeValue(
+            new Id(entity.getId()),
+            new Id(entity.getAttribute_definition_id()),
+            entity.getString_value(),
+            entity.getInteger_value(),
+            entity.getDouble_value(),
+            entity.getBoolean_value()
+        );
     }
 }

@@ -1,29 +1,22 @@
 package microservice.cloud.inventory.product.infrastructure.entity;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.MappedCollection;
+import org.springframework.data.relational.core.mapping.Table;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import microservice.cloud.inventory.category.infrastructure.entity.CategoryEntity;
 
-@Entity
-@Table(name = "products")
+
+@Table("products")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -31,45 +24,32 @@ import microservice.cloud.inventory.category.infrastructure.entity.CategoryEntit
 @Builder
 public class ProductEntity {
 
+    @Table("product_categories")
+    public static record ProductCategoryReference(
+        @Column("category_id") String categoryId
+    ) {}
+
     @Id
-    @Column(nullable = false, unique = true, updatable = false)
     private String id;
     
-    @Column(nullable = false)
     private String title;
     
-    @Column(nullable = false, unique = true)
     private String slug;
 
     private String description;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "product_categories",
-        joinColumns = @JoinColumn(name = "product_id"),
-        inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<CategoryEntity> categories;
-   
-    @Column(nullable = false)
-    private double price;
+    @MappedCollection(idColumn = "product_id")
+    @Builder.Default
+    private Set<ProductCategoryReference> categories = new HashSet<>();
+
+    private Double price;
     
-    @Column(nullable = false)
     private int stock;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<ImageEntity> images;
+    private List<String> images;
 
-    @OneToMany(
-        mappedBy = "product", 
-        cascade = CascadeType.ALL, 
-        orphanRemoval = true, 
-        fetch = FetchType.LAZY
-    )
-    private List<ProductAttributeValueEntity> attributeValues;
+    @MappedCollection(idColumn = "product_id")
+    private Set<ProductAttributeValueEntity> attributeValues;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<TagEntity> tags;
-
+    private List<String> tags;
 }

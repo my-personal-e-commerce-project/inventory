@@ -23,7 +23,7 @@ public class CategoryReadDTO {
     private String slug;
 
     @Builder.Default
-    private String parent_id = null;
+    private String parent_slug = null;
 
     private List<CategoryAttributeReadDTO> categoryAttributes;
 }

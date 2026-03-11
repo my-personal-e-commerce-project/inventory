@@ -1,5 +1,7 @@
 package microservice.cloud.inventory.category.infrastructure.presentation.validate;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -33,6 +35,7 @@ public class AttributeDefinitionDTO {
         message = "Status must be STRING, INTEGER, DOUBLE, BOOLEAN")
     public String type;
 
+    @JsonProperty("is_global")
     @Builder.Default
-    public Boolean is_global = null;
+    public Boolean isGlobal = null;
 }

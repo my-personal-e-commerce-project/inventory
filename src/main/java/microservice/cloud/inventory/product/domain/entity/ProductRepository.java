@@ -8,4 +8,5 @@ public interface ProductRepository {
     public void update(Product product);
     public void delete(Product product);
     public Product findById(Id id);
+    public ProductAttributeValue findProductAttributeValueById(Id id);
 }

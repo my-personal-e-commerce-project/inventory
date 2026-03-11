@@ -20,7 +20,7 @@ public class ProductAttributeValueDTO {
 
     @NotNull
     @NotEmpty
-    private String attribute_definition_slug;
+    private String attribute_definition_id;
 
     @Builder.Default
     private String string_value=null;

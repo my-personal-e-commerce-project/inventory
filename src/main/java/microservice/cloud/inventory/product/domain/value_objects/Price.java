@@ -2,9 +2,9 @@ package microservice.cloud.inventory.product.domain.value_objects;
 
 public class Price {
 
-    private double value;
+    private Double value;
     
-    public Price(double value) {
+    public Price(Double value) {
         if(value < 0) {
             throw new IllegalArgumentException("Price cannot be negative");
         }

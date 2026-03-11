@@ -1,4 +1,4 @@
-package microservice.cloud.inventory.attribute.infrastructure.dto;
+package microservice.cloud.inventory.attribute.infrastructure.presentation.validate;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
