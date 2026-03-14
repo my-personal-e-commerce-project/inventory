@@ -1,7 +1,5 @@
 package microservice.cloud.inventory.category.infrastructure.presentation.validate;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -18,24 +16,23 @@ import lombok.Setter;
 @Getter
 public class AttributeDefinitionDTO {
 
-    @Builder.Default
-    public String id = null;
+    @NotNull
+    @NotBlank
+    private String id;
 
     @NotNull
     @NotBlank
-    public String name;
+    private String name;
     
     @NotNull
     @NotBlank
-    public String slug;
+    private String slug;
 
     @NotNull
     @NotBlank
     @Pattern(regexp = "^(STRING|INTEGER|DOUBLE|BOOLEAN|ENUMERATION)$", 
         message = "Status must be STRING, INTEGER, DOUBLE, BOOLEAN")
-    public String type;
+    private String type;
 
-    @JsonProperty("is_global")
-    @Builder.Default
-    public Boolean isGlobal = null;
+    private Boolean is_global;
 }

@@ -2,6 +2,7 @@ package microservice.cloud.inventory.category.infrastructure.adapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.application.ports.in.CreateCategoryAttributeUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.CreateCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryAttributeUseCasePort;
@@ -15,7 +16,6 @@ import microservice.cloud.inventory.category.application.use_cases.DeleteCategor
 import microservice.cloud.inventory.category.application.use_cases.DeleteCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.ListCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.UpdateCategoryUseCase;
-import microservice.cloud.inventory.category.domain.repository.CategoryAttributeRepository;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 
@@ -32,9 +32,14 @@ public class CategoryConfigAdapter {
     @Bean
     public CreateCategoryUseCasePort createCategoryUseCasePort(
         CategoryRepository categoryRepository,
+        AttributeDefinitionRepository attributeDefinitionRepository,
         GetMePort getMePort
     ) {
-        return new CreateCategoryUseCase(categoryRepository, getMePort);
+        return new CreateCategoryUseCase(
+                categoryRepository, 
+                attributeDefinitionRepository, 
+                getMePort
+            );
     }
 
     @Bean
@@ -56,10 +61,15 @@ public class CategoryConfigAdapter {
     @Bean
     public CreateCategoryAttributeUseCasePort createCategoryAttributeUseCasePort(
         CategoryRepository categoryRepository,
+        AttributeDefinitionRepository attributeDefinitionRepository,
         GetMePort getMePort
     ) {
     
-        return new CreateCategoryAttributeUseCase(categoryRepository, getMePort);
+        return new CreateCategoryAttributeUseCase(
+            categoryRepository, 
+            attributeDefinitionRepository, 
+            getMePort
+        );
     }
 
     @Bean

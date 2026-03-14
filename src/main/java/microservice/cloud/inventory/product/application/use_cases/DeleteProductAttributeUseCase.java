@@ -35,7 +35,7 @@ public class DeleteProductAttributeUseCase implements DeleteProductAttributeUseC
             getMePort.execute(), 
             productAttributeId, 
             categoryRepository.getCategoryAttributeByAttributeDefinitionId(
-                productAttributeValue.id()
+                productAttributeValue.attribute_definition_id()
             )
         );
 

@@ -22,7 +22,7 @@ public class UpdateCategoryAttributeDTO {
   
     @Valid
     @NotNull
-    private UpdateAttributeDefinitionDTO attributeDefinition;
+    private String attribute_definition_id;
 
     @NotNull
     private Boolean is_required;

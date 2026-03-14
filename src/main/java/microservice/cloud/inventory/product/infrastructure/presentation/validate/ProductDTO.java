@@ -38,8 +38,6 @@ public class ProductDTO {
     private List<String> categories;
 
     @Valid
-    @NotNull
-    @NotEmpty
     private List<ProductAttributeValueDTO> attributes;
 
     @NotNull

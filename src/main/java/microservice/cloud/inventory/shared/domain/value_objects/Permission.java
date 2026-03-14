@@ -48,15 +48,15 @@ public class Permission {
     }
  
     public static Permission createAttributeDefinition() {
-        return new Permission("create_product");
+        return new Permission("create_attribute_definition");
     }
 
     public static Permission updateAttributeDefinition() {
-        return new Permission("update_product");
+        return new Permission("update_attribute_definition");
     }
 
     public static Permission deleteAttributeDefinition() {
-        return new Permission("update_product");
+        return new Permission("delete_attribute_definition");
     }
     
 }

@@ -1,4 +1,4 @@
-package microservice.cloud.inventory.product.infrastructure.repository;
+package microservice.cloud.inventory.product.infrastructure.persistence.repository;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import microservice.cloud.inventory.shared.application.dto.Pagination;
 
 @Repository
 @RequiredArgsConstructor
-public class ProductReadRepositoryJpaImpl implements ProductReadRepository {
+public class ProductReadRepositoryJdbcAdapter implements ProductReadRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;

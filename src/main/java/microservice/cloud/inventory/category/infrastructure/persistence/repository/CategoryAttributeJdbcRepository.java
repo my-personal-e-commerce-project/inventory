@@ -10,6 +10,8 @@ import microservice.cloud.inventory.category.infrastructure.persistence.model.Ca
 @Repository
 public interface CategoryAttributeJdbcRepository extends CrudRepository<CategoryAttributeEntity, String> {
 
-    @Query("SELECT * FROM categoryattribute WHERE attribute_definition_id = :id")
+    @Query("SELECT ca.*, ad.* FROM categoryattribute ca " +
+       "LEFT JOIN attributedefinition ad ON ca.attribute_definition_id = ad.id " +
+       "WHERE ca.attribute_definition_id = :id")
     public CategoryAttributeEntity findByAttributeDefinitionId(@Param("id") String id);
 }

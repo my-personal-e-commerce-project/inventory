@@ -40,6 +40,7 @@ public class AttributeDefinition {
     }
 
     public void create(Me me) {
+
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
 

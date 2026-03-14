@@ -1,4 +1,4 @@
-package microservice.cloud.inventory.product.infrastructure.entity;
+package microservice.cloud.inventory.product.infrastructure.persistence.entity;
 
 import java.util.HashSet;
 import java.util.List;

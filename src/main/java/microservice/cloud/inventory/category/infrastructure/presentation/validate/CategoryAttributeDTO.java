@@ -1,6 +1,6 @@
 package microservice.cloud.inventory.category.infrastructure.presentation.validate;
 
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,9 +18,9 @@ public class CategoryAttributeDTO {
     @Builder.Default
     private String id = null;
   
-    @Valid
     @NotNull
-    private AttributeDefinitionDTO attributeDefinition;
+    @NotBlank
+    private String attribute_definition_id;
 
     @NotNull
     private Boolean is_required;

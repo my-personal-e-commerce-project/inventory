@@ -76,18 +76,16 @@ public class CategoryController {
         Slug slug = new Slug(category.getSlug());
 
         createCategoryUseCasePort.execute(
-            new Category(
-                new Id(category.getId()),
-                category.getName(),
-                slug,
-                category.getParent_id() == null? null: new Id(category.getParent_id()),
-                category.getCategoryAttributes() == null? null: 
-                category.getCategoryAttributes().stream().map(attr -> {
+            new Id(category.getId()),
+            category.getName(),
+            slug,
+            category.getParent_id() == null? null: new Id(category.getParent_id()),
+            category.getCategoryAttributes() == null
+                ? null
+                : category.getCategoryAttributes().stream().map(attr -> {
                     attr.setId(Id.generate().value());
-                    attr.getAttributeDefinition().setId(Id.generate().value());
                     return toMap(attr);
-                }).collect(Collectors.toSet())
-            )
+                }).toList()
         );
 
         return new ResponseEntity<>(
@@ -150,8 +148,6 @@ public class CategoryController {
     ) {
         categoryAttribute.setId(Id.generate().value());
 
-        categoryAttribute.getAttributeDefinition().setId(Id.generate().value());
-
         createCategoryAttributeUseCasePort.execute(
             new Id(id), 
             toMap(categoryAttribute)
@@ -177,45 +173,26 @@ public class CategoryController {
     }
 
     private CategoryAttribute toMap(UpdateCategoryAttributeDTO attr) {
-        AttributeDefinition attrDef = new AttributeDefinition(
-            new Id(attr.getAttributeDefinition().getId()), 
-            attr.getAttributeDefinition().getName(), 
-            new Slug(attr.getAttributeDefinition().getSlug()), 
-            DataType.valueOf(attr.getAttributeDefinition().getType()), 
-            false
-        );
-
         CategoryAttribute catAttr = new CategoryAttribute(
             new Id(attr.getId()),
-            attrDef.id(),
+            new Id(attr.getAttribute_definition_id()),
             attr.getIs_required(),
             attr.getIs_filterable(), 
             attr.getIs_sortable()
         );
 
-        catAttr.load_attribute_definition(attrDef);
-
         return catAttr;
     }
 
-    private CategoryAttribute toMap(CategoryAttributeDTO categoryAttribute) {
-        AttributeDefinition attrDef = new AttributeDefinition(
-            new Id(categoryAttribute.getAttributeDefinition().getId()), 
-            categoryAttribute.getAttributeDefinition().getName(), 
-            new Slug(categoryAttribute.getAttributeDefinition().getSlug()), 
-            DataType.valueOf(categoryAttribute.getAttributeDefinition().getType()), 
-            false
-        );
+    private CategoryAttribute toMap(CategoryAttributeDTO attr) {
 
         CategoryAttribute catAttr = new CategoryAttribute(
-            new Id(categoryAttribute.getId()),
-            attrDef.id(),
-            categoryAttribute.getIs_required(),
-            categoryAttribute.getIs_filterable(),
-            categoryAttribute.getIs_sortable() 
+            new Id(attr.getId()),
+            new Id(attr.getAttribute_definition_id()),
+            attr.getIs_required(),
+            attr.getIs_filterable(),
+            attr.getIs_sortable() 
         );
-
-        catAttr.load_attribute_definition(attrDef);
 
         return catAttr;
     }

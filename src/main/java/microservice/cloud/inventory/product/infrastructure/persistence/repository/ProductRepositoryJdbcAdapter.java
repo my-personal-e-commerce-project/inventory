@@ -1,4 +1,4 @@
-package microservice.cloud.inventory.product.infrastructure.repository;
+package microservice.cloud.inventory.product.infrastructure.persistence.repository;
 
 import java.util.List;
 import java.util.Set;
@@ -15,25 +15,30 @@ import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
-import microservice.cloud.inventory.product.infrastructure.entity.ProductAttributeValueEntity;
-import static microservice.cloud.inventory.product.infrastructure.entity.ProductEntity.ProductCategoryReference;
-import microservice.cloud.inventory.product.infrastructure.entity.ProductEntity;
+import microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductAttributeValueEntity;
+import static microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductEntity.ProductCategoryReference;
+import microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductEntity;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 @Repository
 @RequiredArgsConstructor
-public class ProductRepositoryJpaImpl implements ProductRepository {
+public class ProductRepositoryJdbcAdapter implements ProductRepository {
 
     private final JdbcAggregateTemplate aggregateTemplate;
     private final ProductAttributeValueJdbcRepository productAttributeValueJdbcRepository;
 
     @Override
     public ProductAttributeValue findProductAttributeValueById(Id id) {
+        ProductAttributeValueEntity attr = productAttributeValueJdbcRepository
+            .findByAttributeDefinitionId(id.value());
+
+        if(attr == null)
+            throw new RuntimeException("Product attribute value not found");
+
         return toMap(
-            productAttributeValueJdbcRepository
-            .findByAttributeDefinitionId(id.value())
+            attr
         );
     }
 

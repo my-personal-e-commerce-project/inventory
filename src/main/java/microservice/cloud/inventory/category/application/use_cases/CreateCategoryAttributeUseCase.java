@@ -1,5 +1,6 @@
 package microservice.cloud.inventory.category.application.use_cases;
 
+import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.application.ports.in.CreateCategoryAttributeUseCasePort;
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
@@ -10,13 +11,16 @@ import microservice.cloud.inventory.shared.domain.value_objects.Id;
 public class CreateCategoryAttributeUseCase implements CreateCategoryAttributeUseCasePort {
 
     private CategoryRepository categoryRepository;
+    private AttributeDefinitionRepository attributeDefinitionRepository;
     private GetMePort getMePort;
 
     public CreateCategoryAttributeUseCase(
         CategoryRepository categoryRepository,
+        AttributeDefinitionRepository attributeDefinitionRepository,
         GetMePort getMePort
     ) {
         this.categoryRepository = categoryRepository;
+        this.attributeDefinitionRepository = attributeDefinitionRepository;
         this.getMePort = getMePort;
     }
 
@@ -25,7 +29,10 @@ public class CreateCategoryAttributeUseCase implements CreateCategoryAttributeUs
 
         category.addCategoryAttribute(getMePort.execute(), categoryAttribute);
 
+        attributeDefinitionRepository.save(categoryAttribute.attribute_definition());
+        
         categoryRepository.update(category);
+
 
         return category;
     }

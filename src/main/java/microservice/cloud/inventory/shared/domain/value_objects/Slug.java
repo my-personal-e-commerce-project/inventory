@@ -19,4 +19,8 @@ public class Slug {
     public String value() {
         return value;
     }
+
+    public boolean equals(Slug slug){
+        return value.equals(slug.value());
+    }
 }

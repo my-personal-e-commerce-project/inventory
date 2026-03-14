@@ -4,5 +4,6 @@ public record AttributeDefinitionReadDTO(
    String id,
    String name,
    String slug,
-   String type
+   String type,
+   Boolean is_global
 ) {}

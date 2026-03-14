@@ -1,5 +1,6 @@
 package microservice.cloud.inventory.category.domain.entity;
 
+import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,41 +20,51 @@ public class Category {
     public Category(Id id, String name, Slug slug, Id parent_id, Set<CategoryAttribute> categoryAttributes) {
         
         if(id == null)
-            throw new RuntimeException("The id cannot be null");
+            throw new RuntimeException("The id cannot be null.");
 
         this.id = id;
         this.name = name;
         this.slug = slug;
         this.parent_id = parent_id;
 
-        this.categoryAttributes = new HashSet<>(categoryAttributes);
+        if(categoryAttributes != null)
+            this.categoryAttributes = new HashSet<>(categoryAttributes);
     }
 
-    public void create(Me me) {
+    private void validAddCategoryAttribute(CategoryAttribute attr) {
+       
+        if(attr.attribute_definition().is_global())
+            throw new RuntimeException("The attribute definition cannot be global.");
+
+
+        if (!this.categoryAttributes.add(attr))
+            throw new RuntimeException("The category attribute with id: " 
+                    + attr.id().value() 
+                    +  " or attribute definition id: " 
+                    + attr.attribute_definition_id().value() 
+                    + " already exists.");
+    }
+
+    public static Category factory(
+        Me me,
+        Id id,
+        String name, 
+        Slug slug, 
+        Id parent_id,
+        List<CategoryAttribute> attributes
+    ) {
         if(me == null)
-            throw new RuntimeException("You do not have permission to perform this action");
+            throw new RuntimeException("You do not have permission to perform this action.");
 
         me.IHavePermission(Permission.createCategory());
 
-        categoryAttributes().stream().forEach((attr) -> {
-            validCategoryAttribute(attr);
+        Category category = new Category(id, name, slug, parent_id, null);
+
+        attributes.forEach(attr -> {
+            category.validAddCategoryAttribute(attr);
         });
-    }
 
-    private void validCategoryAttribute(CategoryAttribute categoryAttribute) {
-
-        if(categoryAttribute.attribute_definition().is_global() == true)
-            throw new 
-                RuntimeException(
-                    "The definition of the attribute cannot be global"
-                );
-       
-        if (!categoryAttribute.attribute_definition().slug().value().startsWith(this.slug().value()+":"))
-            throw new RuntimeException(String.format(
-                "Invalid attribute namespace: The attribute slug '%s' must be prefixed with the category slug '%s:'",
-                categoryAttribute.attribute_definition().slug().value(),
-                this.slug().value()
-            ));
+        return category;
     }
 
     public void addCategoryAttribute(
@@ -61,25 +72,51 @@ public class Category {
         CategoryAttribute attr
     ) {
         if(me == null)
-            throw new RuntimeException("You do not have permission to perform this action");
+            throw new RuntimeException("You do not have permission to perform this action.");
 
         me.IHavePermission(Permission.updateCategory());
-        
-        this.validCategoryAttribute(attr);
-        this.categoryAttributes.add(attr);
+     
+        validAddCategoryAttribute(attr);
     }
 
-    public void update(Me me, String name, Slug slug, Id parent_id, Set<CategoryAttribute> categoryAttributes) {
+    public void update(
+        Me me, 
+        String name, 
+        Slug slug, 
+        Id parent_id, 
+        Set<CategoryAttribute> categoryAttributes
+    ) {
         if(me == null)
-            throw new RuntimeException("You do not have permission to perform this action");
+            throw new RuntimeException("You do not have permission to perform this action.");
 
         me.IHavePermission(Permission.updateCategory());
 
         categoryAttributes.stream().forEach(attr -> {
-            if(this.categoryAttributes.contains(attr))
-                throw new DataNotFound("Category attribute " + attr.id().value() + " not found");
+            if(
+                this.categoryAttributes
+                    .stream()
+                    .filter(actualAttr -> actualAttr.id().equals(attr.id()))
+                    .findFirst()
+                    .isEmpty()
+            )
+                throw new RuntimeException("Category attribute with id: '" 
+                    + attr.id().value() 
+                    + "' not exists in the current category attributes.");
 
-            this.validCategoryAttribute(attr);
+        });
+
+        this.categoryAttributes.stream().forEach(attr -> {
+            if(
+                categoryAttributes
+                    .stream()
+                    .filter(actualAttr -> actualAttr.id().equals(attr.id()))
+                    .findFirst()
+                    .isEmpty()
+            )
+                throw new RuntimeException("Category attribute with id: '" 
+                    + attr.id().value() 
+                    + "' not found in the new category attributes.");
+
         });
 
         this.categoryAttributes = categoryAttributes;
@@ -90,21 +127,21 @@ public class Category {
 
     public void removeCategoryAttribute(Me me, Id id) {
         if(me == null)
-            throw new RuntimeException("You do not have permission to perform this action");
+            throw new RuntimeException("You do not have permission to perform this action.");
 
         me.IHavePermission(Permission.updateCategory());
 
         if(id == null)
-            throw new RuntimeException("Id can not be null");
+            throw new RuntimeException("Id can not be null.");
 
         boolean removed = this.categoryAttributes.removeIf(attr -> attr.id().equals(id));
     
-        if(!removed) throw new DataNotFound("Category attribute not found");
+        if(!removed) throw new DataNotFound("Category attribute not found.");
     }
    
     public void canIDeleteThisCategory(Me me) {
         if(me == null)
-            throw new RuntimeException("You do not have permission to perform this action");
+            throw new RuntimeException("You do not have permission to perform this action.");
 
         me.IHavePermission(Permission.deleteCategory());
     }

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -15,9 +14,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
-import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.attribute.infrastructure.persistence.model.AttributeDefinitionEntity;
+import microservice.cloud.inventory.attribute.infrastructure.persistence.repository.AttributeDefinitionJdbcRepository;
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
@@ -30,61 +28,42 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 @RequiredArgsConstructor
 public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
 
-    private final CategoryAttributeJdbcRepository categoryAttributeJdbcRepository;
+    private final AttributeDefinitionJdbcRepository attributeDefinitionJdbcRepository;
+    private final CategoryJdbcRepository categoryJdbcRepository;
     private final JdbcAggregateTemplate aggregateTemplate;
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public CategoryAttribute getCategoryAttributeByAttributeDefinitionId(Id id) {
-        CategoryAttributeEntity attr = categoryAttributeJdbcRepository
-            .findByAttributeDefinitionId(id.value());
+        String query = """
+            SELECT 
+                ca.id AS attr_id,
+                ca.category_id AS attr_cat_id,
+                ca.attribute_definition_id AS attr_def_id,
+                ca.is_required AS attr_is_required,
+                ca.is_sortable AS attr_is_sortable,
+                ca.is_filterable AS attr_is_filterable,
+                ad.id AS def_id,
+                ad.name AS def_name,
+                ad.slug AS def_slug,
+                ad.type AS def_type,
+                ad.is_global AS def_is_global
+            FROM categoryattribute ca 
+            LEFT JOIN attributedefinition ad 
+            ON ca.attribute_definition_id = ad.id 
+            WHERE ca.attribute_definition_id = ?
+        """;
+
+        CategoryAttributeEntity attr = jdbcTemplate.query(
+            query, 
+            new CategoryAttributeResultSetExtractor(), 
+            id.value()
+        );
 
         if(attr == null)
-            throw new DataNotFound("Category attribute not found");
+            throw new DataNotFound("Attribute definition not found");
 
         return toMap(attr);
-    }
-
-    @Override
-    public Category findById(Id id) {
-        String sql = """ 
-            SELECT 
-                c.id AS cat_id, 
-                c.name AS cat_name, 
-                c.slug AS cat_slug, 
-                c.parent_id AS cat_parent_id,
-                p.slug AS cat_parent_slug, 
-                ca.id AS attr_id, 
-                ca.category_id AS attr_cat_id, 
-                ca.is_required AS attr_is_required, 
-                ca.is_sortable AS attr_is_sortable, 
-                ca.is_filterable AS attr_is_filterable,
-                ca.attribute_definition_id AS attr_def_id,
-                ad.id AS def_id, 
-                ad.name AS def_name, 
-                ad.slug AS def_slug, 
-                ad.type AS def_type, 
-                ad.is_global AS def_is_global
-            FROM (
-                SELECT * FROM category 
-                WHERE id = ?
-            ) c
-            LEFT JOIN category p ON c.parent_id = p.id 
-            LEFT JOIN categoryattribute ca ON c.id = ca.category_id
-            LEFT JOIN attributedefinition ad ON ca.attribute_definition_id = ad.id
-        """;
-            
-        CategoryEntity entity = jdbcTemplate
-            .query(
-                sql, 
-                ps -> ps.setString(1, id.value()), 
-                new CategoryResultSetExtractor()
-            );
-
-        if(entity == null)
-            throw new DataNotFound("Category not found");
-
-        return toMap(entity);
     }
 
     @Override
@@ -140,61 +119,62 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
                 .toList();
 
         if (!missingIds.isEmpty()) {
-            throw new RuntimeException("No attributes were found or the following categories do not exist: " + missingIds);
+            throw new RuntimeException(
+                    "The attributes for these categories were not found, or the following categories do not exist: " 
+                    + missingIds);
         }
 
         return new HashSet<>(queryResults);
     }
 
+    @Override
+    public Category findById(Id id) {
+        return toMap(
+            categoryJdbcRepository
+                .findById(
+                    id.value()
+                )
+                .orElseThrow(() -> new DataNotFound("Category not found")));
+    }
+
     @Transactional
     @Override
     public void save(Category category) {
-        try {
-            aggregateTemplate.insertAll(category.categoryAttributes().stream().map((CategoryAttribute attr) -> toMap(attr.attribute_definition())).toList());
-            aggregateTemplate.insert(toMap(category));
-        } catch(DataIntegrityViolationException e) {
-            if (e.getMessage() != null && e.getMessage().contains("name")) {
-                throw new RuntimeException("The name already exists");
-            }
-            if (e.getMessage() != null && e.getMessage().contains("slug")) {
-                throw new RuntimeException("The slug already exists");
-            }
-            throw e;
+        List<String> definitionIds = category.categoryAttributes().stream()
+            .map(attr -> attr.attribute_definition_id().value())
+            .distinct()
+            .toList();
+
+        long count = attributeDefinitionJdbcRepository.countByIdIn(definitionIds);
+
+        if (count != definitionIds.size()) {
+            throw new RuntimeException("One or more attribute definitions are do not exist!");
         }
+
+        if(categoryJdbcRepository.existsBySlug(category.slug().value()))
+            throw new RuntimeException("This slug already exists");
+
+        if(categoryJdbcRepository.existsByName(category.name()))
+            throw new RuntimeException("This name already exists");
+        
+        aggregateTemplate.insert(toMap(category));
     }
 
     @Transactional
     @Override
     public void update(Category category) {
-        try {
-            aggregateTemplate.updateAll(
-                category.categoryAttributes()
-                    .stream()
-                    .map(attr -> toMap(attr.attribute_definition()))
-                    .toList()
-                );
+        if(categoryJdbcRepository.existsBySlugAndIdNot(category.slug().value(), category.id().value()))
+            throw new RuntimeException("This slug already exists");
 
-            aggregateTemplate.update(toMap(category));
-        } catch(DataIntegrityViolationException e) {
-            if (e.getMessage() != null && e.getMessage().contains("name")) {
-                throw new RuntimeException("The name already exists");
-            }
-            if (e.getMessage() != null && e.getMessage().contains("slug")) {
-                throw new RuntimeException("The slug already exists");
-            }
-            throw e;
-        }
+        if(categoryJdbcRepository.existsByNameAndIdNot(category.name(), category.id().value()))
+            throw new RuntimeException("This name already exists");
+        
+        aggregateTemplate.update(toMap(category));
     }
 
     @Transactional
     @Override
     public void delete(Category category) {
-        aggregateTemplate.deleteAll(
-                category.categoryAttributes()
-                .stream()
-                .map(attr -> toMap(attr.attribute_definition()))
-                .toList()
-            );
         aggregateTemplate.delete(toMap(category));
     }
 
@@ -203,33 +183,15 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
             new Id(entity.getId()), 
             entity.getName(), 
             new Slug(entity.getSlug()), 
-            entity.getParent_id() != null? new Id(entity.getParent_id()): null, 
+            entity.getParent_id() != null
+            ? new Id(entity.getParent_id())
+            : null,
             entity.getCategoryAttributes()
-                .stream()
-                .map(attr -> toMap(attr))
-                .collect(Collectors.toSet())
+                    .stream()
+                    .map(attr -> {
+                    return toMap(attr);
+                }).collect(Collectors.toSet())
         );
-    }
-
-    private CategoryAttribute toMap(CategoryAttributeEntity entity) {
-        AttributeDefinition attrDef = new AttributeDefinition(
-                new Id(entity.getAttribute_definition().getId()), 
-                entity.getAttribute_definition().getName(), 
-                new Slug(entity.getAttribute_definition().getSlug()), 
-                DataType.valueOf(entity.getAttribute_definition().getType()),
-                entity.getAttribute_definition().is_global());
-
-        CategoryAttribute catAttr = new CategoryAttribute(
-            new Id(entity.getId()),
-            attrDef.id(),
-            entity.getIs_required(), 
-            entity.getIs_filterable(), 
-            entity.getIs_sortable()
-        );
-
-        catAttr.load_attribute_definition(attrDef);
-
-        return catAttr;
     }
 
     private CategoryEntity toMap(Category entity) {
@@ -245,6 +207,18 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
             }).collect(Collectors.toSet())
         );
     }
+    
+    private CategoryAttribute toMap(CategoryAttributeEntity entity) {
+        CategoryAttribute catAttr = new CategoryAttribute(
+            new Id(entity.getId()),
+            new Id(entity.getAttribute_definition_id()),
+            entity.getIs_required(), 
+            entity.getIs_filterable(), 
+            entity.getIs_sortable()
+        );
+
+        return catAttr;
+    }
 
     private CategoryAttributeEntity toMap(Id cat, CategoryAttribute entity) {
 
@@ -256,17 +230,6 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
             entity.is_required(), 
             entity.is_filterable(), 
             entity.is_sortable()
-        );
-    }
-
-    private AttributeDefinitionEntity toMap(AttributeDefinition attr) {
-   
-        return new AttributeDefinitionEntity(
-            attr.id().value(), 
-            attr.name(), 
-            attr.slug().value(), 
-            attr.type().toString(), 
-            attr.is_global()
         );
     }
 }

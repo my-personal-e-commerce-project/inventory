@@ -1,4 +1,4 @@
-package microservice.cloud.inventory.product.infrastructure.entity;
+package microservice.cloud.inventory.product.infrastructure.persistence.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
@@ -9,18 +9,26 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Table("image")
+@Table("product_attribute_values")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ImageEntity {
+public class ProductAttributeValueEntity {
 
     @Id
     private String id;
-
-    private String product_id;
     
-    private String url;
+    private String product_id;
+  
+    private String attribute_definition_id;
+
+    private String string_value;
+    
+    private Integer integer_value; 
+    
+    private Double double_value;
+    
+    private Boolean boolean_value;
 }

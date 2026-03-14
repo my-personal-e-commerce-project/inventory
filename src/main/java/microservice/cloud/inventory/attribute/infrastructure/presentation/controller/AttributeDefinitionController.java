@@ -2,6 +2,9 @@ package microservice.cloud.inventory.attribute.infrastructure.presentation.contr
 
 import java.util.UUID;
 
+import javax.smartcardio.ATR;
+
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,9 +30,9 @@ import microservice.cloud.inventory.shared.infrastructure.dto.ResponsePayload;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 
 @RestController
-@RequestMapping("/api/v1/default_attributes")
+@RequestMapping("/api/v1/attribute_definitions")
 @RequiredArgsConstructor
-public class DefaultAttributeController {
+public class AttributeDefinitionController {
 
     private final CreateAttributeDefinitionUseCasePort createAttributeDefinitionUseCasePort;
     private final UpdateAttributeDefinitionUseCasePort updateAttributeDefinitionUseCasePort;
@@ -38,9 +41,11 @@ public class DefaultAttributeController {
 
     @GetMapping
     public ResponseEntity<?> listDefaultAttributes(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(
-            listAttributeDefinitionUseCasePort.execute(1, 15)
+            listAttributeDefinitionUseCasePort.execute(page, size)
         );
     }
 
@@ -58,16 +63,23 @@ public class DefaultAttributeController {
                 attribute.name(),
                 slug,
                 DataType.valueOf(attribute.type()), 
-                true
+                attribute.is_global() 
             )
         );
 
-        attribute = new AttributeDefinitionDTO(id, attribute.name(), slug.value(), attribute.type());
+        attribute = new AttributeDefinitionDTO(
+            id, 
+            attribute.name(), 
+            slug.value(), 
+            attribute.type(), 
+            attribute.is_global()
+        );
         
         return new ResponseEntity<ResponsePayload<AttributeDefinitionDTO>>(
-            ResponsePayload.<AttributeDefinitionDTO>builder().payload(attribute).build(), 
-            HttpStatus.CREATED
-        );
+                ResponsePayload.<AttributeDefinitionDTO>builder()
+                    .payload(attribute).build(), 
+                HttpStatus.CREATED
+            );
     }
 
     @PutMapping(name = "/{id}")
@@ -82,20 +94,28 @@ public class DefaultAttributeController {
                 attribute.name(), 
                 new Slug(attribute.slug()), 
                 DataType.valueOf(attribute.type()), 
-                true
+               attribute.is_global() 
             )
         );
 
-        attribute = new AttributeDefinitionDTO(id, attribute.name(), attribute.slug(), attribute.type());
+        attribute = new AttributeDefinitionDTO(
+            id, 
+            attribute.name(), 
+            attribute.slug(), 
+            attribute.type(), 
+            attribute.is_global()
+        );
 
-        return ResponseEntity.ok(ResponsePayload.<AttributeDefinitionDTO>builder().payload(attribute).build());
+        return ResponseEntity.ok(
+                ResponsePayload.<AttributeDefinitionDTO>builder()
+                    .payload(attribute).build()
+            );
     }
 
     @DeleteMapping(name = "/{id}")
     public ResponseEntity<?> deleteDefaultAttribute(
         @RequestParam String id
     ) {
-
         deleteAttributeDefinitionUseCasePort.execute(
             new Id(id)
         );

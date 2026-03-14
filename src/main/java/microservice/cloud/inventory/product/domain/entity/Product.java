@@ -171,7 +171,6 @@ public class Product extends AggregateRoot {
 
             if(!attr.attribute_definition_id().equals(a.attribute_definition_id()))
                 throw new RuntimeException("The id of the attribute definition: " + a.attribute_definition_id().value() + ", should be in the attribute: " + a.id().value());
-
         });
 
         this.attributeValues = mapNewAttrs;
@@ -199,15 +198,9 @@ public class Product extends AggregateRoot {
         if(categoryAttribute == null)
             throw new RuntimeException("The category attribute must not null");
 
-        if(attr.attribute_definition_id().equals(categoryAttribute.attribute_definition().id()))
-            throw 
-                new RuntimeException(
-                    "The ID of the provided attribute definition is not the same as the ID of the product attribute."
-                );
-
         if(categoryAttribute.is_required())
             throw 
-                new RuntimeException("The attribute definition is required, this product attribute cannot be deleted");
+                new RuntimeException("This product attribute is required by one of your categories; this product attribute cannot be removed.");
 
         attributeValues.remove(productAttributeId.value());
     }

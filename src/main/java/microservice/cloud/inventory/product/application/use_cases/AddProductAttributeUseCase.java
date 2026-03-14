@@ -1,12 +1,5 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
-import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
-import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
-import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.product.application.ports.in.AddProductAttributeUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.product.domain.entity.Product;

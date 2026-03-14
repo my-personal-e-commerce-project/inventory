@@ -1,4 +1,4 @@
-package microservice.cloud.inventory.product.infrastructure.repository;
+package microservice.cloud.inventory.product.infrastructure.persistence.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -40,6 +40,8 @@ public class ProductResultSetExtractor implements ResultSetExtractor<List<Produc
 
                 java.sql.Array tagsArr = rs.getArray("tags");
                 product.setTags(tagsArr != null ? List.of((String[]) tagsArr.getArray()) : new ArrayList<>());
+
+                product.setCategories(new ArrayList<>());
 
                 productsMap.put(productId, product);
             }

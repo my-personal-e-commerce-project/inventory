@@ -38,6 +38,7 @@ public class ControllerAdvice {
     }
 
     
+
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ResponsePayload<?>> handleUnauthorizedException(
         UnauthorizedException ex
