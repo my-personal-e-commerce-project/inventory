@@ -41,7 +41,7 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
 
         List<CategoryAttribute> attrs = 
            categoryRepository 
-            .getCategoryAttributesByCategoryIds(
+            .getCategoryAttributesWithAttributeDefinitionsByCategoryIds(
                 product.categories()
             );
 

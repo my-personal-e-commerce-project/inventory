@@ -32,10 +32,8 @@ public class Category {
     }
 
     private void validAddCategoryAttribute(CategoryAttribute attr) {
-       
         if(attr.attribute_definition().is_global())
             throw new RuntimeException("The attribute definition cannot be global.");
-
 
         if (!this.categoryAttributes.add(attr))
             throw new RuntimeException("The category attribute with id: " 
@@ -90,20 +88,6 @@ public class Category {
             throw new RuntimeException("You do not have permission to perform this action.");
 
         me.IHavePermission(Permission.updateCategory());
-
-        categoryAttributes.stream().forEach(attr -> {
-            if(
-                this.categoryAttributes
-                    .stream()
-                    .filter(actualAttr -> actualAttr.id().equals(attr.id()))
-                    .findFirst()
-                    .isEmpty()
-            )
-                throw new RuntimeException("Category attribute with id: '" 
-                    + attr.id().value() 
-                    + "' not exists in the current category attributes.");
-
-        });
 
         this.categoryAttributes.stream().forEach(attr -> {
             if(

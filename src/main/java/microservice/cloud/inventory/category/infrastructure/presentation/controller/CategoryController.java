@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
-import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.category.application.dtos.CategoryReadDTO;
 import microservice.cloud.inventory.category.application.ports.in.CreateCategoryAttributeUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.CreateCategoryUseCasePort;
@@ -26,7 +24,6 @@ import microservice.cloud.inventory.category.application.ports.in.DeleteCategory
 import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.ListCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryUseCasePort;
-import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.shared.infrastructure.dto.ResponsePayload;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryAttributeDTO;
@@ -97,13 +94,11 @@ public class CategoryController {
         );
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{find_slug}")
     public ResponseEntity<ResponsePayload<UpdateCategoryDTO>> updateCategory(
-        @PathVariable String id,
+        @PathVariable String find_slug,
         @Valid @RequestBody UpdateCategoryDTO category
     ) {
-        category.setId(id);
-
         Set<CategoryAttribute> attrs = category.getCategoryAttributes()
             .stream()
             .map(attr -> {
@@ -112,7 +107,7 @@ public class CategoryController {
             .collect(Collectors.toSet());
 
         updateCategoryUseCasePort.execute(
-            new Id(id),
+            new Slug(find_slug),
             category.getName(), 
             new Slug(category.getSlug()), 
             category.getParent_id() != null
@@ -130,26 +125,26 @@ public class CategoryController {
         );
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{find_slug}")
     public ResponseEntity<?> deleteCategory(
-        @PathVariable String id
+        @PathVariable String find_slug
     ) {
         deleteCategoryUseCasePort.execute(
-            new Id(id)
+            new Slug(find_slug)
         );
 
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id}/attributes")
+    @PostMapping("/{find_slug}/attributes")
     public ResponseEntity<ResponsePayload<CategoryAttributeDTO>> createCategoryAttribute(
-        @PathVariable String id,
+        @PathVariable String find_slug,
         @Valid @RequestBody CategoryAttributeDTO categoryAttribute
     ) {
         categoryAttribute.setId(Id.generate().value());
 
         createCategoryAttributeUseCasePort.execute(
-            new Id(id), 
+            new Slug(find_slug), 
             toMap(categoryAttribute)
         );
 
@@ -162,12 +157,12 @@ public class CategoryController {
         );    
     }
 
-    @DeleteMapping("/{id}/attributes/{attr_id}")
+    @DeleteMapping("/{find_slug}/attributes/{attr_id}")
     public ResponseEntity<?> deleteCategoryAttribute(
-        @PathVariable String id,
+        @PathVariable String find_slug,
         @PathVariable String attr_id
     ) {
-        deleteCategoryAttributeUseCasePort.execute(new Id(id), new Id(attr_id));
+        deleteCategoryAttributeUseCasePort.execute(new Slug(find_slug), new Id(attr_id));
 
         return ResponseEntity.noContent().build();
     }
@@ -185,7 +180,6 @@ public class CategoryController {
     }
 
     private CategoryAttribute toMap(CategoryAttributeDTO attr) {
-
         CategoryAttribute catAttr = new CategoryAttribute(
             new Id(attr.getId()),
             new Id(attr.getAttribute_definition_id()),

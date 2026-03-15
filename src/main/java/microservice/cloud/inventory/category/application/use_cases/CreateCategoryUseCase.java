@@ -8,6 +8,7 @@ import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
+import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
@@ -37,8 +38,14 @@ public class CreateCategoryUseCase implements CreateCategoryUseCasePort {
         Map<String, AttributeDefinition> definitionsMap = attributeDefinitionRepository.findByIds(ids);
 
         attributes.forEach(attr -> {
+            AttributeDefinition attrDef = definitionsMap.get(attr.attribute_definition_id().value());
+
+            if(attrDef == null) {
+                throw new DataNotFound("Category attribute with id " + attr.attribute_definition_id().value() + " not found");
+            }
+
             attr.load_attribute_definition(
-                definitionsMap.get(attr.attribute_definition_id().value())
+                attrDef
             );
         });
     }

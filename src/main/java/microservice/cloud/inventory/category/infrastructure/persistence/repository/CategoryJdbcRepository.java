@@ -1,12 +1,15 @@
 package microservice.cloud.inventory.category.infrastructure.persistence.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.repository.CrudRepository;
 
 import microservice.cloud.inventory.category.infrastructure.persistence.model.CategoryEntity;
 
 public interface CategoryJdbcRepository extends CrudRepository<CategoryEntity, String> {
 
-   
+    Optional<CategoryEntity> findBySlug(String slug);
+    
     boolean existsByName(String name);
     boolean existsBySlug(String slug);
 

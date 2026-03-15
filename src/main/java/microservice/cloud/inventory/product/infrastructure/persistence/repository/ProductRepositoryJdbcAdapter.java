@@ -28,6 +28,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
 
     private final JdbcAggregateTemplate aggregateTemplate;
     private final ProductAttributeValueJdbcRepository productAttributeValueJdbcRepository;
+    private final ProductJdbcRepository productJdbcRepository;
 
     @Override
     public ProductAttributeValue findProductAttributeValueById(Id id) {
@@ -43,11 +44,10 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     }
 
     @Override
-    public Product findById(Id id) {
-        ProductEntity entity = aggregateTemplate.findById(id.value(), ProductEntity.class);
-
-        if(entity == null)
-            throw new DataNotFound("Product not found");
+    public Product findBySlug(Slug slug) {
+        ProductEntity entity = productJdbcRepository
+            .findBySlug(slug.value())
+            .orElseThrow(() -> new DataNotFound("Product not found"));
 
         return toMap(entity);
     }

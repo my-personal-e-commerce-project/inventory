@@ -9,5 +9,5 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public interface UpdateCategoryUseCasePort {
 
-    public Category execute(Id id, String name, Slug slug, Id parent_id, Set<CategoryAttribute> categoryAttributes);
+    public Category execute(Slug find_slug, String name, Slug slug, Id parent_id, Set<CategoryAttribute> categoryAttributes);
 }

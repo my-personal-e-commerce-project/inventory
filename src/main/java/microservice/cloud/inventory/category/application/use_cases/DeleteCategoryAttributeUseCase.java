@@ -5,6 +5,7 @@ import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class DeleteCategoryAttributeUseCase implements DeleteCategoryAttributeUseCasePort {
 
@@ -19,8 +20,8 @@ public class DeleteCategoryAttributeUseCase implements DeleteCategoryAttributeUs
         this.getMePort = getMePort;
     }
     
-    public Category execute(Id categoryId, Id categoryAttributeId) {
-        Category category = categoryRepository.findById(categoryId);
+    public Category execute(Slug find_slug, Id categoryAttributeId) {
+        Category category = categoryRepository.findBySlug(find_slug);
 
         category.removeCategoryAttribute(getMePort.execute(), categoryAttributeId);
 

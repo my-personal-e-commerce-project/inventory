@@ -4,7 +4,7 @@ import microservice.cloud.inventory.product.application.ports.in.DeleteProductUs
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
-import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class DeleteProductUseCase implements DeleteProductUseCasePort {
 
@@ -20,8 +20,8 @@ public class DeleteProductUseCase implements DeleteProductUseCasePort {
     }
 
     @Override
-    public void execute(Id id) {
-        Product product = productRepository.findById(id);
+    public void execute(Slug find_slug) {
+        Product product = productRepository.findBySlug(find_slug);
 
         Product.delete(getMePort.execute());
 

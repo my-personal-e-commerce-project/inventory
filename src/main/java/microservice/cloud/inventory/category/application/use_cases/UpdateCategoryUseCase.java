@@ -24,8 +24,8 @@ public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
     }
 
     @Override
-    public Category execute(Id id, String name, Slug slug, Id parent_id, Set<CategoryAttribute> categoryAttributes) {
-        Category category = categoryRepository.findById(id);
+    public Category execute(Slug find_slug, String name, Slug slug, Id parent_id, Set<CategoryAttribute> categoryAttributes) {
+        Category category = categoryRepository.findBySlug(find_slug);
 
         category.update(getMePort.execute(), name, slug, parent_id, categoryAttributes);
 

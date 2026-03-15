@@ -29,6 +29,8 @@ CREATE TABLE CategoryAttribute (
         ON DELETE CASCADE
 );
 
+
+
 CREATE OR REPLACE FUNCTION fn_build_category_outbox()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -96,6 +98,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+
 CREATE TRIGGER trg_category_changes
 AFTER INSERT OR UPDATE OR DELETE ON Category
 FOR EACH ROW EXECUTE FUNCTION fn_build_category_outbox();
@@ -108,6 +112,37 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_attribute_changes
-AFTER INSERT OR UPDATE OR DELETE ON CategoryAttribute
-FOR EACH ROW EXECUTE FUNCTION fn_refresh_parent_category();
+
+
+CREATE OR REPLACE FUNCTION function_deleteAttributeDefinition()
+RETURNS TRIGGER AS $$
+BEGIN
+    
+    DELETE FROM product_attribute_values pav
+    WHERE pav.attribute_definition_id = OLD.attribute_definition_id
+    AND pav.product_id IN (
+        -- Productos que pertenecen a la categoría de la que se borró el atributo
+        SELECT pc.product_id 
+        FROM product_categories pc 
+        WHERE pc.category_id = OLD.category_id
+    )
+    AND NOT EXISTS (
+        -- Chequeo de seguridad: ¿Hay otra categoría del producto que aún use este atributo?
+        SELECT 1 
+        FROM product_categories pc2
+        JOIN categoryattribute ca ON pc2.category_id = ca.category_id
+        WHERE pc2.product_id = pav.product_id
+        AND ca.attribute_definition_id = OLD.attribute_definition_id
+        AND ca.category_id != OLD.category_id
+    );
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE TRIGGER tr_deleteAttributeDefinition
+AFTER DELETE ON CategoryAttribute
+FOR EACH ROW
+EXECUTE FUNCTION function_deleteAttributeDefinition();

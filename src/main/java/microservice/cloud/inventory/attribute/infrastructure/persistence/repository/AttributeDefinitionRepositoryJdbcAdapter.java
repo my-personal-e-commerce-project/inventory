@@ -3,7 +3,6 @@ package microservice.cloud.inventory.attribute.infrastructure.persistence.reposi
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.stereotype.Repository;
@@ -14,6 +13,7 @@ import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.attribute.infrastructure.persistence.model.AttributeDefinitionEntity;
+import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
@@ -31,7 +31,13 @@ public class AttributeDefinitionRepositoryJdbcAdapter implements AttributeDefini
 
     @Override
     public AttributeDefinition getById(Id id) {
-        return toMap(aggregateTemplate.findById(id.value(), AttributeDefinitionEntity.class));
+        AttributeDefinitionEntity attrDef = aggregateTemplate
+            .findById(id.value(), AttributeDefinitionEntity.class);
+
+        if(attrDef == null)
+            throw new DataNotFound("Attribute definition not found");
+
+        return toMap(attrDef);
     }
 
     @Override

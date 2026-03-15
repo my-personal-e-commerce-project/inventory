@@ -37,7 +37,7 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
 
     @Override
     public Product execute(
-        Id id,
+        Slug find_slug,
         String title, 
         Slug slug, 
         String description,
@@ -48,14 +48,14 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
         List<ProductAttributeValue> attributes,
         List<String> tags
     ) {
-        Product p = productRepository.findById(new Id(id.value()));
+        Product p = productRepository.findBySlug(find_slug);
 
         List<AttributeDefinition> default_attributes = attributeDefinitionRepository
             .getGlobalAttributes();
 
         List<CategoryAttribute> attrs = 
            categoryRepository 
-            .getCategoryAttributesByCategoryIds(
+            .getCategoryAttributesWithAttributeDefinitionsByCategoryIds(
                 categories
             );
 

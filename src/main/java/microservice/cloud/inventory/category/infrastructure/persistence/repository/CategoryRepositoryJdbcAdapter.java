@@ -14,6 +14,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
+import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.attribute.infrastructure.persistence.model.AttributeDefinitionEntity;
 import microservice.cloud.inventory.attribute.infrastructure.persistence.repository.AttributeDefinitionJdbcRepository;
 import microservice.cloud.inventory.category.domain.entity.Category;
@@ -67,17 +69,29 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
     }
 
     @Override
-    public List<CategoryAttribute> getCategoryAttributesByCategoryIds(List<String> categoriesIds) {
-        List<CategoryAttribute> catAttrs = getCategoryAttributesByCategoryIdsHelper(categoriesIds)
+    public List<CategoryAttribute> 
+        getCategoryAttributesWithAttributeDefinitionsByCategoryIds(List<String> categoriesIds) {
+
+        List<CategoryAttribute> catAttrs = helper_getCategoryAttributesWithAttributeDefinitionsByCategoryIdsBy(categoriesIds)
                 .stream()
-                .map(attr -> {
-                return toMap(attr);
-            }).toList();
+                .map(entity -> {
+                    CategoryAttribute catAttr = toMap(entity);
+                    catAttr.load_attribute_definition(
+                        new AttributeDefinition(
+                            new Id(entity.getAttribute_definition().getId()), 
+                            entity.getAttribute_definition().getName(), 
+                            new Slug(entity.getAttribute_definition().getSlug()), 
+                            DataType.valueOf(entity.getAttribute_definition().getType()), 
+                            entity.getAttribute_definition().is_global()
+                        )
+                    );
+                    return catAttr;
+                }).toList();
 
         return catAttrs;
     }
 
-    private Set<CategoryAttributeEntity> getCategoryAttributesByCategoryIdsHelper(List<String> categoriesIds) {
+    private Set<CategoryAttributeEntity> helper_getCategoryAttributesWithAttributeDefinitionsByCategoryIdsBy(List<String> categoriesIds) {
         if (categoriesIds == null || categoriesIds.isEmpty()) return Collections.emptySet();
 
         String sql = """
@@ -128,11 +142,11 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
     }
 
     @Override
-    public Category findById(Id id) {
+    public Category findBySlug(Slug slug) {
         return toMap(
             categoryJdbcRepository
-                .findById(
-                    id.value()
+                .findBySlug(
+                    slug.value()
                 )
                 .orElseThrow(() -> new DataNotFound("Category not found")));
     }
@@ -163,6 +177,17 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
     @Transactional
     @Override
     public void update(Category category) {
+        List<String> definitionIds = category.categoryAttributes().stream()
+            .map(attr -> attr.attribute_definition_id().value())
+            .distinct()
+            .toList();
+
+        long count = attributeDefinitionJdbcRepository.countByIdIn(definitionIds);
+
+        if (count != definitionIds.size()) {
+            throw new RuntimeException("One or more attribute definitions are do not exist!");
+        }
+
         if(categoryJdbcRepository.existsBySlugAndIdNot(category.slug().value(), category.id().value()))
             throw new RuntimeException("This slug already exists");
 
@@ -194,6 +219,18 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
         );
     }
 
+    private CategoryAttribute toMap(CategoryAttributeEntity entity) {
+        CategoryAttribute catAttr = new CategoryAttribute(
+            new Id(entity.getId()),
+            new Id(entity.getAttribute_definition_id()),
+            entity.getIs_required(), 
+            entity.getIs_filterable(), 
+            entity.getIs_sortable()
+        );
+       
+        return catAttr;
+    }
+
     private CategoryEntity toMap(Category entity) {
         return new CategoryEntity(
             entity.id().value(), 
@@ -208,20 +245,7 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
         );
     }
     
-    private CategoryAttribute toMap(CategoryAttributeEntity entity) {
-        CategoryAttribute catAttr = new CategoryAttribute(
-            new Id(entity.getId()),
-            new Id(entity.getAttribute_definition_id()),
-            entity.getIs_required(), 
-            entity.getIs_filterable(), 
-            entity.getIs_sortable()
-        );
-
-        return catAttr;
-    }
-
     private CategoryAttributeEntity toMap(Id cat, CategoryAttribute entity) {
-
         return new CategoryAttributeEntity(
             entity.id().value(),
             cat.value(),

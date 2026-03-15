@@ -1,12 +1,13 @@
 package microservice.cloud.inventory.product.domain.entity;
 
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public interface ProductRepository {
 
     public void save(Product product);
     public void update(Product product);
     public void delete(Product product);
-    public Product findById(Id id);
+    public Product findBySlug(Slug slug);
     public ProductAttributeValue findProductAttributeValueById(Id id);
 }
