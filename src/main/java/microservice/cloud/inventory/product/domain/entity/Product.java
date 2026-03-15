@@ -2,8 +2,10 @@ package microservice.cloud.inventory.product.domain.entity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -25,7 +27,7 @@ public class Product extends AggregateRoot {
     private Slug slug;
     private String description;
     private List<String> tags;
-    private List<String> categories;
+    private Set<String> categories;
     private Price price;
     private Quantity stock;
     private List<String> images;
@@ -36,7 +38,7 @@ public class Product extends AggregateRoot {
         String title,
         Slug slug,
         String description,
-        List<String> categories, 
+        Set<String> categories, 
         Price price, 
         List<ProductAttributeValue> attributeValues,
         Quantity stock,
@@ -93,7 +95,7 @@ public class Product extends AggregateRoot {
         }
     }
 
-    public void validAttributes(List<CategoryAttribute> category_attrs) {
+    public void validAttributes(Set<CategoryAttribute> category_attrs) {
 
         Map<String, ProductAttributeValue> productAttributeByAttributeDefinitionId =
             attributeValues.values().stream()
@@ -142,7 +144,7 @@ public class Product extends AggregateRoot {
         String title, 
         Slug slug, 
         String description,
-        List<String> categories,
+        Set<String> categories,
         Price price,
         Quantity stock,
         List<String> images,
@@ -228,8 +230,8 @@ public class Product extends AggregateRoot {
         return description;
     }
 
-    public List<String> categories() {
-        return new ArrayList<>(categories);
+    public Set<String> categories() {
+        return new HashSet<>(categories);
     }
 
     public Price price() {

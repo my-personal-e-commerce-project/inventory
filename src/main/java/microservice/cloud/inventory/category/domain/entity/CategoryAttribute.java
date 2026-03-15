@@ -20,8 +20,9 @@ public class CategoryAttribute {
         Boolean is_filterable, 
         Boolean is_sortable
     ) {
-        if(id == null)
+        if(id == null) {
             throw new RuntimeException("The id cannot be null");
+        }
 
         this.id = id;
         this.attribute_definition_id = attribute_definition_id;
@@ -31,8 +32,9 @@ public class CategoryAttribute {
     }
 
     public void load_attribute_definition(AttributeDefinition attributeDefinition) {
-        if(attributeDefinition.is_global())
+        if(attributeDefinition.is_global()) {
             throw new RuntimeException("The attribute definition cannot be global attribute");
+        }
 
         this.attribute_definition = attributeDefinition;
     }

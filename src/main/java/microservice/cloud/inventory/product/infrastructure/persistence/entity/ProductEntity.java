@@ -10,9 +10,7 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
@@ -20,8 +18,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class ProductEntity {
 
     @Table("product_categories")
@@ -39,7 +35,6 @@ public class ProductEntity {
     private String description;
 
     @MappedCollection(idColumn = "product_id")
-    @Builder.Default
     private Set<ProductCategoryReference> categories = new HashSet<>();
 
     private Double price;

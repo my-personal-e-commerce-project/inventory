@@ -1,6 +1,7 @@
 package microservice.cloud.inventory.product.infrastructure.presentation.validate;
 
 import java.util.List;
+import java.util.Set;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -35,7 +36,7 @@ public class ProductDTO {
 
     @NotNull
     @NotEmpty
-    private List<String> categories;
+    private Set<String> categories;
 
     @Valid
     private List<ProductAttributeValueDTO> attributes;

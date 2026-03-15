@@ -69,10 +69,10 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
     }
 
     @Override
-    public List<CategoryAttribute> 
-        getCategoryAttributesWithAttributeDefinitionsByCategoryIds(List<String> categoriesIds) {
+    public Set<CategoryAttribute> 
+        getCategoryAttributesWithAttributeDefinitionsByCategoryIds(Set<String> categoriesIds) {
 
-        List<CategoryAttribute> catAttrs = helper_getCategoryAttributesWithAttributeDefinitionsByCategoryIdsBy(categoriesIds)
+        Set<CategoryAttribute> catAttrs = helper_getCategoryAttributesWithAttributeDefinitionsByCategoryIds(categoriesIds)
                 .stream()
                 .map(entity -> {
                     CategoryAttribute catAttr = toMap(entity);
@@ -86,12 +86,18 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
                         )
                     );
                     return catAttr;
-                }).toList();
+                }).collect(Collectors.toSet());
 
         return catAttrs;
     }
 
-    private Set<CategoryAttributeEntity> helper_getCategoryAttributesWithAttributeDefinitionsByCategoryIdsBy(List<String> categoriesIds) {
+    @Override
+    public void isValidTheseCategoryIds(Set<String> ids) {
+        if(!categoryJdbcRepository.countByIdIn(ids))
+            throw new RuntimeException("Not all provided Ids are valid");
+    }
+
+    private Set<CategoryAttributeEntity> helper_getCategoryAttributesWithAttributeDefinitionsByCategoryIds(Set<String> categoriesIds) {
         if (categoriesIds == null || categoriesIds.isEmpty()) return Collections.emptySet();
 
         String sql = """
@@ -123,20 +129,6 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
                 rs.getBoolean("is_sortable")
             );
         });
-
-        Set<String> foundCategoryIds = queryResults.stream()
-                .map(CategoryAttributeEntity::getCategory_id)
-                .collect(Collectors.toSet());
-
-        List<String> missingIds = categoriesIds.stream()
-                .filter(id -> !foundCategoryIds.contains(id))
-                .toList();
-
-        if (!missingIds.isEmpty()) {
-            throw new RuntimeException(
-                    "The attributes for these categories were not found, or the following categories do not exist: " 
-                    + missingIds);
-        }
 
         return new HashSet<>(queryResults);
     }

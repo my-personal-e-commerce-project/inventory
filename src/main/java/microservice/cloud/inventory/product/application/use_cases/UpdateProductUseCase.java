@@ -1,6 +1,7 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
 import java.util.List;
+import java.util.Set;
 
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
@@ -13,7 +14,6 @@ import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
-import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class UpdateProductUseCase implements UpdateProductUseCasePort {
@@ -41,7 +41,7 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
         String title, 
         Slug slug, 
         String description,
-        List<String> categories,
+        Set<String> categories,
         Price price,
         Quantity stock,
         List<String> images,
@@ -50,10 +50,12 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
     ) {
         Product p = productRepository.findBySlug(find_slug);
 
+        categoryRepository.isValidTheseCategoryIds(categories);
+
         List<AttributeDefinition> default_attributes = attributeDefinitionRepository
             .getGlobalAttributes();
 
-        List<CategoryAttribute> attrs = 
+        Set<CategoryAttribute> attrs = 
            categoryRepository 
             .getCategoryAttributesWithAttributeDefinitionsByCategoryIds(
                 categories

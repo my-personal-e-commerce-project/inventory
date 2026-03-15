@@ -104,15 +104,14 @@ public class ProductController {
         );
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{find_slug}")
     public ResponseEntity<ResponsePayload<UpdateProductDTO>> updateProduct(
-        @PathVariable String id,
+        @PathVariable String find_slug,
         @Valid @RequestBody UpdateProductDTO productDTO
     ) {
-        productDTO.setId(id);
 
         updateProductUseCasePort.execute(
-            new Id(productDTO.getId()),
+            new Slug(find_slug),
             productDTO.getTitle(),
             new Slug(productDTO.getSlug()),
             productDTO.getDescription(),
@@ -139,17 +138,17 @@ public class ProductController {
         );
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{find_slug}")
     public ResponseEntity<?> deleteProduct(
-        @PathVariable String id
+        @PathVariable String find_slug
     ) {
-        deleteProductUseCasePort.execute(new Id(id));
+        deleteProductUseCasePort.execute(new Slug(find_slug));
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id}/attributes")
+    @PostMapping("/{find_slug}/attributes")
     public ResponseEntity<ResponsePayload<ProductAttributeValueDTO>> addAttributeProduct(
-        @PathVariable String id,
+        @PathVariable String find_slug,
         @Valid @RequestBody ProductAttributeValueDTO attr
     ) {
         attr.setId(UUID.randomUUID().toString());
@@ -162,7 +161,7 @@ public class ProductController {
             attr.getBoolean_value()
         );
 
-        addProductAttributeUseCasePort.execute(new Id(id), productAttributeValue);
+        addProductAttributeUseCasePort.execute(new Slug(find_slug), productAttributeValue);
 
         return new ResponseEntity<>(
             ResponsePayload.<ProductAttributeValueDTO>builder().payload(attr).build(),

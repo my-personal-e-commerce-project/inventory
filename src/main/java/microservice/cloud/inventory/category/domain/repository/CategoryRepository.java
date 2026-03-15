@@ -1,6 +1,6 @@
 package microservice.cloud.inventory.category.domain.repository;
 
-import java.util.List;
+import java.util.Set;
 
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
@@ -9,10 +9,11 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public interface CategoryRepository {
 
-    public void save(Category category);
-    public void update(Category category);
-    public void delete(Category category);
-    public Category findBySlug(Slug slug);
-    public List<CategoryAttribute> getCategoryAttributesWithAttributeDefinitionsByCategoryIds(List<String> ids);
-    public CategoryAttribute getCategoryAttributeByAttributeDefinitionId(Id id);
+    void save(Category category);
+    void update(Category category);
+    void delete(Category category);
+    void isValidTheseCategoryIds(Set<String> ids);
+    Category findBySlug(Slug slug);
+    Set<CategoryAttribute> getCategoryAttributesWithAttributeDefinitionsByCategoryIds(Set<String> ids);
+    CategoryAttribute getCategoryAttributeByAttributeDefinitionId(Id id);
 }

@@ -2,6 +2,7 @@ package microservice.cloud.inventory.product.application.use_cases;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
@@ -36,17 +37,19 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
     public Product execute(
         Product product
     ) {
+        categoryRepository.isValidTheseCategoryIds(product.categories());
+
         List<AttributeDefinition> default_attributes = attributeDefinitionRepository
             .getGlobalAttributes();
 
-        List<CategoryAttribute> attrs = 
+        Set<CategoryAttribute> attrs = 
            categoryRepository 
             .getCategoryAttributesWithAttributeDefinitionsByCategoryIds(
                 product.categories()
             );
 
         if(attrs != null)
-            product.validAttributes(new ArrayList<>(attrs));
+            product.validAttributes(attrs);
 
         if(default_attributes != null)
             product.validDefaultAttributes(default_attributes);

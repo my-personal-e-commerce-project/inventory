@@ -127,10 +127,10 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     }
 
     private Product toMap(ProductEntity product) {
-        List<String> categories = product.getCategories()
+        Set<String> categories = product.getCategories()
                 .stream()
                 .map(cat -> cat.categoryId())
-                .toList();
+                .collect(Collectors.toSet());
 
         return new Product(
             new Id(product.getId()),
