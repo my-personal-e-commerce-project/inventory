@@ -7,6 +7,7 @@ import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class DeleteProductAttributeUseCase implements DeleteProductAttributeUseCasePort {
 
@@ -25,8 +26,8 @@ public class DeleteProductAttributeUseCase implements DeleteProductAttributeUseC
     }
 
     @Override
-    public Product execute(Id productId, Id productAttributeId) {
-        Product product = productRepository.findById(productId);
+    public Product execute(Slug find_slug, Id productAttributeId) {
+        Product product = productRepository.findBySlug(find_slug);
 
         ProductAttributeValue productAttributeValue = productRepository 
             .findProductAttributeValueById(productAttributeId);
