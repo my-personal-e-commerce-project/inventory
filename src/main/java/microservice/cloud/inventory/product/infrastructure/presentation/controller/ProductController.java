@@ -169,12 +169,12 @@ public class ProductController {
         );
     }
 
-    @DeleteMapping("/{id}/attributes/{attr_id}")
-    public ResponseEntity<ResponsePayload<ProductAttributeValueDTO>> addAttributeProduct(
-        @PathVariable String id,
+    @DeleteMapping("/{find_slug}/attributes/{attr_id}")
+    public ResponseEntity<ResponsePayload<ProductAttributeValueDTO>> removeAttributeProduct(
+        @PathVariable String find_slug,
         @PathVariable String attr_id
     ) {
-        deleteProductAttributeUseCasePort.execute(new Id(id), new Id(attr_id));
+        deleteProductAttributeUseCasePort.execute(new Slug(find_slug), new Id(attr_id));
 
         return ResponseEntity.noContent().build();
     }
