@@ -26,22 +26,24 @@ public class ProductResultSetExtractor implements ResultSetExtractor<List<Produc
 
             ProductReadDTO product = productsMap.get(productId);
             if (product == null) {
-                product = new ProductReadDTO();
-                product.setId(productId);
-                product.setTitle(rs.getString("title"));
-                product.setDescription(rs.getString("description"));
-                product.setSlug(rs.getString("slug"));
-                product.setPrice(rs.getDouble("price"));
-                product.setStock(rs.getInt("stock"));
-                product.setAttributes(new ArrayList<>());
+                product = new ProductReadDTO(
+                    productId,
+                    rs.getString("title"),
+                    rs.getString("slug"),
+                    rs.getString("description"),
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    rs.getDouble("price"),
+                    rs.getInt("stock"),
+                    null,
+                    null
+                );
 
                 java.sql.Array imagesArr = rs.getArray("images");
                 product.setImages(imagesArr != null ? List.of((String[]) imagesArr.getArray()) : new ArrayList<>());
 
                 java.sql.Array tagsArr = rs.getArray("tags");
                 product.setTags(tagsArr != null ? List.of((String[]) tagsArr.getArray()) : new ArrayList<>());
-
-                product.setCategories(new ArrayList<>());
 
                 productsMap.put(productId, product);
             }

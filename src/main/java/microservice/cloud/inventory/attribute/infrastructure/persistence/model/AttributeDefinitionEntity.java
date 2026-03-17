@@ -5,11 +5,9 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 @Table("attributedefinition")
 @AllArgsConstructor
-@Setter
 @Getter
 public class AttributeDefinitionEntity {
 
@@ -17,8 +15,6 @@ public class AttributeDefinitionEntity {
     private String id;
     private String name;
     private String slug;
-   
     private String type;
-
     private boolean is_global = false;
 }

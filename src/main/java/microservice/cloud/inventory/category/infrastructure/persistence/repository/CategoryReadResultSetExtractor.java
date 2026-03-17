@@ -27,12 +27,13 @@ public class CategoryReadResultSetExtractor implements ResultSetExtractor<List<C
 
             CategoryReadDTO category = categoriesMap.get(categoryId);
             if (category == null) {
-                category = new CategoryReadDTO();
-                category.setId(categoryId);
-                category.setName(rs.getString("cat_name"));
-                category.setSlug(rs.getString("cat_slug"));
-                category.setParent_slug(rs.getString("cat_parent_slug"));
-                category.setCategoryAttributes(new ArrayList<>());
+                category = new CategoryReadDTO(
+                    categoryId,
+                    rs.getString("cat_name"),
+                    rs.getString("cat_slug"),
+                    rs.getString("cat_parent_slug"),
+                    new ArrayList<>()
+                );
 
                 categoriesMap.put(categoryId, category);
             }

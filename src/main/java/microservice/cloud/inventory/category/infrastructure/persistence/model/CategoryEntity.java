@@ -10,10 +10,8 @@ import java.util.HashSet;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 @Table("category")
-@Setter
 @Getter
 @AllArgsConstructor
 public class CategoryEntity {

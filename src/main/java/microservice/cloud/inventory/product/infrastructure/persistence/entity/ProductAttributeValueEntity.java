@@ -5,11 +5,9 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 @Table("product_attribute_values")
 @Getter
-@Setter
 @AllArgsConstructor
 public class ProductAttributeValueEntity {
 

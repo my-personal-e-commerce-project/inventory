@@ -6,11 +6,9 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import microservice.cloud.inventory.attribute.infrastructure.persistence.model.AttributeDefinitionEntity;
 
 @Table("categoryattribute")
-@Setter
 @Getter
 @AllArgsConstructor
 public class CategoryAttributeEntity {

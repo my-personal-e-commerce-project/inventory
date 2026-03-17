@@ -41,8 +41,6 @@ public class CategoryControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private TestRestTemplate restTemplate;
-    @Autowired
     private JdbcTemplate jdbcTemplate;
     // TODO: test de borrar un category attribute y que datos expone en la tabla outbox
     // TODO: test de actualizar un category attribute y que datos expone en la tabla outbox
@@ -56,7 +54,30 @@ public class CategoryControllerTest {
         jdbcTemplate.execute("TRUNCATE TABLE attribute_definition RESTART IDENTITY CASCADE");
     }
 
+    private String createAttributeDefinition() throws Exception {
+        String query = """
+            {
+              "name": "test:new",
+              "slug": "test:new",
+              "type": "STRING",
+              "is_global": false
+            }
+            """;
+
+        String jsonPayload = jdbcTemplate.queryForObject(query, String.class);
+       
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        
+        Map<String, Object> attributedefinition = mapper.readValue(jsonPayload, Map.class);
+
+        return (String) attributedefinition.get("id");
+        
+    }
+
     private void createCategory() throws Exception {
+        String id = createAttributeDefinition();
+
         mockMvc.perform(
             MockMvcRequestBuilders
                 .post("/api/v1/categories")
@@ -68,18 +89,14 @@ public class CategoryControllerTest {
                             "parent_id": null,
                             "categoryAttributes": [
                               {
-                                "attributeDefinition": {
-                                  "name": "test:new",
-                                  "slug": "test:new",
-                                  "type": "STRING"
-                                },
+                                "attribute_definition_id": "%s",
                                 "is_required": true,
                                 "is_filterable": true,
                                 "is_sortable": true
                               }
                             ]
                         }
-                    """)
+                    """.formatted(id))
                 .with(jwt().jwt(j -> j.claim("realm_access", Map.of("roles", List.of("create_category")))
                                  .subject("random-user")))
         )
@@ -87,23 +104,21 @@ public class CategoryControllerTest {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     } 
 
-    private void createCategoryAttribute(String category_id) throws Exception { 
+    private void createCategoryAttribute(String category_id) throws Exception {
+        String id = createAttributeDefinition();
+
         mockMvc.perform(
             MockMvcRequestBuilders
                 .post("/api/v1/categories/" + category_id + "/attributes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
-                            "attributeDefinition": {
-                                "name": "test:new2",
-                                "slug": "test:new2",
-                                "type": "STRING"
-                            },
+                            "attribute_definition_id": "%s",
                             "is_required": true,
                             "is_filterable": true,
                             "is_sortable": true
                         }
-                    """)
+                    """.formatted(id))
                 .with(jwt().jwt(j -> j.claim("realm_access", Map.of("roles", List.of("update_category")))
                                  .subject("random-user")))
         )
@@ -194,22 +209,20 @@ public class CategoryControllerTest {
             attrId = (String) firstAttribute.get("id");
         }
 
+        String id = createAttributeDefinition();
+        
         mockMvc.perform(
             MockMvcRequestBuilders
                 .delete("/api/v1/categories/" + category_id + "/attributes/" + attrId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
-                            "attributeDefinition": {
-                                "name": "test:new2",
-                                "slug": "test:new2",
-                                "type": "STRING"
-                            },
+                            "attribute_definition_id": "%s",
                             "is_required": true,
                             "is_filterable": true,
                             "is_sortable": true
                         }
-                    """)
+                    """.formatted(id))
                 .with(jwt().jwt(j -> j.claim("realm_access", Map.of("roles", List.of("update_category")))
                                  .subject("random-user")))
         )
@@ -254,6 +267,8 @@ public class CategoryControllerTest {
             }
         }
 
+        String attributeDefinitionId = createAttributeDefinition();
+
         mockMvc.perform(
             MockMvcRequestBuilders
                 .put("/api/v1/categories/" + category_id)
@@ -266,19 +281,14 @@ public class CategoryControllerTest {
                         "categoryAttributes": [
                             {
                                 "id": "%s",
-                                "attributeDefinition": {
-                                    "id": "%s",
-                                    "name": "test:new2",
-                                    "slug": "test:new2",
-                                    "type": "STRING"
-                                },
+                                "attributeDefinition": "%s",
                                 "is_required": true,
                                 "is_filterable": true,
                                 "is_sortable": true
                             }
                         ]
                     }
-                    """.formatted(category_id, attrId, attrDefId))
+                    """.formatted(category_id, attributeDefinitionId))
                 .with(jwt().jwt(j -> j.claim("realm_access", Map.of("roles", List.of("update_category")))
                                  .subject("random-user")))
         )
@@ -289,12 +299,6 @@ public class CategoryControllerTest {
         
         jsonPayload = jdbcTemplate.queryForObject(sql, String.class);
       
-        System.out.println(jsonPayload);
-        System.out.println(jsonPayload);
-        System.out.println(jsonPayload);
-        System.out.println(jsonPayload);
-        System.out.println(jsonPayload);
-        System.out.println(jsonPayload);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         
         Map<String, Object> new_category = mapper.readValue(jsonPayload, Map.class);

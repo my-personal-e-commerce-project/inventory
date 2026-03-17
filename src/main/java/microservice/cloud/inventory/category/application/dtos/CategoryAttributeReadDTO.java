@@ -1,24 +1,9 @@
 package microservice.cloud.inventory.category.application.dtos;
     
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Setter
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class CategoryAttributeReadDTO {
-    private String id;
-  
-    private AttributeDefinitionReadDTO attributeDefinition;
-
-    private Boolean is_required;
-
-    private Boolean is_filterable;
-
-    private Boolean is_sortable;
-}
+public record CategoryAttributeReadDTO (
+    String id,
+    AttributeDefinitionReadDTO attributeDefinition,
+    Boolean is_required,
+    Boolean is_filterable,
+    Boolean is_sortable
+) {}
