@@ -23,8 +23,8 @@ BEGIN
             'is_global', NEW.is_global
         );
 
-        INSERT INTO outbox (id, aggregate_type, aggregate_id, type, payload, created_at)
-        VALUES (gen_random_uuid(), 'attribute_definition', NEW.id, 'ATTRIBUTE_CREATED', v_payload, now());
+        INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
+        VALUES ('attribute_definition', NEW.id, 'ATTRIBUTE_CREATED', v_payload, now());
     ELSIF (TG_OP = 'UPDATE' AND OLD.is_global = TRUE) THEN
         v_payload = jsonb_build_object(
             'id', NEW.id,
@@ -34,11 +34,11 @@ BEGIN
             'is_global', NEW.is_global
         );
 
-        INSERT INTO outbox (id, aggregate_type, aggregate_id, type, payload, created_at)
-        VALUES (gen_random_uuid(), 'attribute_definition', NEW.id, 'ATTRIBUTE_UPDATED', v_payload, now());
+        INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
+        VALUES ('attribute_definition', NEW.id, 'ATTRIBUTE_UPDATED', v_payload, now());
     ELSIF (TG_OP = 'DELETE' AND OLD.is_global = TRUE) THEN
-        INSERT INTO outbox (id, aggregate_type, aggregate_id, type, payload, created_at)
-        VALUES (gen_random_uuid(), 'attribute_definition', NEW.id, 'ATTRIBUTE_DELETED', jsonb_build_object('id', NEW.id, 'deleted', true), now());
+        INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
+        VALUES ('attribute_definition', NEW.id, 'ATTRIBUTE_DELETED', jsonb_build_object('id', NEW.id, 'deleted', true), now());
     END IF;
 
     RETURN NULL;

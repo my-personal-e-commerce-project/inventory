@@ -36,11 +36,9 @@ public class Category {
             throw new RuntimeException("The attribute definition cannot be global.");
 
         if (!this.categoryAttributes.add(attr))
-            throw new RuntimeException("The category attribute with id: " 
-                    + attr.id().value() 
-                    +  " or attribute definition id: " 
+            throw new RuntimeException("The category attribute with attribute definition id: '" 
                     + attr.attribute_definition_id().value() 
-                    + " already exists.");
+                    + "' already exists.");
     }
 
     public static Category factory(
@@ -85,7 +83,9 @@ public class Category {
         Set<CategoryAttribute> categoryAttributes
     ) {
         if(me == null)
-            throw new RuntimeException("You do not have permission to perform this action.");
+            throw new RuntimeException(
+                "You do not have permission to perform this action."
+                );
 
         me.IHavePermission(Permission.updateCategory());
 
@@ -93,14 +93,27 @@ public class Category {
             if(
                 categoryAttributes
                     .stream()
-                    .filter(actualAttr -> actualAttr.id().equals(attr.id()))
+                    .filter(updateAttr -> updateAttr.id().equals(attr.id()))
                     .findFirst()
                     .isEmpty()
             )
                 throw new RuntimeException("Category attribute with id: '" 
                     + attr.id().value() 
-                    + "' not found in the new category attributes.");
+                    + "' not found in your new updated list of category attributes.");
 
+        });
+        
+        categoryAttributes.stream().forEach(attr -> {
+            if(this.categoryAttributes.stream()
+                .filter(currentAttr -> currentAttr.id().equals(attr.id()))
+                .findFirst()
+                .isEmpty()
+            ){
+                throw new RuntimeException("Category attribute with id: '" 
+                    + attr.id().value() 
+                    + "' not found in the current list of category attributes.");
+
+                    }
         });
 
         this.categoryAttributes = categoryAttributes;

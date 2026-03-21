@@ -2,26 +2,27 @@ package microservice.cloud.inventory.integration;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @AutoConfigureMockMvc
@@ -39,6 +40,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class CategoryControllerTest {
 
     @Autowired
+    private ObjectMapper mapper;
+    @Autowired
     private MockMvc mockMvc;
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -47,38 +50,33 @@ public class CategoryControllerTest {
     // TODO: test de actualizar una categoria y que datos expone en la tabla outbox
     // TODO: test de borrar una categoria y que datos expone en la tabla outbox
   
-    @AfterEach
+    @BeforeEach
     void tearDown() {
-        jdbcTemplate.execute("TRUNCATE TABLE categories RESTART IDENTITY CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE category RESTART IDENTITY CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE outbox RESTART IDENTITY CASCADE");
-        jdbcTemplate.execute("TRUNCATE TABLE attribute_definition RESTART IDENTITY CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE attributedefinition RESTART IDENTITY CASCADE");
     }
 
     private String createAttributeDefinition() throws Exception {
         String query = """
-            {
-              "name": "test:new",
-              "slug": "test:new",
-              "type": "STRING",
-              "is_global": false
-            }
+            INSERT INTO attributedefinition (id, name, slug, type, is_global) VALUES (
+                '1234',
+                'test',
+                'test',
+                'STRING',
+                false
+            );
             """;
 
-        String jsonPayload = jdbcTemplate.queryForObject(query, String.class);
+        jdbcTemplate.update(query);
        
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        
-        Map<String, Object> attributedefinition = mapper.readValue(jsonPayload, Map.class);
-
-        return (String) attributedefinition.get("id");
-        
+        return "1234";
     }
 
-    private void createCategory() throws Exception {
+    private Map<String, String> createCategory() throws Exception {
         String id = createAttributeDefinition();
 
-        mockMvc.perform(
+        MvcResult result = mockMvc.perform(
             MockMvcRequestBuilders
                 .post("/api/v1/categories")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -101,208 +99,434 @@ public class CategoryControllerTest {
                                  .subject("random-user")))
         )
             .andExpect(MockMvcResultMatchers.status().isCreated())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+            .andExpect(
+                MockMvcResultMatchers.content()
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andReturn();
+
+        String responseJson = result.getResponse().getContentAsString();
+
+        Map<String, String> resultMap = new HashMap<>();
+
+        resultMap.put(
+            "slug", 
+            com.jayway.jsonpath.JsonPath.read(responseJson, "$.payload.slug")
+        );
+
+        resultMap.put(
+             "id",
+            com.jayway.jsonpath.JsonPath.read(responseJson, "$.payload.id")
+        );
+
+        resultMap.put(
+             "categoryAttributeId",
+            com.jayway.jsonpath.JsonPath.read(responseJson, "$.payload.categoryAttributes[0].id")
+        );
+
+        resultMap.put(
+             "attributeDefinitionId",
+            com.jayway.jsonpath.JsonPath.read(responseJson, "$.payload.categoryAttributes[0].attribute_definition_id")
+        );
+    
+        return resultMap;
     } 
 
-    private void createCategoryAttribute(String category_id) throws Exception {
-        String id = createAttributeDefinition();
-
-        mockMvc.perform(
-            MockMvcRequestBuilders
-                .post("/api/v1/categories/" + category_id + "/attributes")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                            "attribute_definition_id": "%s",
-                            "is_required": true,
-                            "is_filterable": true,
-                            "is_sortable": true
-                        }
-                    """.formatted(id))
-                .with(jwt().jwt(j -> j.claim("realm_access", Map.of("roles", List.of("update_category")))
-                                 .subject("random-user")))
-        )
-            .andExpect(MockMvcResultMatchers.status().isCreated())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
-    }
-
     @Test
-    public void should_createACategoryAttributeAndShowItInOutboxTable() throws Exception {
-        createCategory();
-            
-        String sql = "SELECT payload FROM outbox WHERE aggregate_type = 'category' ORDER BY created_at DESC OFFSET 1 LIMIT 2;";
-       
-        String jsonPayload = jdbcTemplate.queryForObject(sql, String.class);
-       
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    public void should_createANewCategoryAndShowItInOutboxTable() throws Exception {
+        Map<String, String> map = createCategory();
+
+        String id = map.get("id");
+        String categoryAttributeId = map.get("categoryAttributeId");
+        String attributeDefinitionId = map.get("attributeDefinitionId");
+
+        Integer categoryCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM category", Integer.class);
         
-        Map<String, Object> category = mapper.readValue(jsonPayload, Map.class);
-        
-        Assertions.assertNotNull(category);
-        
-        Assertions.assertEquals("test", category.get("name"));
+        Assertions.assertTrue(categoryCount == 1);
 
-        List<?> attributes = (List<?>) category.get("attributes");
-        Assertions.assertEquals(1, attributes.size());
-    }
+        Integer outboxCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM outbox", Integer.class);
 
-    @Test
-    public void should_showTheCompleteAggregateInThePayloadOfTheOutboxTableWhenAddedANewAttribute() throws Exception {
-        createCategory();
+        Assertions.assertTrue(outboxCount == 2);
 
-        String sql = "SELECT payload FROM outbox WHERE aggregate_type = 'category' ORDER BY created_at DESC OFFSET 1 LIMIT 2;";
-        
-        String jsonPayload = jdbcTemplate.queryForObject(sql, String.class);
-       
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        
-        Map<String, Object> category = mapper.readValue(jsonPayload, Map.class);
-       
-        String category_id = (String) category.get("id");
+        Map<String, Object> outboxEntry = jdbcTemplate.queryForMap(
+            "SELECT * FROM outbox WHERE id = 2;"
+        );
 
-        createCategoryAttribute(category_id);
-        
-        sql = "SELECT payload FROM outbox WHERE aggregate_type = 'category' ORDER BY created_at DESC OFFSET 2 LIMIT 3;";
+        Assertions.assertTrue(outboxEntry.get("aggregate_type").equals("category"));
+    
+        Assertions.assertTrue(outboxEntry.get("type").equals("CATEGORY_UPDATED"));
 
-        jsonPayload = jdbcTemplate.queryForObject(sql, String.class);
-       
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        
-        Map<String, Object> new_category = mapper.readValue(jsonPayload, Map.class);
+        JsonNode actual = mapper.readTree(outboxEntry.get("payload").toString());
 
-        Assertions.assertNotNull(new_category);
-    }
-
-    @Test
-    public void should_deleteACategoryAttributeAndShowItInOutboxTable() throws Exception {
-        createCategory();
-
-        String sql = "SELECT payload FROM outbox WHERE aggregate_type = 'category' ORDER BY created_at DESC OFFSET 1 LIMIT 2;";
-        
-        String jsonPayload = jdbcTemplate.queryForObject(sql, String.class);
-       
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        
-        Map<String, Object> category = mapper.readValue(jsonPayload, Map.class);
-       
-        String category_id = (String) category.get("id");
-
-        createCategoryAttribute(category_id);
-        
-        sql = "SELECT payload FROM outbox WHERE aggregate_type = 'category' ORDER BY created_at DESC OFFSET 2 LIMIT 3;";
-
-        jsonPayload = jdbcTemplate.queryForObject(sql, String.class);
-       
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        
-        Map<String, Object> new_category = mapper.readValue(jsonPayload, Map.class);
-
-        List<?> attributes = (List<?>) new_category.get("attributes");
-        
-        String attrId = ""; 
-        
-        if (!attributes.isEmpty()) {
-            Map<String, Object> firstAttribute = (Map<String, Object>) attributes.get(0);
-            attrId = (String) firstAttribute.get("id");
-        }
-
-        String id = createAttributeDefinition();
-        
-        mockMvc.perform(
-            MockMvcRequestBuilders
-                .delete("/api/v1/categories/" + category_id + "/attributes/" + attrId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                            "attribute_definition_id": "%s",
-                            "is_required": true,
-                            "is_filterable": true,
-                            "is_sortable": true
-                        }
-                    """.formatted(id))
-                .with(jwt().jwt(j -> j.claim("realm_access", Map.of("roles", List.of("update_category")))
-                                 .subject("random-user")))
-        )
-            .andExpect(MockMvcResultMatchers.status().isNoContent());
-    }
-
-    @Test
-    public void should_updateACategoryAttributeAndShowItInOutboxTable() throws Exception {
-        createCategory();
-
-        String sql = "SELECT payload FROM outbox WHERE aggregate_type = 'category' ORDER BY created_at DESC OFFSET 1 LIMIT 2;";
-        
-        String jsonPayload = jdbcTemplate.queryForObject(sql, String.class);
-       
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        
-        Map<String, Object> category = mapper.readValue(jsonPayload, Map.class);
-       
-        String category_id = (String) category.get("id");
-
-        String attrId = ""; 
-        String attrDefId = ""; 
-
-        List<?> attributes = (List<?>) category.get("attributes");
-
-        if (attributes != null && !attributes.isEmpty()) {
-            Map<String, Object> firstAttribute = (Map<String, Object>) attributes.get(0);
-            
-            Object idObj = firstAttribute.get("id") != null ? firstAttribute.get("id") : firstAttribute.get("attribute_id");
-            attrId = String.valueOf(idObj);
-
-            Map<String, Object> attrDef = (Map<String, Object>) firstAttribute.get("attributeDefinition");
-            if (attrDef == null) {
-                attrDef = (Map<String, Object>) firstAttribute.get("attribute_definition");
-            }
-
-            if (attrDef != null) {
-                attrDefId = String.valueOf(attrDef.get("id"));
-            } else {
-                throw new RuntimeException("No encontré 'attributeDefinition' ni 'attribute_definition'. Keys disponibles: " + firstAttribute.keySet());
-            }
-        }
-
-        String attributeDefinitionId = createAttributeDefinition();
-
-        mockMvc.perform(
-            MockMvcRequestBuilders
-                .put("/api/v1/categories/" + category_id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
+        JsonNode expected = mapper.readTree("""
+            {
+                "id": "%s", 
+                "name": "test", 
+                "slug": "test", 
+                "parent_id": null, 
+                "attributes": [
                     {
-                        "name": "test",
-                        "slug": "test",
-                        "parent_id": null,
-                        "categoryAttributes": [
-                            {
+                        "id": "%s", 
+                         "attribute": {
+                             "id": "%s", 
+                             "name": "test", 
+                             "slug": "test", 
+                             "type": "STRING", 
+                             "is_global": false
+                         }, 
+                        "is_required": true, 
+                        "is_sortable": true, 
+                        "is_filterable": true
+                    }
+                ]
+            } 
+            """.formatted(id, categoryAttributeId, attributeDefinitionId));
+
+        Assertions.assertTrue(actual.equals(expected));
+    }
+
+    private void updateCategory(Map<String, String> map) throws Exception {
+        String slug = map.get("slug");
+        String categoryAttributeId = map.get("categoryAttributeId");
+        String attributeDefinitionId = map.get("attributeDefinitionId");
+
+        mockMvc.perform(
+            MockMvcRequestBuilders
+                .put("/api/v1/categories/%s".formatted(slug))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "name": "test2",
+                            "slug": "test2",
+                            "parent_id": null,
+                            "categoryAttributes": [
+                              {
                                 "id": "%s",
-                                "attributeDefinition": "%s",
+                                "attribute_definition_id": "%s",
                                 "is_required": true,
                                 "is_filterable": true,
                                 "is_sortable": true
-                            }
-                        ]
-                    }
-                    """.formatted(category_id, attributeDefinitionId))
-                .with(jwt().jwt(j -> j.claim("realm_access", Map.of("roles", List.of("update_category")))
+                              }
+                            ]
+                        }
+                    """.formatted(categoryAttributeId, attributeDefinitionId))
+                .with(jwt().jwt(j -> j.claim("realm_access", Map.of("roles", List.of("create_category", "update_category")))
                                  .subject("random-user")))
         )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
-
-        sql = "SELECT payload FROM outbox WHERE aggregate_type = 'category' ORDER BY created_at DESC OFFSET 1 LIMIT 3;";
-        
-        jsonPayload = jdbcTemplate.queryForObject(sql, String.class);
-      
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        
-        Map<String, Object> new_category = mapper.readValue(jsonPayload, Map.class);
-        
-        Assertions.assertNotNull(new_category);
+            .andExpect(
+                MockMvcResultMatchers.content()
+                .contentType(MediaType.APPLICATION_JSON)
+            );
     }
+
+    @Test
+    public void should_updateACategoryAndShowItInOutboxTable() throws Exception {
+        Map<String, String> map = createCategory();
+
+        updateCategory(map);
+
+        Integer categoryCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM category", Integer.class);
+       
+        Assertions.assertTrue(categoryCount == 1);
+
+        Integer outboxCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM outbox", Integer.class);
+       
+        Assertions.assertTrue(outboxCount == 4);
+
+        Map<String, Object> outboxEntry = jdbcTemplate.queryForMap(
+            "SELECT * FROM outbox WHERE id = 4");
+
+        Assertions.assertTrue(outboxEntry.get("aggregate_type").equals("category"));
+    
+        Assertions.assertTrue(outboxEntry.get("type").equals("CATEGORY_UPDATED"));
+
+        JsonNode actual = mapper.readTree(outboxEntry.get("payload").toString());
+        JsonNode expected = mapper.readTree("""
+            {
+                "id": "%s",
+                "name": "test2",
+                "slug": "test2",
+                "parent_id": null,
+                "attributes": [
+                    {
+                        "id": "%s", 
+                         "attribute": {
+                             "id": "%s", 
+                             "name": "test", 
+                             "slug": "test", 
+                             "type": "STRING", 
+                             "is_global": false
+                         }, 
+                        "is_required": true, 
+                        "is_sortable": true, 
+                        "is_filterable": true
+                    }
+                ]
+            }
+            """.formatted(map.get("id"), map.get("categoryAttributeId"), map.get("attributeDefinitionId")));
+
+        Assertions.assertTrue(actual.equals(expected));
+    }
+
+    private Map<String, String> createCategoryAttribute(String category_slug, String attributeDefinitionId) throws Exception {
+        String query = """
+            INSERT INTO attributedefinition (id, name, slug, type, is_global) VALUES (
+                '12345',
+                'test2',
+                'test2',
+                'STRING',
+                false
+            );
+            """;
+
+        jdbcTemplate.update(query);
+        
+        MvcResult result = mockMvc.perform(
+            MockMvcRequestBuilders
+                .post("/api/v1/categories/" + category_slug + "/attributes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "attribute_definition_id": "%s",
+                            "is_required": false,
+                            "is_filterable": true,
+                            "is_sortable": true
+                        }
+                    """.formatted("12345"))
+                .with(jwt().jwt(j -> j
+                    .claim("realm_access", Map.of("roles", List.of("update_category")))
+                    .subject("random-user")
+                    ))
+            )
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        String responseJson = result.getResponse().getContentAsString();
+        
+        Map<String, String> map = new HashMap<>();
+        map.put("categoryAttributeId2", com.jayway.jsonpath.JsonPath.read(responseJson, "$.payload.id"));
+        map.put("attributeDefinitionId2", "12345");
+
+        return map;
+    }
+
+    @Test
+    public void should_createANewCategoryAttributeAndShowItInOutboxTable() throws Exception {
+        Map<String, String> map = createCategory();
+
+        Map<String, String> map2 = createCategoryAttribute(map.get("slug"), map.get("attributeDefinitionId"));
+
+        Integer categoryCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM category", Integer.class);
+       
+        Assertions.assertTrue(categoryCount == 1);
+
+        Integer outboxCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM outbox", Integer.class);
+      
+        Assertions.assertTrue(outboxCount == 5);
+
+        Map<String, Object> outboxEntry = jdbcTemplate.queryForMap(
+            "SELECT * FROM outbox WHERE id = 5");
+
+        Assertions.assertTrue(outboxEntry.get("aggregate_type").equals("category"));
+    
+        Assertions.assertTrue(outboxEntry.get("type").equals("CATEGORY_UPDATED"));
+        
+        JsonNode actual = mapper.readTree(outboxEntry.get("payload").toString());
+        JsonNode expected = mapper.readTree("""
+            {
+                "id": "%s",
+                "name": "test",
+                "slug": "test",
+                "parent_id": null,
+                "attributes": [
+                    {
+                        "id": "%s", 
+                        "attribute": {
+                            "id": "%s", 
+                            "name": "test", 
+                            "slug": "test", 
+                            "type": "STRING", 
+                            "is_global": false
+                        }, 
+                        "is_required": true, 
+                        "is_sortable": true, 
+                        "is_filterable": true
+                    }, {
+                        "id": "%s", 
+                        "attribute": {
+                            "id": "%s", 
+                            "name": "test", 
+                            "slug": "test", 
+                            "type": "STRING", 
+                            "is_global": false
+                        }, 
+                        "is_required": false, 
+                        "is_sortable": true, 
+                        "is_filterable": true
+                    }
+                    
+                ]
+            }
+            """.formatted(
+                    map.get("id"), 
+                    map.get("categoryAttributeId"), 
+                    map.get("attributeDefinitionId"),
+                    map2.get("categoryAttributeId2"),
+                    map2.get("attributeDefinitionId2")
+                )
+            );
+        Assertions.assertTrue(actual.equals(expected));
+    }
+
+    @Test
+    public void should_createAndRemoveANewCategoryAttributeAndShowItInOutboxTable() throws Exception {
+        Map<String, String> map = createCategory();
+
+        Map<String, String> map2 = createCategoryAttribute(map.get("slug"), map.get("attributeDefinitionId"));
+
+        Integer categoryCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM category", Integer.class);
+       
+        Assertions.assertTrue(categoryCount == 1);
+
+        Integer outboxCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM outbox", Integer.class);
+      
+        Assertions.assertTrue(outboxCount == 5);
+
+        Map<String, Object> outboxEntry = jdbcTemplate.queryForMap(
+            "SELECT * FROM outbox WHERE id = 5");
+
+        Assertions.assertTrue(outboxEntry.get("aggregate_type").equals("category"));
+    
+        Assertions.assertTrue(outboxEntry.get("type").equals("CATEGORY_UPDATED"));
+
+        JsonNode actual = mapper.readTree(outboxEntry.get("payload").toString());
+
+        System.out.println(outboxEntry.get("payload"));
+        System.out.println(
+
+                """
+            {
+               "id":"%s",
+               "name":"test",
+               "slug":"test",
+               "parent_id":null,
+               "attributes":[
+                  {
+                     "id":"%s",
+                     "attribute":{
+                        "id":"%s",
+                        "name":"test",
+                        "slug":"test",
+                        "type":"STRING",
+                        "is_global":false
+                     },
+                     "is_required":true,
+                     "is_sortable":true,
+                     "is_filterable":true
+                  },
+                  {
+                     "id":"%s",
+                     "attribute":{
+                        "id":"%s",
+                        "name":"test2",
+                        "slug":"test2",
+                        "type":"STRING",
+                        "is_global":false
+                     },
+                     "is_required":false,
+                     "is_sortable":true,
+                     "is_filterable":true
+                  }
+               ]
+            }
+            """.formatted(
+                    map.get("id"), 
+                    map.get("categoryAttributeId"), 
+                    map.get("attributeDefinitionId"),
+                    map2.get("categoryAttributeId2"),
+                    map2.get("attributeDefinitionId2")
+                )
+
+                );
+
+        JsonNode expected = mapper.readTree("""
+            {
+               "id":"%s",
+               "name":"test",
+               "slug":"test",
+               "parent_id":null,
+               "attributes":[
+                  {
+                     "id":"%s",
+                     "attribute":{
+                        "id":"%s",
+                        "name":"test",
+                        "slug":"test",
+                        "type":"STRING",
+                        "is_global":false
+                     },
+                     "is_required":true,
+                     "is_sortable":true,
+                     "is_filterable":true
+                  },
+                  {
+                     "id":"%s",
+                     "attribute":{
+                        "id":"%s",
+                        "name":"test2",
+                        "slug":"test2",
+                        "type":"STRING",
+                        "is_global":false
+                     },
+                     "is_required":false,
+                     "is_sortable":true,
+                     "is_filterable":true
+                  }
+               ]
+            }
+            """.formatted(
+                    map.get("id"), 
+                    map.get("categoryAttributeId"), 
+                    map.get("attributeDefinitionId"),
+                    map2.get("categoryAttributeId2"),
+                    map2.get("attributeDefinitionId2")
+                )
+            );
+        Assertions.assertTrue(actual.equals(expected));
+
+        mockMvc.perform(
+            MockMvcRequestBuilders
+                .delete("/api/v1/categories/%s/attributes/%s".formatted(map.get("slug"), map2.get("categoryAttributeId2")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(jwt().jwt(j -> j
+                    .claim("realm_access", Map.of("roles", List.of("update_category")))
+                    .subject("random-user")
+                    ))
+            )
+            .andExpect(MockMvcResultMatchers.status().isNoContent());
+
+        outboxCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM outbox", Integer.class);
+      
+        Assertions.assertTrue(outboxCount == 7);
+
+        outboxEntry = jdbcTemplate.queryForMap(
+            "SELECT * FROM outbox WHERE id = 7");
+
+        Assertions.assertTrue(outboxEntry.get("aggregate_type").equals("category"));
+    
+        Assertions.assertTrue(outboxEntry.get("type").equals("CATEGORY_UPDATED"));
+    }
+
+
 }

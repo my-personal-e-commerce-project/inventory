@@ -46,8 +46,8 @@ DECLARE
     v_payload JSONB;
 BEGIN
     IF (TG_OP = 'DELETE') THEN
-        INSERT INTO outbox (id, aggregate_type, aggregate_id, type, payload, created_at)
-        VALUES (gen_random_uuid(), 'product', OLD.id, 'PRODUCT_DELETED', jsonb_build_object('id', OLD.id, 'deleted', true), now());
+        INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
+        VALUES ('product', OLD.id, 'PRODUCT_DELETED', jsonb_build_object('id', OLD.id, 'deleted', true), now());
     ELSIF (TG_OP = 'INSERT') THEN
         SELECT jsonb_build_object(
             'id', NEW.id,
@@ -74,8 +74,8 @@ BEGIN
             )
         ) INTO v_payload;
 
-        INSERT INTO outbox (id, aggregate_type, aggregate_id, type, payload, created_at)
-        VALUES (gen_random_uuid(), 'product', NEW.id, 'PRODUCT_CREATED', v_payload, now());
+        INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
+        VALUES ('product', NEW.id, 'PRODUCT_CREATED', v_payload, now());
     ELSE
         SELECT jsonb_build_object(
             'id', NEW.id,
@@ -102,8 +102,8 @@ BEGIN
             )
         ) INTO v_payload;
 
-        INSERT INTO outbox (id, aggregate_type, aggregate_id, type, payload, created_at)
-        VALUES (gen_random_uuid(), 'product', NEW.id, 'PRODUCT_UPDATED', v_payload, now());
+        INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
+        VALUES ('product', NEW.id, 'PRODUCT_UPDATED', v_payload, now());
     END IF;
 
     RETURN NULL;

@@ -69,11 +69,11 @@ public class CategoryAttribute {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CategoryAttribute that = (CategoryAttribute) o;
-        return Objects.equals(id, that.id) && Objects.equals(attribute_definition_id, that.attribute_definition_id);
+        return Objects.equals(attribute_definition_id, that.attribute_definition_id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(attribute_definition_id);
     }
 }

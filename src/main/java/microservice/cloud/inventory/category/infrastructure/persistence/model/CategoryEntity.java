@@ -10,10 +10,12 @@ import java.util.HashSet;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Table("category")
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class CategoryEntity {
 
     @Id
