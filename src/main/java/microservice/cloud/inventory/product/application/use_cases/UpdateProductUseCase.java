@@ -44,9 +44,9 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
         Set<String> categories,
         Price price,
         Quantity stock,
-        List<String> images,
-        List<ProductAttributeValue> attributes,
-        List<String> tags
+        Set<String> images,
+        Set<ProductAttributeValue> attributes,
+        Set<String> tags
     ) {
         Product p = productRepository.findBySlug(find_slug);
 
@@ -68,17 +68,17 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
             description, 
             categories, 
             price, 
+            attributes,
             stock, 
             images, 
-            attributes, 
             tags
         );
      
         if(attrs != null)
-            p.validAttributes(attrs);
+            p.validCategoryAttributes(attrs);
 
         if(default_attributes != null)
-            p.validDefaultAttributes(default_attributes);
+            p.validGlobalAttributeDefinitions(default_attributes);
 
 
         productRepository.update(p);

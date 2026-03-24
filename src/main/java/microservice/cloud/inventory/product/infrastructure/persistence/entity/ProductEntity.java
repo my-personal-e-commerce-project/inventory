@@ -38,10 +38,10 @@ public class ProductEntity {
     
     private int stock;
 
-    private List<String> images;
+    private Set<String> images;
 
     @MappedCollection(idColumn = "product_id")
     private Set<ProductAttributeValueEntity> attributeValues;
 
-    private List<String> tags;
+    private Set<String> tags;
 }

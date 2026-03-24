@@ -13,7 +13,9 @@ public interface AttributeDefinitionJdbcRepository extends
     ListCrudRepository<AttributeDefinitionEntity, String>, 
     PagingAndSortingRepository<AttributeDefinitionEntity, String> 
 {
+    public AttributeDefinitionEntity findBySlug(String slug);
     List<AttributeDefinitionEntity> findAllByIdIn(List<String> ids);
+    List<AttributeDefinitionEntity> findAllByIsGlobal(boolean is_global);
     long countByIdIn(List<String> ids);
     boolean existsBySlug(String slug);
 }

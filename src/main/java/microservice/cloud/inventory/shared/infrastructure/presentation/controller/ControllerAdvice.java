@@ -37,15 +37,6 @@ public class ControllerAdvice {
         return response;
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ResponsePayload<?>> handleRuntimeException(
-            RuntimeException ex) {
-
-        return new ResponseEntity<ResponsePayload<?>>(
-            ResponsePayload.builder().message(ex.getMessage()).build(), 
-            HttpStatus.BAD_REQUEST
-        );
-    }
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ResponsePayload<?>> handleUnauthorizedException(

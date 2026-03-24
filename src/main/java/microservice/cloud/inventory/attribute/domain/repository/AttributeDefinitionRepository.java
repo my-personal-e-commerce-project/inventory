@@ -5,13 +5,15 @@ import java.util.Map;
 
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public interface AttributeDefinitionRepository {
 
     public AttributeDefinition getById(Id id);
+    public AttributeDefinition getBySlug(Slug find_slug);
     public List<AttributeDefinition> getGlobalAttributes();
     public Map<String, AttributeDefinition> findByIds(List<String> ids);
     public void save(AttributeDefinition attr);
     public void update(AttributeDefinition attr);
-    public void delete(Id id);
+    public void delete(AttributeDefinition attrDef);
 }

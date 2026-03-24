@@ -1,39 +1,21 @@
 package microservice.cloud.inventory.category.infrastructure.presentation.validate;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Setter
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class UpdateCategoryDTO {
-
-    @Builder.Default
-    private String id = null;
-
+public record UpdateCategoryDTO (
+    String id,
     @NotNull
     @NotEmpty
-    private String name;
-
+    String name,
     @NotNull
     @NotEmpty
-    private String slug;
-
-    @Builder.Default
-    private String parent_id = null;
-
+    String slug,
+    String parent_id,
     @Valid
     @NotNull
-    private Set<UpdateCategoryAttributeDTO> categoryAttributes = new HashSet<>();
-}
+    Set<UpdateCategoryAttributeDTO> categoryAttributes
+) {}

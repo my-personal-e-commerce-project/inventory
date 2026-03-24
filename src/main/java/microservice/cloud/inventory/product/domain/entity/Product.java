@@ -1,6 +1,5 @@
 package microservice.cloud.inventory.product.domain.entity;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,36 +13,35 @@ import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.product.domain.exception.InvalidProductException;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
-import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
-public class Product extends AggregateRoot {
+public class Product {
     private Id id;
     private String title;
     private Slug slug;
     private String description;
-    private List<String> tags;
     private Set<String> categories;
     private Price price;
-    private Quantity stock;
-    private List<String> images;
     private Map<String, ProductAttributeValue> attributeValues = new HashMap<>();
+    private Quantity stock;
+    private Set<String> images;
+    private Set<String> tags;
 
     public Product(
-        Id id, 
+        Id id,
         String title,
         Slug slug,
         String description,
         Set<String> categories, 
         Price price, 
-        List<ProductAttributeValue> attributeValues,
+        Set<ProductAttributeValue> attributeValues,
         Quantity stock,
-        List<String> images,
-        List<String> tags
+        Set<String> images,
+        Set<String> tags
     ) {
         if(title == null)
             throw new InvalidProductException("Products must have at least one category");
@@ -60,16 +58,38 @@ public class Product extends AggregateRoot {
         this.tags = tags;
     }
 
-    public void create(
-            Me me
+    public static Product factory(
+        Me me,
+        String title,
+        Slug slug,
+        String description,
+        Set<String> categories, 
+        Price price, 
+        Set<ProductAttributeValue> attributeValues,
+        Quantity stock,
+        Set<String> images,
+        Set<String> tags
     ) {
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.createProduct());
+
+        return new Product(
+            Id.generate(), 
+            title, 
+            slug, 
+            description, 
+            categories, 
+            price, 
+            attributeValues, 
+            stock, 
+            images, 
+            tags
+        );
     }
 
-    public void validDefaultAttributes(List<AttributeDefinition> attrs) {
+    public void validGlobalAttributeDefinitions(List<AttributeDefinition> attrs) {
         Map<String, ProductAttributeValue> productAttributeByAttributeDefinitionId =
             attributeValues.values().stream()
                 .collect(Collectors.toMap(
@@ -95,8 +115,7 @@ public class Product extends AggregateRoot {
         }
     }
 
-    public void validAttributes(Set<CategoryAttribute> category_attrs) {
-
+    public void validCategoryAttributes(Set<CategoryAttribute> category_attrs) {
         Map<String, ProductAttributeValue> productAttributeByAttributeDefinitionId =
             attributeValues.values().stream()
                 .collect(Collectors.toMap(
@@ -113,9 +132,8 @@ public class Product extends AggregateRoot {
             if (categoryAttr.is_required() && productAttr == null) {
                 throw new IllegalStateException(
                     "The product attribute is missing for the attribute definition: " 
-                    + categoryAttr.attribute_definition().slug().value() + " with id:" 
                     + categoryAttr.attribute_definition().id().value() 
-                    + ", go create a new attribute in the appropriate endpoint"
+                    + ", go create a new product attribute"
                 );
             }
 
@@ -146,10 +164,10 @@ public class Product extends AggregateRoot {
         String description,
         Set<String> categories,
         Price price,
+        Set<ProductAttributeValue> attributes,
         Quantity stock,
-        List<String> images,
-        List<ProductAttributeValue> attributes,
-        List<String> tags
+        Set<String> images,
+        Set<String> tags
     ) { 
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
@@ -166,13 +184,21 @@ public class Product extends AggregateRoot {
         });
 
         attributeValues.values().stream().forEach(a -> {
-            ProductAttributeValue attr = mapNewAttrs.get(a.id().value());
+            ProductAttributeValue attr = this.attributeValues.get(a.id().value());
 
             if(attr == null)
-                throw new RuntimeException("You need to thicken the attribute " + a.id().value());
+                throw new RuntimeException(
+                    "Product attribute with id: %s not found"
+                    .formatted(a.id().value())
+                );
 
             if(!attr.attribute_definition_id().equals(a.attribute_definition_id()))
-                throw new RuntimeException("The id of the attribute definition: " + a.attribute_definition_id().value() + ", should be in the attribute: " + a.id().value());
+                throw new RuntimeException(
+                    "The id of the attribute definition of product attribute value: " 
+                    + a.id().value() 
+                    + ", should be " 
+                    + a.attribute_definition_id().value()
+                );
         });
 
         this.attributeValues = mapNewAttrs;
@@ -238,19 +264,19 @@ public class Product extends AggregateRoot {
         return price;
     }
 
-    public List<ProductAttributeValue> attributeValues() {
-        return new ArrayList<>(attributeValues.values());
+    public Set<ProductAttributeValue> attributeValues() {
+        return new HashSet<>(attributeValues.values());
     }
 
     public Quantity stock() {
         return stock;
     }
 
-    public List<String> images() {
-        return images;
+    public Set<String> images() {
+        return new HashSet<>(images);
     }
 
-    public List<String> tags() {
-        return tags;
+    public Set<String> tags() {
+        return new HashSet<>(tags);
     }
 }

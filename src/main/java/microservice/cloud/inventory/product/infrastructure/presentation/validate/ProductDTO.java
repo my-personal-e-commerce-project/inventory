@@ -47,8 +47,8 @@ public class ProductDTO {
     @NotNull
     private int stock;
 
-    private List<String> images;
+    private Set<String> images;
 
     @NotNull
-    private List<String> tags;
+    private Set<String> tags;
 }

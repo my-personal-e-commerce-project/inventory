@@ -2,13 +2,11 @@ package microservice.cloud.inventory.attribute.infrastructure.presentation.contr
 
 import java.util.UUID;
 
-import javax.smartcardio.ATR;
-
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,7 +57,7 @@ public class AttributeDefinitionController {
 
         createAttributeDefinitionUseCasePort.execute(
             new AttributeDefinition(
-                new Id(id), 
+                Id.fromString(id), 
                 attribute.name(),
                 slug,
                 DataType.valueOf(attribute.type()), 
@@ -82,24 +80,20 @@ public class AttributeDefinitionController {
             );
     }
 
-    @PutMapping(name = "/{id}")
+    @PutMapping(name = "/{find_slug}")
     public ResponseEntity<ResponsePayload<AttributeDefinitionDTO>> updateDefaultAttribute(
-        @RequestParam String id,
+        @RequestParam String find_slug,
         @Valid @RequestBody AttributeDefinitionDTO attribute
     ) {
-
         updateAttributeDefinitionUseCasePort.execute(
-            new AttributeDefinition(
-                new Id(id), 
-                attribute.name(), 
-                new Slug(attribute.slug()), 
-                DataType.valueOf(attribute.type()), 
-               attribute.is_global() 
-            )
+            Slug.fromString(find_slug),
+            attribute.name(), 
+            Slug.fromString(attribute.slug()), 
+            DataType.valueOf(attribute.type()), 
+            attribute.is_global() 
         );
 
         attribute = new AttributeDefinitionDTO(
-            id, 
             attribute.name(), 
             attribute.slug(), 
             attribute.type(), 
@@ -112,12 +106,12 @@ public class AttributeDefinitionController {
             );
     }
 
-    @DeleteMapping(name = "/{id}")
+    @DeleteMapping("/{find_slug}")
     public ResponseEntity<?> deleteDefaultAttribute(
-        @RequestParam String id
+        @PathVariable String find_slug
     ) {
         deleteAttributeDefinitionUseCasePort.execute(
-            new Id(id)
+            Slug.fromString(find_slug)
         );
 
         return ResponseEntity.noContent().build();

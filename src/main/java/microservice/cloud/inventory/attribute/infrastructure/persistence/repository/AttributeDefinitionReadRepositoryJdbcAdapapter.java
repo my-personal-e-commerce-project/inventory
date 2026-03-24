@@ -41,7 +41,7 @@ public class AttributeDefinitionReadRepositoryJdbcAdapapter implements Attribute
             entity.getName(),
             entity.getSlug(),
             entity.getType(),
-            Boolean.valueOf(entity.is_global())
+            Boolean.valueOf(entity.isGlobal())
         );
     }
 }

@@ -1,6 +1,5 @@
 package microservice.cloud.inventory.product.application.ports.in;
 
-import java.util.List;
 import java.util.Set;
 
 import microservice.cloud.inventory.product.domain.entity.Product;
@@ -19,8 +18,8 @@ public interface UpdateProductUseCasePort {
         Set<String> categories,
         Price price,
         Quantity stock,
-        List<String> images,
-        List<ProductAttributeValue> attributes,
-        List<String> tags
+        Set<String> images,
+        Set<ProductAttributeValue> attributes,
+        Set<String> tags
     );
 }

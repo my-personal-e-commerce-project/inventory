@@ -1,11 +1,9 @@
 package microservice.cloud.inventory.shared.domain.value_objects;
 
-public class Permission {
-
-    private String value;
-
+public record Permission (
+    String value
+) {
     public Permission(String value) {
-
         if(value == null)
             throw new IllegalArgumentException("The permission cannot be null");
 
@@ -13,10 +11,6 @@ public class Permission {
             throw new IllegalArgumentException("The permission cannot be empty");
     
         this.value = value;
-    }
-
-    public String value() {
-        return value;
     }
 
     public boolean equals(Permission permission) {

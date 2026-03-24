@@ -1,6 +1,7 @@
 package microservice.cloud.inventory.attribute.infrastructure.persistence.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import lombok.AllArgsConstructor;
@@ -16,5 +17,6 @@ public class AttributeDefinitionEntity {
     private String name;
     private String slug;
     private String type;
-    private boolean is_global = false;
+    @Column("is_global")
+    private boolean isGlobal = false;
 }

@@ -5,6 +5,7 @@ import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class DeleteAttributeDefinitionUseCase implements DeleteAttributeDefinitionUseCasePort{
 
@@ -20,8 +21,9 @@ public class DeleteAttributeDefinitionUseCase implements DeleteAttributeDefiniti
     }
 
     @Override
-    public void execute(Id id) {
+    public void execute(Slug find_slug) {
         AttributeDefinition.delete(getMePort.execute());
-        attributeDefinitionRepository.delete(id);
+        AttributeDefinition attrDef = attributeDefinitionRepository.getBySlug(find_slug);
+        attributeDefinitionRepository.delete(attrDef);
     } 
 }

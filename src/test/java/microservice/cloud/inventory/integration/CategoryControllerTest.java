@@ -9,6 +9,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,11 +47,7 @@ public class CategoryControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    // TODO: test de borrar un category attribute y que datos expone en la tabla outbox
-    // TODO: test de actualizar un category attribute y que datos expone en la tabla outbox
-    // TODO: test de actualizar una categoria y que datos expone en la tabla outbox
-    // TODO: test de borrar una categoria y que datos expone en la tabla outbox
-  
+      
     @BeforeEach
     void tearDown() {
         jdbcTemplate.execute("TRUNCATE TABLE category RESTART IDENTITY CASCADE");
@@ -150,6 +148,11 @@ public class CategoryControllerTest {
 
         Assertions.assertTrue(outboxCount == 2);
 
+        Integer categoryAttributeCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM categoryattribute", Integer.class);
+       
+        Assertions.assertTrue(categoryAttributeCount == 1);
+
         Map<String, Object> outboxEntry = jdbcTemplate.queryForMap(
             "SELECT * FROM outbox WHERE id = 2;"
         );
@@ -206,7 +209,7 @@ public class CategoryControllerTest {
                                 "id": "%s",
                                 "attribute_definition_id": "%s",
                                 "is_required": true,
-                                "is_filterable": true,
+                                "is_filterable": false,
                                 "is_sortable": true
                               }
                             ]
@@ -223,7 +226,7 @@ public class CategoryControllerTest {
     }
 
     @Test
-    public void should_updateACategoryAndShowItInOutboxTable() throws Exception {
+    public void should_updateACategoryAndACategoryAttributeAndShowItInOutboxTable() throws Exception {
         Map<String, String> map = createCategory();
 
         updateCategory(map);
@@ -236,10 +239,10 @@ public class CategoryControllerTest {
         Integer outboxCount = jdbcTemplate.queryForObject(
             "SELECT count(*) FROM outbox", Integer.class);
        
-        Assertions.assertTrue(outboxCount == 4);
+        Assertions.assertTrue(outboxCount == 5);
 
         Map<String, Object> outboxEntry = jdbcTemplate.queryForMap(
-            "SELECT * FROM outbox WHERE id = 4");
+            "SELECT * FROM outbox WHERE id = 5");
 
         Assertions.assertTrue(outboxEntry.get("aggregate_type").equals("category"));
     
@@ -263,8 +266,8 @@ public class CategoryControllerTest {
                              "is_global": false
                          }, 
                         "is_required": true, 
-                        "is_sortable": true, 
-                        "is_filterable": true
+                        "is_filterable": false,
+                        "is_sortable": true
                     }
                 ]
             }
@@ -321,6 +324,11 @@ public class CategoryControllerTest {
         Map<String, String> map = createCategory();
 
         Map<String, String> map2 = createCategoryAttribute(map.get("slug"), map.get("attributeDefinitionId"));
+        
+        Integer categoryAttributeCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM categoryattribute", Integer.class);
+       
+        Assertions.assertTrue(categoryAttributeCount == 2);
 
         Integer categoryCount = jdbcTemplate.queryForObject(
             "SELECT count(*) FROM category", Integer.class);
@@ -330,10 +338,10 @@ public class CategoryControllerTest {
         Integer outboxCount = jdbcTemplate.queryForObject(
             "SELECT count(*) FROM outbox", Integer.class);
       
-        Assertions.assertTrue(outboxCount == 5);
+        Assertions.assertTrue(outboxCount == 6);
 
         Map<String, Object> outboxEntry = jdbcTemplate.queryForMap(
-            "SELECT * FROM outbox WHERE id = 5");
+            "SELECT * FROM outbox WHERE id = 6");
 
         Assertions.assertTrue(outboxEntry.get("aggregate_type").equals("category"));
     
@@ -351,15 +359,15 @@ public class CategoryControllerTest {
                         "id": "%s", 
                         "attribute": {
                             "id": "%s", 
-                            "name": "test", 
-                            "slug": "test", 
+                            "name": "test2", 
+                            "slug": "test2", 
                             "type": "STRING", 
                             "is_global": false
                         }, 
-                        "is_required": true, 
+                        "is_required": false, 
                         "is_sortable": true, 
                         "is_filterable": true
-                    }, {
+                    },{
                         "id": "%s", 
                         "attribute": {
                             "id": "%s", 
@@ -368,29 +376,30 @@ public class CategoryControllerTest {
                             "type": "STRING", 
                             "is_global": false
                         }, 
-                        "is_required": false, 
+                        "is_required": true, 
                         "is_sortable": true, 
                         "is_filterable": true
                     }
-                    
                 ]
             }
             """.formatted(
                     map.get("id"), 
-                    map.get("categoryAttributeId"), 
-                    map.get("attributeDefinitionId"),
                     map2.get("categoryAttributeId2"),
-                    map2.get("attributeDefinitionId2")
+                    map2.get("attributeDefinitionId2"),
+                    map.get("categoryAttributeId"), 
+                    map.get("attributeDefinitionId")
                 )
             );
-        Assertions.assertTrue(actual.equals(expected));
+
+        String actualJson = mapper.writeValueAsString(actual);
+        String expectedJson = expected.toString();
+
+        JSONAssert.assertEquals(expectedJson, actualJson, JSONCompareMode.LENIENT);
     }
 
     @Test
-    public void should_createAndRemoveANewCategoryAttributeAndShowItInOutboxTable() throws Exception {
+    public void should_removeACategoryAttributeAndShowItInOutboxTable() throws Exception {
         Map<String, String> map = createCategory();
-
-        Map<String, String> map2 = createCategoryAttribute(map.get("slug"), map.get("attributeDefinitionId"));
 
         Integer categoryCount = jdbcTemplate.queryForObject(
             "SELECT count(*) FROM category", Integer.class);
@@ -400,64 +409,16 @@ public class CategoryControllerTest {
         Integer outboxCount = jdbcTemplate.queryForObject(
             "SELECT count(*) FROM outbox", Integer.class);
       
-        Assertions.assertTrue(outboxCount == 5);
+        Assertions.assertTrue(outboxCount == 2);
 
         Map<String, Object> outboxEntry = jdbcTemplate.queryForMap(
-            "SELECT * FROM outbox WHERE id = 5");
+            "SELECT * FROM outbox WHERE id = 2");
 
         Assertions.assertTrue(outboxEntry.get("aggregate_type").equals("category"));
     
         Assertions.assertTrue(outboxEntry.get("type").equals("CATEGORY_UPDATED"));
 
         JsonNode actual = mapper.readTree(outboxEntry.get("payload").toString());
-
-        System.out.println(outboxEntry.get("payload"));
-        System.out.println(
-
-                """
-            {
-               "id":"%s",
-               "name":"test",
-               "slug":"test",
-               "parent_id":null,
-               "attributes":[
-                  {
-                     "id":"%s",
-                     "attribute":{
-                        "id":"%s",
-                        "name":"test",
-                        "slug":"test",
-                        "type":"STRING",
-                        "is_global":false
-                     },
-                     "is_required":true,
-                     "is_sortable":true,
-                     "is_filterable":true
-                  },
-                  {
-                     "id":"%s",
-                     "attribute":{
-                        "id":"%s",
-                        "name":"test2",
-                        "slug":"test2",
-                        "type":"STRING",
-                        "is_global":false
-                     },
-                     "is_required":false,
-                     "is_sortable":true,
-                     "is_filterable":true
-                  }
-               ]
-            }
-            """.formatted(
-                    map.get("id"), 
-                    map.get("categoryAttributeId"), 
-                    map.get("attributeDefinitionId"),
-                    map2.get("categoryAttributeId2"),
-                    map2.get("attributeDefinitionId2")
-                )
-
-                );
 
         JsonNode expected = mapper.readTree("""
             {
@@ -478,35 +439,20 @@ public class CategoryControllerTest {
                      "is_required":true,
                      "is_sortable":true,
                      "is_filterable":true
-                  },
-                  {
-                     "id":"%s",
-                     "attribute":{
-                        "id":"%s",
-                        "name":"test2",
-                        "slug":"test2",
-                        "type":"STRING",
-                        "is_global":false
-                     },
-                     "is_required":false,
-                     "is_sortable":true,
-                     "is_filterable":true
                   }
                ]
             }
             """.formatted(
                     map.get("id"), 
                     map.get("categoryAttributeId"), 
-                    map.get("attributeDefinitionId"),
-                    map2.get("categoryAttributeId2"),
-                    map2.get("attributeDefinitionId2")
+                    map.get("attributeDefinitionId")
                 )
             );
         Assertions.assertTrue(actual.equals(expected));
 
         mockMvc.perform(
             MockMvcRequestBuilders
-                .delete("/api/v1/categories/%s/attributes/%s".formatted(map.get("slug"), map2.get("categoryAttributeId2")))
+                .delete("/api/v1/categories/%s/attributes/%s".formatted(map.get("slug"), map.get("categoryAttributeId")))
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(jwt().jwt(j -> j
                     .claim("realm_access", Map.of("roles", List.of("update_category")))
@@ -518,15 +464,82 @@ public class CategoryControllerTest {
         outboxCount = jdbcTemplate.queryForObject(
             "SELECT count(*) FROM outbox", Integer.class);
       
-        Assertions.assertTrue(outboxCount == 7);
+        Assertions.assertTrue(outboxCount == 4);
+
+        Integer categoryAttributeCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM categoryattribute", Integer.class);
+       
+        Assertions.assertTrue(categoryAttributeCount == 0);
 
         outboxEntry = jdbcTemplate.queryForMap(
-            "SELECT * FROM outbox WHERE id = 7");
+            "SELECT * FROM outbox WHERE id = 4");
 
         Assertions.assertTrue(outboxEntry.get("aggregate_type").equals("category"));
     
         Assertions.assertTrue(outboxEntry.get("type").equals("CATEGORY_UPDATED"));
+
+        actual = mapper.readTree(outboxEntry.get("payload").toString());
+
+        expected = mapper.readTree("""
+            {
+               "id":"%s",
+               "name":"test",
+               "slug":"test",
+               "parent_id":null,
+               "attributes":[]
+            }
+            """.formatted(
+                    map.get("id") 
+                )
+            );
+        Assertions.assertTrue(actual.equals(expected));
     }
 
+    @Test
+    public void should_deleteACategoryAndShowItInOutboxTable() throws Exception {
+        Map<String, String> map = createCategory();
 
+        mockMvc.perform(
+            MockMvcRequestBuilders
+                .delete("/api/v1/categories/%s".formatted(map.get("slug")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(jwt().jwt(j -> j
+                    .claim("realm_access", Map.of("roles", List.of("delete_category")))
+                    .subject("random-user")
+                    ))
+            )
+            .andExpect(MockMvcResultMatchers.status().isNoContent());
+
+        Integer categoryAttributeCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM categoryattribute", Integer.class);
+       
+        Assertions.assertTrue(categoryAttributeCount == 0);
+
+        Integer categoryCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM category", Integer.class);
+       
+        Assertions.assertTrue(categoryCount == 0);
+
+        Integer outboxCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM outbox", Integer.class);
+      
+        Assertions.assertTrue(outboxCount == 4);
+
+        Map<String, Object> outboxEntry = jdbcTemplate.queryForMap(
+            "SELECT * FROM outbox WHERE id = 4");
+
+        Assertions.assertTrue(outboxEntry.get("aggregate_type").equals("category"));
+    
+        Assertions.assertTrue(outboxEntry.get("type").equals("CATEGORY_DELETED"));
+
+        JsonNode actual = mapper.readTree(outboxEntry.get("payload").toString());
+
+        JsonNode expected = mapper.readTree("""
+            {"id":"%s","deleted":true}
+            """.formatted(
+                    map.get("id")
+                )
+            );
+        Assertions.assertTrue(actual.equals(expected));
+    }
 }

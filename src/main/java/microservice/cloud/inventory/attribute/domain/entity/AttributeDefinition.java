@@ -47,11 +47,16 @@ public class AttributeDefinition {
         me.IHavePermission(Permission.createAttributeDefinition());
     }
 
-    public void update(Me me) {
+    public void update(Me me, String name, Slug slug, DataType type, boolean is_global) {
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.updateAttributeDefinition());
+
+        this.name = name;
+        this.slug = slug;
+        this.type = type;
+        this.is_global = is_global;
     }
 
     public static void delete(Me me) {

@@ -40,7 +40,7 @@ public class UpdateProductDTO {
 
     @Valid
     @NotNull
-    private List<UpdateProductAttributeValueDTO> attributes;
+    private Set<UpdateProductAttributeValueDTO> attributes;
 
     @NotNull
     private Double price;
@@ -49,8 +49,8 @@ public class UpdateProductDTO {
     private int stock;
 
     @NotNull
-    private List<String> images;
+    private Set<String> images;
 
     @NotNull
-    private List<String> tags;
+    private Set<String> tags;
 }

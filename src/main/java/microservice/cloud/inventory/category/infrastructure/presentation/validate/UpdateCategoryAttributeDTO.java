@@ -3,33 +3,18 @@ package microservice.cloud.inventory.category.infrastructure.presentation.valida
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Setter
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class UpdateCategoryAttributeDTO {
-
+public record UpdateCategoryAttributeDTO (
     @NotNull
     @NotEmpty
-    private String id;
-  
+    String id,
     @Valid
     @NotNull
-    private String attribute_definition_id;
-
+    String attribute_definition_id,
     @NotNull
-    private Boolean is_required;
-
+    Boolean is_required,
     @NotNull
-    private Boolean is_filterable;
-
+    Boolean is_filterable,
     @NotNull
-    private Boolean is_sortable;
-}
+    Boolean is_sortable
+) {}

@@ -70,13 +70,13 @@ public class CategoryController {
         @Valid @RequestBody CategoryDTO category
     ) {
         category.setId(Id.generate().value());
-        Slug slug = new Slug(category.getSlug());
+        Slug slug = Slug.fromString(category.getSlug());
 
         createCategoryUseCasePort.execute(
-            new Id(category.getId()),
+            Id.fromString(category.getId()),
             category.getName(),
             slug,
-            category.getParent_id() == null? null: new Id(category.getParent_id()),
+            category.getParent_id() == null? null: Id.fromString(category.getParent_id()),
             category.getCategoryAttributes() == null
                 ? null
                 : category.getCategoryAttributes().stream().map(attr -> {
@@ -99,7 +99,7 @@ public class CategoryController {
         @PathVariable String find_slug,
         @Valid @RequestBody UpdateCategoryDTO category
     ) {
-        Set<CategoryAttribute> attrs = category.getCategoryAttributes()
+        Set<CategoryAttribute> attrs = category.categoryAttributes()
             .stream()
             .map(attr -> {
                 return toMap(attr);
@@ -107,11 +107,11 @@ public class CategoryController {
             .collect(Collectors.toSet());
 
         updateCategoryUseCasePort.execute(
-            new Slug(find_slug),
-            category.getName(), 
-            new Slug(category.getSlug()), 
-            category.getParent_id() != null
-                ? new Id(category.getParent_id())
+            Slug.fromString(find_slug),
+            category.name(), 
+            Slug.fromString(category.slug()), 
+            category.parent_id() != null
+                ? Id.fromString(category.parent_id())
                 : null, 
             attrs
         );
@@ -130,7 +130,7 @@ public class CategoryController {
         @PathVariable String find_slug
     ) {
         deleteCategoryUseCasePort.execute(
-            new Slug(find_slug)
+            Slug.fromString(find_slug)
         );
 
         return ResponseEntity.noContent().build();
@@ -144,7 +144,7 @@ public class CategoryController {
         categoryAttribute.setId(Id.generate().value());
 
         createCategoryAttributeUseCasePort.execute(
-            new Slug(find_slug), 
+            Slug.fromString(find_slug), 
             toMap(categoryAttribute)
         );
 
@@ -162,18 +162,18 @@ public class CategoryController {
         @PathVariable String find_slug,
         @PathVariable String attr_id
     ) {
-        deleteCategoryAttributeUseCasePort.execute(new Slug(find_slug), new Id(attr_id));
+        deleteCategoryAttributeUseCasePort.execute(Slug.fromString(find_slug), Id.fromString(attr_id));
 
         return ResponseEntity.noContent().build();
     }
 
     private CategoryAttribute toMap(UpdateCategoryAttributeDTO attr) {
         CategoryAttribute catAttr = new CategoryAttribute(
-            new Id(attr.getId()),
-            new Id(attr.getAttribute_definition_id()),
-            attr.getIs_required(),
-            attr.getIs_filterable(), 
-            attr.getIs_sortable()
+            Id.fromString(attr.id()),
+            Id.fromString(attr.attribute_definition_id()),
+            attr.is_required(),
+            attr.is_filterable(), 
+            attr.is_sortable()
         );
 
         return catAttr;
@@ -181,8 +181,8 @@ public class CategoryController {
 
     private CategoryAttribute toMap(CategoryAttributeDTO attr) {
         CategoryAttribute catAttr = new CategoryAttribute(
-            new Id(attr.getId()),
-            new Id(attr.getAttribute_definition_id()),
+            Id.fromString(attr.getId()),
+            Id.fromString(attr.getAttribute_definition_id()),
             attr.getIs_required(),
             attr.getIs_filterable(),
             attr.getIs_sortable() 

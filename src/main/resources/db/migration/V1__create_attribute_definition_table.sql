@@ -38,7 +38,7 @@ BEGIN
         VALUES ('attribute_definition', NEW.id, 'ATTRIBUTE_UPDATED', v_payload, now());
     ELSIF (TG_OP = 'DELETE' AND OLD.is_global = TRUE) THEN
         INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
-        VALUES ('attribute_definition', NEW.id, 'ATTRIBUTE_DELETED', jsonb_build_object('id', NEW.id, 'deleted', true), now());
+        VALUES ('attribute_definition', OLD.id, 'ATTRIBUTE_DELETED', jsonb_build_object('id', OLD.id, 'deleted', true), now());
     END IF;
 
     RETURN NULL;

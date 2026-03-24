@@ -1,7 +1,10 @@
 package microservice.cloud.inventory.shared.infrastructure.adapters.out;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,10 +30,17 @@ public class GetMeAdapter implements GetMePort {
 
         Map<String, Object> realmAccess = jwt.getClaim("realm_access");
 
-        List<String> roles = (List<String>) realmAccess.get("roles");
+        Collection<String> roles = (Collection<String>) realmAccess.get("roles");
 
-        return new Me(new Id(jwt.getSubject()), 
-            roles.stream().map(r -> new Permission(r)).toList()
+        if (roles == null) roles = Collections.emptyList();
+
+        Set<Permission> permissions = roles.stream()
+            .map(Permission::new)
+            .collect(Collectors.toSet());
+
+        return new Me(
+            Id.fromString(jwt.getSubject()),
+            permissions
         );
     }
 }

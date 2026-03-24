@@ -26,6 +26,7 @@ public class AttributeDefinitionRepositoryJdbcAdapter implements AttributeDefini
 
     @Override
     public List<AttributeDefinition> getGlobalAttributes() {
+        // TODO: pendiente
         return null;
     }
 
@@ -33,6 +34,17 @@ public class AttributeDefinitionRepositoryJdbcAdapter implements AttributeDefini
     public AttributeDefinition getById(Id id) {
         AttributeDefinitionEntity attrDef = aggregateTemplate
             .findById(id.value(), AttributeDefinitionEntity.class);
+
+        if(attrDef == null)
+            throw new DataNotFound("Attribute definition not found");
+
+        return toMap(attrDef);
+    }
+
+    @Override
+    public AttributeDefinition getBySlug(Slug find_slug) {
+        AttributeDefinitionEntity attrDef = attributeDefinitionJdbcRepository 
+            .findBySlug(find_slug.value());
 
         if(attrDef == null)
             throw new DataNotFound("Attribute definition not found");
@@ -72,17 +84,19 @@ public class AttributeDefinitionRepositoryJdbcAdapter implements AttributeDefini
 
     @Transactional
     @Override
-    public void delete(Id id) {
-        aggregateTemplate.deleteById(id.value(), AttributeDefinitionEntity.class);
+    public void delete(AttributeDefinition attributeDefinition) {
+        aggregateTemplate.delete(
+            toMap(attributeDefinition)
+        );
     }
 
     private AttributeDefinition toMap(AttributeDefinitionEntity attr) {
         return new AttributeDefinition(
-            new Id(attr.getId()),
+            Id.fromString(attr.getId()),
             attr.getName(),
-            new Slug(attr.getSlug()),
+            Slug.fromString(attr.getSlug()),
             DataType.valueOf(attr.getType()),
-            attr.is_global()
+            attr.isGlobal()
         );
     }
 

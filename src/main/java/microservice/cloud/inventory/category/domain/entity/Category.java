@@ -160,6 +160,6 @@ public class Category {
     }
 
     public Set<CategoryAttribute> categoryAttributes() {
-        return categoryAttributes;
+        return new HashSet<>(categoryAttributes);
     }
 }

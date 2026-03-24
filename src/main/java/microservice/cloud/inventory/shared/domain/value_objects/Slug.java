@@ -3,11 +3,14 @@ package microservice.cloud.inventory.shared.domain.value_objects;
 import com.github.slugify.Slugify;
 
 public class Slug {
-
     private final String value;
 
-    public Slug(String value) {
+    private Slug(String value) {
         this.value = value;
+    }
+
+    public static Slug fromString(String value) {
+        return new Slug(value);
     }
 
     public static Slug create(String value) {

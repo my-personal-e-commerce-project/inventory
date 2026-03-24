@@ -4,18 +4,21 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class Id {
-
     private final String value;
 
     public String value() {
         return value;
     }
 
+    public static Id fromString(String value) {
+        return new Id(value);
+    }
+
     public static Id generate() {
         return new Id(UUID.randomUUID().toString());
     }
 
-    public Id(String value) {
+    private Id(String value) {
 
         if(value == null)
             throw new RuntimeException("Id cannot be null");

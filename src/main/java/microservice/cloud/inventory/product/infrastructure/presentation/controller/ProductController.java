@@ -1,6 +1,7 @@
 package microservice.cloud.inventory.product.infrastructure.presentation.controller;
 
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,6 @@ import microservice.cloud.inventory.product.application.ports.in.DeleteProductAt
 import microservice.cloud.inventory.product.application.ports.in.DeleteProductUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.ListProductsUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
-import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
@@ -63,39 +63,36 @@ public class ProductController {
     public ResponseEntity<ResponsePayload<ProductDTO>> createProduct(
         @Valid @RequestBody ProductDTO productDTO
     ) {
-        productDTO.setId(UUID.randomUUID().toString());
+        productDTO.setId(Id.generate().value());
         productDTO.setAttributes(
             productDTO.getAttributes()
                 .stream()
                 .map(i -> {
-                    i.setId(UUID.randomUUID().toString());
+                    i.setId(Id.generate().value());
                     return i;
                 })
                 .toList()
         );
 
         createProductUseCasePort.execute(
-            new Product(
-                new Id(productDTO.getId()),
-                productDTO.getTitle(),
-                new Slug(productDTO.getSlug()),
-                productDTO.getDescription(),
-                productDTO.getCategories(),
-                new Price(productDTO.getPrice()),
-                productDTO.getAttributes().stream().map(attr -> 
-                    new ProductAttributeValue(
-                        new Id(attr.getId()),
-                        new Id(attr.getAttribute_definition_id()),
-                        attr.getString_value(),
-                        attr.getInteger_value(),
-                        attr.getDouble_value(),
-                        attr.getBoolean_value()
-                    )
-                ).toList(),
-                new Quantity(productDTO.getStock()),
-                productDTO.getImages(),
-                productDTO.getTags()
-            )
+            productDTO.getTitle(),
+            Slug.fromString(productDTO.getSlug()),
+            productDTO.getDescription(),
+            productDTO.getCategories(),
+            new Price(productDTO.getPrice()),
+            productDTO.getAttributes().stream().map(attr -> 
+                new ProductAttributeValue(
+                    Id.fromString(attr.getId()),
+                    Id.fromString(attr.getAttribute_definition_id()),
+                    attr.getString_value(),
+                    attr.getInteger_value(),
+                    attr.getDouble_value(),
+                    attr.getBoolean_value()
+                )
+            ).collect(Collectors.toSet()),
+            new Quantity(productDTO.getStock()),
+            productDTO.getImages(),
+            productDTO.getTags()
         );
 
         return new ResponseEntity<>(
@@ -111,9 +108,9 @@ public class ProductController {
     ) {
 
         updateProductUseCasePort.execute(
-            new Slug(find_slug),
+            Slug.fromString(find_slug),
             productDTO.getTitle(),
-            new Slug(productDTO.getSlug()),
+            Slug.fromString(productDTO.getSlug()),
             productDTO.getDescription(),
             productDTO.getCategories(),
             new Price(productDTO.getPrice()),
@@ -121,14 +118,14 @@ public class ProductController {
             productDTO.getImages(),
             productDTO.getAttributes().stream().map(attr -> 
                 new ProductAttributeValue(
-                    new Id(attr.getId()),
-                    new Id(attr.getAttribute_definition_id()),
+                    Id.fromString(attr.getId()),
+                    Id.fromString(attr.getAttribute_definition_id()),
                     attr.getString_value(),
                     attr.getInteger_value(),
                     attr.getDouble_value(),
                     attr.getBoolean_value()
                 )
-            ).toList(),
+            ).collect(Collectors.toSet()),
             productDTO.getTags()
         );
 
@@ -142,7 +139,7 @@ public class ProductController {
     public ResponseEntity<?> deleteProduct(
         @PathVariable String find_slug
     ) {
-        deleteProductUseCasePort.execute(new Slug(find_slug));
+        deleteProductUseCasePort.execute(Slug.fromString(find_slug));
         return ResponseEntity.noContent().build();
     }
 
@@ -153,15 +150,15 @@ public class ProductController {
     ) {
         attr.setId(UUID.randomUUID().toString());
         ProductAttributeValue productAttributeValue = new ProductAttributeValue(
-            new Id(attr.getId()),
-            new Id(attr.getAttribute_definition_id()),
+            Id.fromString(attr.getId()),
+            Id.fromString(attr.getAttribute_definition_id()),
             attr.getString_value(),
             attr.getInteger_value(),
             attr.getDouble_value(),
             attr.getBoolean_value()
         );
 
-        addProductAttributeUseCasePort.execute(new Slug(find_slug), productAttributeValue);
+        addProductAttributeUseCasePort.execute(Slug.fromString(find_slug), productAttributeValue);
 
         return new ResponseEntity<>(
             ResponsePayload.<ProductAttributeValueDTO>builder().payload(attr).build(),
@@ -174,7 +171,7 @@ public class ProductController {
         @PathVariable String find_slug,
         @PathVariable String attr_id
     ) {
-        deleteProductAttributeUseCasePort.execute(new Slug(find_slug), new Id(attr_id));
+        deleteProductAttributeUseCasePort.execute(Slug.fromString(find_slug), Id.fromString(attr_id));
 
         return ResponseEntity.noContent().build();
     }

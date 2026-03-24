@@ -75,19 +75,28 @@ AFTER INSERT OR UPDATE OR DELETE ON Category
 FOR EACH ROW EXECUTE FUNCTION fn_build_category_outbox();
 
 CREATE OR REPLACE FUNCTION fn_refresh_parent_category()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS $$ 
+DECLARE
+    target_id VARCHAR(255);
 BEGIN
+    IF (TG_OP = 'DELETE') THEN
+        target_id := OLD.category_id;
+    ELSE
+        target_id := NEW.category_id;
+    END IF;
+
     UPDATE Category 
-    SET name = Category.name  
-    WHERE id = NEW.category_id;
+    SET name = name  
+    WHERE id = target_id;
     
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS trg_refresh_category_on_attribute ON CategoryAttribute;
+
 CREATE TRIGGER trg_refresh_category_on_attribute
-AFTER INSERT OR UPDATE ON CategoryAttribute
+AFTER INSERT OR UPDATE OR DELETE ON CategoryAttribute
 FOR EACH ROW EXECUTE FUNCTION fn_refresh_parent_category();
 
 

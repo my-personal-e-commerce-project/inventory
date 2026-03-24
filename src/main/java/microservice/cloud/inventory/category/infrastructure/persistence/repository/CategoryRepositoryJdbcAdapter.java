@@ -78,11 +78,11 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
                     CategoryAttribute catAttr = toMap(entity);
                     catAttr.load_attribute_definition(
                         new AttributeDefinition(
-                            new Id(entity.getAttribute_definition().getId()), 
+                            Id.fromString(entity.getAttribute_definition().getId()), 
                             entity.getAttribute_definition().getName(), 
-                            new Slug(entity.getAttribute_definition().getSlug()), 
+                            Slug.fromString(entity.getAttribute_definition().getSlug()), 
                             DataType.valueOf(entity.getAttribute_definition().getType()), 
-                            entity.getAttribute_definition().is_global()
+                            entity.getAttribute_definition().isGlobal()
                         )
                     );
                     return catAttr;
@@ -197,11 +197,11 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
 
     private Category toMap(CategoryEntity entity) {
         return new Category(
-            new Id(entity.getId()), 
+            Id.fromString(entity.getId()), 
             entity.getName(), 
-            new Slug(entity.getSlug()), 
+            Slug.fromString(entity.getSlug()), 
             entity.getParent_id() != null
-            ? new Id(entity.getParent_id())
+            ? Id.fromString(entity.getParent_id())
             : null,
             entity.getCategoryAttributes()
                     .stream()
@@ -213,8 +213,8 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
 
     private CategoryAttribute toMap(CategoryAttributeEntity entity) {
         CategoryAttribute catAttr = new CategoryAttribute(
-            new Id(entity.getId()),
-            new Id(entity.getAttribute_definition_id()),
+            Id.fromString(entity.getId()),
+            Id.fromString(entity.getAttribute_definition_id()),
             entity.getIs_required(), 
             entity.getIs_filterable(), 
             entity.getIs_sortable()

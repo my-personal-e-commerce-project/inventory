@@ -132,17 +132,17 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
                 .collect(Collectors.toSet());
 
         return new Product(
-            new Id(product.getId()),
+            Id.fromString(product.getId()),
             product.getTitle(),
-            new Slug(product.getSlug()),
+            Slug.fromString(product.getSlug()),
             product.getDescription(),
             categories,
             new Price(product.getPrice()),
             product.getAttributeValues()
                 .stream()
                 .map(attr -> new ProductAttributeValue(
-                        new Id(attr.getId()),
-                        new Id(
+                        Id.fromString(attr.getId()),
+                        Id.fromString(
                             attr.getAttribute_definition_id()
                         ),
                         attr.getString_value(),
@@ -150,7 +150,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
                         attr.getDouble_value(),
                         attr.getBoolean_value()
                     )
-                ).toList(),
+                ).collect(Collectors.toSet()),
             new Quantity(product.getStock()),
             product.getImages(),
             product.getTags()
@@ -158,10 +158,9 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     }
 
     private ProductAttributeValue toMap(ProductAttributeValueEntity entity) {
-
         return new ProductAttributeValue(
-            new Id(entity.getId()),
-            new Id(entity.getAttribute_definition_id()),
+            Id.fromString(entity.getId()),
+            Id.fromString(entity.getAttribute_definition_id()),
             entity.getString_value(),
             entity.getInteger_value(),
             entity.getDouble_value(),
