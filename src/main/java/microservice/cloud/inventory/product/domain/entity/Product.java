@@ -218,10 +218,7 @@ public class Product {
         if(attr == null)
             throw new DataNotFound("The 'product attribute value' " + productAttributeId.value() + " is not of this product");
 
-        if(categoryAttribute == null)
-            throw new RuntimeException("The 'category attribute' must not null");
-
-        if(categoryAttribute.is_required())
+        if(categoryAttribute != null && categoryAttribute.is_required())
             throw 
                 new RuntimeException("This 'product attribute value' is required by one of its categories; this 'product attribute value' cannot be removed.");
 

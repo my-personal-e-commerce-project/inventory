@@ -47,10 +47,10 @@ public class ProductControllerTest {
       
     @BeforeEach
     void tearDown() throws SQLException {
-        jdbcTemplate.execute("TRUNCATE TABLE products RESTART IDENTITY CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE category RESTART IDENTITY CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE outbox RESTART IDENTITY CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE attributedefinition RESTART IDENTITY CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE products RESTART IDENTITY CASCADE");
     }
 
     @Test
@@ -182,8 +182,6 @@ public class ProductControllerTest {
             """.formatted(productId, categoryAttributeId)
         );
 
-        System.out.println(expected);
-        System.out.println(actual);
         Assertions.assertTrue(actual.equals(expected));
     }
    
@@ -328,8 +326,6 @@ public class ProductControllerTest {
             """.formatted(productId, categoryAttributeId)
         );
 
-        System.out.println(expected);
-        System.out.println(actual);
         Assertions.assertTrue(actual.equals(expected));
     }
     
@@ -346,6 +342,202 @@ public class ProductControllerTest {
     // TODO: remove product attribute pero sin permisos
     // TODO: remove product attribute pero no esta en este producto
     // TODO: remove product attribute pero es requerido por la categoria
-    // TODO: remove product attribute
-    
+   
+    @Test
+    public void should_removeProductAttributeValueAndShowItInOutboxTable() throws Exception {
+        jdbcTemplate.update("INSERT INTO category (id, name, slug, parent_id) VALUES ('1234', 'test', 'test', NULL);");
+
+        jdbcTemplate.update("""
+            INSERT INTO attributedefinition (id, name, slug, type, is_global) VALUES (
+                '1234',
+                'test',
+                'test',
+                'STRING',
+                false
+            );
+            """);
+
+        MvcResult result = mockMvc.perform(
+            MockMvcRequestBuilders
+                .post("/api/v1/products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                        "title": "test",
+                        "slug": "test",
+                        "description": "test",
+                        "categories": ["1234"],
+                        "attributes": [
+                            {
+                                "attribute_definition_id": 1234,
+                                "string_value": "test"
+                            }
+                        ],
+                        "price": 22.2,
+                        "stock": 22,
+                        "images": null,
+                        "tags": null
+                    }
+                """)
+                .with(
+                    jwt().jwt(j -> j.claim("realm_access", 
+                        Map.of("roles", java.util.List.of("create_product"))) 
+                        .subject("random-user")
+                    )
+                )
+        )
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andExpect(
+                MockMvcResultMatchers.content()
+                .contentType(MediaType.APPLICATION_JSON)
+            ).andReturn();
+
+        String responseJson = result.getResponse().getContentAsString();
+        String productAttributeId = com.jayway.jsonpath.JsonPath.read(responseJson, "$.payload.attributes[0].id");
+        String productId = com.jayway.jsonpath.JsonPath.read(responseJson, "$.payload.id");
+       
+        mockMvc.perform(
+            MockMvcRequestBuilders
+                .delete("/api/v1/products/test/attributes/%s".formatted(productAttributeId))
+                .with(
+                    jwt().jwt(j -> j.claim("realm_access", 
+                        Map.of("roles", java.util.List.of("update_product"))) 
+                        .subject("random-user")
+                    )
+                )
+        )
+            .andExpect(MockMvcResultMatchers.status().isNoContent());
+
+        Integer productCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM products", Integer.class);
+       
+        Assertions.assertTrue(productCount == 1);
+
+        Integer outboxCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM outbox", Integer.class);
+       
+        Assertions.assertTrue(outboxCount == 8);
+
+        Map<String, Object> outboxEntry = jdbcTemplate.queryForMap(
+            "SELECT * FROM outbox WHERE id = 8;"
+        );
+
+        Assertions.assertTrue(outboxEntry.get("aggregate_type").equals("product"));
+   
+        Assertions.assertTrue(outboxEntry.get("type").equals("PRODUCT_UPDATED"));
+
+        JsonNode actual = mapper.readTree(outboxEntry.get("payload").toString());
+
+        JsonNode expected = mapper.readTree("""
+            {
+                "id": "%s", 
+                "slug": "test",
+                "tags": null,
+                "price": 22.2,
+                "stock": 22,
+                "title": "test",
+                "images": null,
+                "attributes": [],
+                "categories": ["test"],
+                "description": "test"
+            } 
+            """.formatted(productId)
+        );
+
+        Assertions.assertTrue(actual.equals(expected));
+    }
+ 
+    @Test
+    public void should_removeProductAndShowItInOutboxTable() throws Exception {
+        jdbcTemplate.update("INSERT INTO category (id, name, slug, parent_id) VALUES ('1234', 'test', 'test', NULL);");
+
+        jdbcTemplate.update("""
+            INSERT INTO attributedefinition (id, name, slug, type, is_global) VALUES (
+                '1234',
+                'test',
+                'test',
+                'STRING',
+                false
+            );
+            """);
+
+        MvcResult result = mockMvc.perform(
+            MockMvcRequestBuilders
+                .post("/api/v1/products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                        "title": "test",
+                        "slug": "test",
+                        "description": "test",
+                        "categories": ["1234"],
+                        "attributes": [
+                            {
+                                "attribute_definition_id": 1234,
+                                "string_value": "test"
+                            }
+                        ],
+                        "price": 22.2,
+                        "stock": 22,
+                        "images": null,
+                        "tags": null
+                    }
+                """)
+                .with(
+                    jwt().jwt(j -> j.claim("realm_access", 
+                        Map.of("roles", java.util.List.of("create_product"))) 
+                        .subject("random-user")
+                    )
+                )
+        )
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andExpect(
+                MockMvcResultMatchers.content()
+                .contentType(MediaType.APPLICATION_JSON)
+            ).andReturn();
+
+        String responseJson = result.getResponse().getContentAsString();
+        String productId = com.jayway.jsonpath.JsonPath.read(responseJson, "$.payload.id");
+       
+        mockMvc.perform(
+            MockMvcRequestBuilders
+                .delete("/api/v1/products/test")
+                .with(
+                    jwt().jwt(j -> j.claim("realm_access", 
+                        Map.of("roles", java.util.List.of("delete_product"))) 
+                        .subject("random-user")
+                    )
+                )
+        )
+            .andExpect(MockMvcResultMatchers.status().isNoContent());
+
+        Integer productCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM products", Integer.class);
+       
+        Assertions.assertTrue(productCount == 0);
+
+        Integer outboxCount = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM outbox", Integer.class);
+      
+        Assertions.assertTrue(outboxCount == 7);
+
+        Map<String, Object> outboxEntry = jdbcTemplate.queryForMap(
+            "SELECT * FROM outbox WHERE id = 7;"
+        );
+
+        Assertions.assertTrue(outboxEntry.get("aggregate_type").equals("product"));
+  
+        Assertions.assertTrue(outboxEntry.get("type").equals("PRODUCT_DELETED"));
+
+        JsonNode actual = mapper.readTree(outboxEntry.get("payload").toString());
+
+        JsonNode expected = mapper.readTree("""
+            {"id":"%s","deleted":true}
+            """.formatted(
+                    productId
+                )
+            );
+
+        Assertions.assertTrue(actual.equals(expected));
+    }   
 }

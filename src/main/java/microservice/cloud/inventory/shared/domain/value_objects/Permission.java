@@ -34,7 +34,7 @@ public record Permission (
     }
 
     public static Permission deleteProduct() {
-        return new Permission("update_product");
+        return new Permission("delete_product");
     }
  
     public static Permission createAttributeDefinition() {

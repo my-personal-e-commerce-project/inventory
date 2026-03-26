@@ -62,10 +62,9 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
             id.value()
         );
 
-        if(attr == null)
-            throw new DataNotFound("Attribute definition not found");
-
-        return toMap(attr);
+        return attr == null
+            ? null
+            : toMap(attr);
     }
 
     @Override
