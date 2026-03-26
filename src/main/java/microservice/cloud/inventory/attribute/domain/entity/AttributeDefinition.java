@@ -20,14 +20,8 @@ public class AttributeDefinition {
         DataType type, 
         boolean is_global
     ) {
-        if(id == null)
-            throw new RuntimeException("The id cannot be null");
-
         if(name == null)
             throw new RuntimeException("The name cannot be null");
-
-        if(slug == null)
-            throw new RuntimeException("The slug cannot be null");
 
         if(type == null)
             throw new RuntimeException("The type cannot be null");
@@ -39,12 +33,20 @@ public class AttributeDefinition {
         this.is_global = is_global;
     }
 
-    public void create(Me me) {
-
+    public static AttributeDefinition factory(
+        Me me,
+        Id id, 
+        String name, 
+        Slug slug, 
+        DataType type, 
+        boolean is_global
+    ) {
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
 
         me.IHavePermission(Permission.createAttributeDefinition());
+
+        return new AttributeDefinition(id, name, slug, type, is_global);
     }
 
     public void update(Me me, String name, Slug slug, DataType type, boolean is_global) {

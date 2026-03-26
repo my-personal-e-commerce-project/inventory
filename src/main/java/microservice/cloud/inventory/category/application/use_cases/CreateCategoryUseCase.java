@@ -2,6 +2,8 @@ package microservice.cloud.inventory.category.application.use_cases;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import microservice.cloud.inventory.category.application.ports.in.CreateCategoryUseCasePort;
 import microservice.cloud.inventory.category.domain.entity.Category;
@@ -31,18 +33,17 @@ public class CreateCategoryUseCase implements CreateCategoryUseCasePort {
     }
 
     private void loadAttributeDefinitions(List<CategoryAttribute> attributes){
-        List<String> ids = attributes.stream()
+        Set<String> ids = attributes.stream()
             .map(attr -> attr.attribute_definition_id().value())
-            .toList();
+            .collect(Collectors.toSet());
 
         Map<String, AttributeDefinition> definitionsMap = attributeDefinitionRepository.findByIds(ids);
 
         attributes.forEach(attr -> {
             AttributeDefinition attrDef = definitionsMap.get(attr.attribute_definition_id().value());
 
-            if(attrDef == null) {
-                throw new DataNotFound("Category attribute with id " + attr.attribute_definition_id().value() + " not found");
-            }
+            if(attrDef == null)
+                throw new DataNotFound("Category attribute with 'attribute definition id': " + attr.attribute_definition_id().value() + " not found");
 
             attr.load_attribute_definition(
                 attrDef
@@ -51,7 +52,7 @@ public class CreateCategoryUseCase implements CreateCategoryUseCasePort {
     }
 
     @Override
-    public Category execute(
+    public void execute(
        Id id,
        String name,
        Slug slug,
@@ -64,7 +65,5 @@ public class CreateCategoryUseCase implements CreateCategoryUseCasePort {
             .factory(getMePort.execute(), id, name, slug, parent_id, attributes);
 
         categoryRepository.save(category);
-
-        return category;
     }
 }

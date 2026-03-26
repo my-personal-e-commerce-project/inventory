@@ -2,29 +2,19 @@ package microservice.cloud.inventory.product.infrastructure.presentation.validat
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Setter
-@Getter
-@Builder
-public class UpdateProductAttributeValueDTO {
+public record UpdateProductAttributeValueDTO (
 
     @NotNull
     @NotEmpty
-    private String id;
+    String id,
    
     @NotNull
     @NotEmpty
-    private String attribute_definition_id;
+    String attribute_definition_id,
 
-    private String string_value;
-    private Integer integer_value;
-    private Double double_value;
-    private Boolean boolean_value;
-}
+    String string_value,
+    Integer integer_value,
+    Double double_value,
+    Boolean boolean_value
+) {}

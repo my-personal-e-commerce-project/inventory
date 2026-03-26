@@ -1,6 +1,7 @@
 package microservice.cloud.inventory.attribute.infrastructure.persistence.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -14,8 +15,9 @@ public interface AttributeDefinitionJdbcRepository extends
     PagingAndSortingRepository<AttributeDefinitionEntity, String> 
 {
     public AttributeDefinitionEntity findBySlug(String slug);
-    List<AttributeDefinitionEntity> findAllByIdIn(List<String> ids);
+    List<AttributeDefinitionEntity> findAllByIdIn(Set<String> ids);
     List<AttributeDefinitionEntity> findAllByIsGlobal(boolean is_global);
-    long countByIdIn(List<String> ids);
+   
+    public long countByIdIn(Set<String> ids);
     boolean existsBySlug(String slug);
 }

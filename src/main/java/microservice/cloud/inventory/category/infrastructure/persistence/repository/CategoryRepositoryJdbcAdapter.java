@@ -69,10 +69,10 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
     }
 
     @Override
-    public Set<CategoryAttribute> 
+    public List<CategoryAttribute> 
         getCategoryAttributesWithAttributeDefinitionsByCategoryIds(Set<String> categoriesIds) {
 
-        Set<CategoryAttribute> catAttrs = helper_getCategoryAttributesWithAttributeDefinitionsByCategoryIds(categoriesIds)
+        List<CategoryAttribute> catAttrs = helper_getCategoryAttributesWithAttributeDefinitionsByCategoryIds(categoriesIds)
                 .stream()
                 .map(entity -> {
                     CategoryAttribute catAttr = toMap(entity);
@@ -86,7 +86,7 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
                         )
                     );
                     return catAttr;
-                }).collect(Collectors.toSet());
+                }).toList();
 
         return catAttrs;
     }
@@ -94,7 +94,7 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
     @Override
     public void isValidTheseCategoryIds(Set<String> ids) {
         if(!categoryJdbcRepository.countByIdIn(ids))
-            throw new RuntimeException("Not all provided Ids are valid");
+            throw new RuntimeException("Not all provided category ids are valid");
     }
 
     private Set<CategoryAttributeEntity> helper_getCategoryAttributesWithAttributeDefinitionsByCategoryIds(Set<String> categoriesIds) {
@@ -146,10 +146,10 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
     @Transactional
     @Override
     public void save(Category category) {
-        List<String> definitionIds = category.categoryAttributes().stream()
+        Set<String> definitionIds = category.categoryAttributes().stream()
             .map(attr -> attr.attribute_definition_id().value())
             .distinct()
-            .toList();
+            .collect(Collectors.toSet());
 
         long count = attributeDefinitionJdbcRepository.countByIdIn(definitionIds);
 
@@ -169,10 +169,10 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
     @Transactional
     @Override
     public void update(Category category) {
-        List<String> definitionIds = category.categoryAttributes().stream()
+        Set<String> definitionIds = category.categoryAttributes().stream()
             .map(attr -> attr.attribute_definition_id().value())
             .distinct()
-            .toList();
+            .collect(Collectors.toSet());
 
         long count = attributeDefinitionJdbcRepository.countByIdIn(definitionIds);
 
@@ -231,9 +231,8 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
             entity.parent_id() != null? entity.parent_id().value(): null,
             entity.categoryAttributes()
                 .stream()
-                .map(attr -> {
-                return toMap(entity.id(), attr);
-            }).collect(Collectors.toSet())
+                .map(attr -> toMap(entity.id(), attr)
+            ).collect(Collectors.toSet())
         );
     }
     

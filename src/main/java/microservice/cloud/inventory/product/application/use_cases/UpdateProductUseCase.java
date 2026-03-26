@@ -1,5 +1,6 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,7 +37,7 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
     }
 
     @Override
-    public Product execute(
+    public void execute(
         Slug find_slug,
         String title, 
         Slug slug, 
@@ -50,17 +51,6 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
     ) {
         Product p = productRepository.findBySlug(find_slug);
 
-        categoryRepository.isValidTheseCategoryIds(categories);
-
-        List<AttributeDefinition> default_attributes = attributeDefinitionRepository
-            .getGlobalAttributes();
-
-        Set<CategoryAttribute> attrs = 
-           categoryRepository 
-            .getCategoryAttributesWithAttributeDefinitionsByCategoryIds(
-                categories
-            );
-
         p.update(
             getMePort.execute(),
             title, 
@@ -73,16 +63,24 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
             images, 
             tags
         );
+
+        categoryRepository.isValidTheseCategoryIds(categories);
+
+        List<AttributeDefinition> default_attributes = attributeDefinitionRepository
+            .getGlobalAttributes();
+
+        List<CategoryAttribute> attrs = 
+           categoryRepository 
+            .getCategoryAttributesWithAttributeDefinitionsByCategoryIds(
+                categories
+            );
      
         if(attrs != null)
-            p.validCategoryAttributes(attrs);
+            p.validCategoryAttributes(new HashSet<>(attrs));
 
         if(default_attributes != null)
-            p.validGlobalAttributeDefinitions(default_attributes);
-
+            p.validGlobalAttributeDefinitions(new HashSet<>(default_attributes));
 
         productRepository.update(p);
-
-        return p;
     }
 }

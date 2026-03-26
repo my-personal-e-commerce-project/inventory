@@ -1,7 +1,9 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
@@ -9,6 +11,7 @@ import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
+import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
@@ -37,7 +40,8 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
     }
    
     @Override
-    public Product execute(
+    public void execute(
+        Id id,
         String title,
         Slug slug,
         String description,
@@ -48,19 +52,9 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
         Set<String> images,
         Set<String> tags    
     ) {
-        categoryRepository.isValidTheseCategoryIds(categories);
-
-        List<AttributeDefinition> default_attributes = attributeDefinitionRepository
-            .getGlobalAttributes();
-
-        Set<CategoryAttribute> attrs = 
-           categoryRepository 
-            .getCategoryAttributesWithAttributeDefinitionsByCategoryIds(
-                categories
-            );
-
         Product product = Product.factory(
-            getMePort.execute(), 
+            getMePort.execute(),
+            id,
             title, 
             slug, 
             description, 
@@ -72,14 +66,23 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
             tags
         );
 
-        if(attrs != null)
-            product.validCategoryAttributes(attrs);
-
-        if(default_attributes != null)
-            product.validGlobalAttributeDefinitions(default_attributes);
+        categoryRepository.isValidTheseCategoryIds(categories);
         
-        productRepository.save(product);
+        List<AttributeDefinition> default_attributes = attributeDefinitionRepository
+            .getGlobalAttributes();
 
-        return product;
+        List<CategoryAttribute> attrs = 
+           categoryRepository 
+            .getCategoryAttributesWithAttributeDefinitionsByCategoryIds(
+                categories
+            );
+        
+        if(attrs != null)
+            product.validCategoryAttributes(new HashSet<>(attrs));
+      
+        if(default_attributes != null)
+            product.validGlobalAttributeDefinitions(new HashSet<>(default_attributes));
+       
+        productRepository.save(product);
     }
 }

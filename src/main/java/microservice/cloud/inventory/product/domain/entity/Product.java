@@ -2,7 +2,6 @@ package microservice.cloud.inventory.product.domain.entity;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -60,6 +59,7 @@ public class Product {
 
     public static Product factory(
         Me me,
+        Id id,
         String title,
         Slug slug,
         String description,
@@ -76,7 +76,7 @@ public class Product {
         me.IHavePermission(Permission.createProduct());
 
         return new Product(
-            Id.generate(), 
+            id, 
             title, 
             slug, 
             description, 
@@ -89,23 +89,28 @@ public class Product {
         );
     }
 
-    public void validGlobalAttributeDefinitions(List<AttributeDefinition> attrs) {
+    public void validGlobalAttributeDefinitions(Set<AttributeDefinition> attrs) {
         Map<String, ProductAttributeValue> productAttributeByAttributeDefinitionId =
             attributeValues.values().stream()
                 .collect(Collectors.toMap(
                     pav -> pav.attribute_definition_id().value(),
                     Function.identity()
                 ));
-
+                
         for (AttributeDefinition attr : attrs) {
-            String def = attr.slug().value();
+            String def = attr.id().value();
             ProductAttributeValue productAttr = 
                 productAttributeByAttributeDefinitionId
                 .get(def);
 
+            System.out.println();
+
             if (productAttr == null) {
                 throw new IllegalStateException(
-                    "The product attribute is missing for: " + attr.slug().value() + ", go create a new attribute in the appropriate endpoint"
+                    "The product attribute is missing for: " 
+                    + attr.slug().value() 
+                    + ", it is global attribute definition. Go create a new attribute in the appropriate endpoint, the id is: " 
+                    + attr.id().value()
                 );
             }
 
@@ -151,7 +156,7 @@ public class Product {
 
         attributeValues.values().stream().forEach(a -> {
             if(a.attribute_definition_id().equals(attr.attribute_definition_id()))
-                throw new RuntimeException("An attribute with the same attribute definition already exists.");
+                throw new RuntimeException("An product attribute with the same 'attribute definition id' already exists.");
         });
 
         attributeValues.put(attr.id().value(), attr);
@@ -180,25 +185,15 @@ public class Product {
         Map<String, ProductAttributeValue> mapNewAttrs = new HashMap<>();
 
         attributes.stream().forEach(a -> {
-            mapNewAttrs.put(a.id().value(), a);
-        });
-
-        attributeValues.values().stream().forEach(a -> {
             ProductAttributeValue attr = this.attributeValues.get(a.id().value());
 
             if(attr == null)
                 throw new RuntimeException(
-                    "Product attribute with id: %s not found"
+                    "'Product attribute value' with id: %s not found"
                     .formatted(a.id().value())
                 );
-
-            if(!attr.attribute_definition_id().equals(a.attribute_definition_id()))
-                throw new RuntimeException(
-                    "The id of the attribute definition of product attribute value: " 
-                    + a.id().value() 
-                    + ", should be " 
-                    + a.attribute_definition_id().value()
-                );
+            
+            mapNewAttrs.put(a.id().value(), a);
         });
 
         this.attributeValues = mapNewAttrs;
@@ -221,21 +216,21 @@ public class Product {
         ProductAttributeValue attr = attributeValues.get(productAttributeId.value());
 
         if(attr == null)
-            throw new DataNotFound("The attribute " + productAttributeId.value() + " is not of this product");
+            throw new DataNotFound("The 'product attribute value' " + productAttributeId.value() + " is not of this product");
 
         if(categoryAttribute == null)
-            throw new RuntimeException("The category attribute must not null");
+            throw new RuntimeException("The 'category attribute' must not null");
 
         if(categoryAttribute.is_required())
             throw 
-                new RuntimeException("This product attribute is required by one of your categories; this product attribute cannot be removed.");
+                new RuntimeException("This 'product attribute value' is required by one of its categories; this 'product attribute value' cannot be removed.");
 
         attributeValues.remove(productAttributeId.value());
     }
 
     public static void delete(Me me) {
         if(me == null)
-            throw new RuntimeException("You must be authenticated to hacer this action");
+            throw new RuntimeException("You must be authenticated to do this action");
 
         me.IHavePermission(Permission.deleteProduct());
     }
@@ -273,10 +268,10 @@ public class Product {
     }
 
     public Set<String> images() {
-        return new HashSet<>(images);
+        return images == null? null: new HashSet<>(images);
     }
 
     public Set<String> tags() {
-        return new HashSet<>(tags);
+        return tags == null? null: new HashSet<>(tags);
     }
 }

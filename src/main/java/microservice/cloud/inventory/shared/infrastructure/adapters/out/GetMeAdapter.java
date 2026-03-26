@@ -29,8 +29,10 @@ public class GetMeAdapter implements GetMePort {
         Jwt jwt = jwtAuth.getToken();
 
         Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+        Collection<String> roles = null;
 
-        Collection<String> roles = (Collection<String>) realmAccess.get("roles");
+        if(realmAccess != null)
+           roles = (Collection<String>) realmAccess.get("roles");
 
         if (roles == null) roles = Collections.emptyList();
 

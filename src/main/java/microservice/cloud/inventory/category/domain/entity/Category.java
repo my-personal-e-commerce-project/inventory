@@ -18,10 +18,6 @@ public class Category {
     private Set<CategoryAttribute> categoryAttributes = new HashSet<>();
 
     public Category(Id id, String name, Slug slug, Id parent_id, Set<CategoryAttribute> categoryAttributes) {
-        
-        if(id == null)
-            throw new RuntimeException("The id cannot be null.");
-
         this.id = id;
         this.name = name;
         this.slug = slug;
@@ -33,10 +29,10 @@ public class Category {
 
     private void validAddCategoryAttribute(CategoryAttribute attr) {
         if(attr.attribute_definition().is_global())
-            throw new RuntimeException("The attribute definition cannot be global.");
+            throw new RuntimeException("The 'attribute definition' cannot be global.");
 
         if (!this.categoryAttributes.add(attr))
-            throw new RuntimeException("The category attribute with attribute definition id: '" 
+            throw new RuntimeException("The 'category attribute' with 'attribute definition id': '" 
                     + attr.attribute_definition_id().value() 
                     + "' already exists.");
     }
@@ -99,7 +95,7 @@ public class Category {
             )
                 throw new RuntimeException("Category attribute with id: '" 
                     + attr.id().value() 
-                    + "' not found in your new updated list of category attributes.");
+                    + "' not found in your new updated list of 'category attributes'.");
 
         });
         
@@ -109,7 +105,7 @@ public class Category {
                 .findFirst()
                 .isEmpty()
             ){
-                throw new RuntimeException("Category attribute with id: '" 
+                throw new RuntimeException("'Category attribute' with id: '" 
                     + attr.id().value() 
                     + "' not found in the current list of category attributes.");
 
@@ -133,7 +129,7 @@ public class Category {
 
         boolean removed = this.categoryAttributes.removeIf(attr -> attr.id().equals(id));
     
-        if(!removed) throw new DataNotFound("Category attribute not found.");
+        if(!removed) throw new DataNotFound("'Category attribute' not found.");
     }
    
     public void canIDeleteThisCategory(Me me) {

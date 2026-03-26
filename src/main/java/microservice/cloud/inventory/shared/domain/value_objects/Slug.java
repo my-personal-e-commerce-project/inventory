@@ -6,6 +6,9 @@ public class Slug {
     private final String value;
 
     private Slug(String value) {
+        if(value == null)
+            throw new RuntimeException("The slug cannot be null");
+
         this.value = value;
     }
 

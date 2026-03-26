@@ -62,8 +62,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ResponsePayload<ProductDTO>> createProduct(
         @Valid @RequestBody ProductDTO productDTO
-    ) {
-        productDTO.setId(Id.generate().value());
+    ) { 
         productDTO.setAttributes(
             productDTO.getAttributes()
                 .stream()
@@ -74,7 +73,10 @@ public class ProductController {
                 .toList()
         );
 
+        productDTO.setId(Id.generate().value());
+
         createProductUseCasePort.execute(
+            Id.fromString(productDTO.getId()),
             productDTO.getTitle(),
             Slug.fromString(productDTO.getSlug()),
             productDTO.getDescription(),
@@ -91,9 +93,10 @@ public class ProductController {
                 )
             ).collect(Collectors.toSet()),
             new Quantity(productDTO.getStock()),
-            productDTO.getImages(),
+            null,
             productDTO.getTags()
         );
+
 
         return new ResponseEntity<>(
             ResponsePayload.<ProductDTO>builder().payload(productDTO).build(),
@@ -106,27 +109,26 @@ public class ProductController {
         @PathVariable String find_slug,
         @Valid @RequestBody UpdateProductDTO productDTO
     ) {
-
         updateProductUseCasePort.execute(
             Slug.fromString(find_slug),
-            productDTO.getTitle(),
-            Slug.fromString(productDTO.getSlug()),
-            productDTO.getDescription(),
-            productDTO.getCategories(),
-            new Price(productDTO.getPrice()),
-            new Quantity(productDTO.getStock()),
-            productDTO.getImages(),
-            productDTO.getAttributes().stream().map(attr -> 
+            productDTO.title(),
+            Slug.fromString(productDTO.slug()),
+            productDTO.description(),
+            productDTO.categories(),
+            new Price(productDTO.price()),
+            new Quantity(productDTO.stock()),
+            null,
+            productDTO.attributes().stream().map(attr -> 
                 new ProductAttributeValue(
-                    Id.fromString(attr.getId()),
-                    Id.fromString(attr.getAttribute_definition_id()),
-                    attr.getString_value(),
-                    attr.getInteger_value(),
-                    attr.getDouble_value(),
-                    attr.getBoolean_value()
+                    Id.fromString(attr.id()),
+                    Id.fromString(attr.attribute_definition_id()),
+                    attr.string_value(),
+                    attr.integer_value(),
+                    attr.double_value(),
+                    attr.boolean_value()
                 )
             ).collect(Collectors.toSet()),
-            productDTO.getTags()
+            productDTO.tags()
         );
 
         return new ResponseEntity<>(

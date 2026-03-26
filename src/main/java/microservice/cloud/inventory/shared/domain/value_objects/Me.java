@@ -9,14 +9,10 @@ public record Me(
     Set<Permission> permissions
 ) {
     public void IHavePermission(Permission permission) {
-        boolean result = false;
+        if(permission == null)
+            throw new RuntimeException("Permission cannot be null");
 
-        for (Permission p : permissions) {
-            if(p.equals(permission))
-                result = true;
-        }
-
-        if(!result)
+        if(!permissions.contains(permission))
             throw new UnauthorizedException("Invalid permissions. The " + permission.value() + " is required.");
     }
 }

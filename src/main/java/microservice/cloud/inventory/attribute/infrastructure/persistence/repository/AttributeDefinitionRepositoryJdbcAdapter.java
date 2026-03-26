@@ -1,8 +1,9 @@
 package microservice.cloud.inventory.attribute.infrastructure.persistence.repository;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.stereotype.Repository;
@@ -26,8 +27,10 @@ public class AttributeDefinitionRepositoryJdbcAdapter implements AttributeDefini
 
     @Override
     public List<AttributeDefinition> getGlobalAttributes() {
-        // TODO: pendiente
-        return null;
+        return attributeDefinitionJdbcRepository.findAllByIsGlobal(true)
+            .stream()
+            .map(this::toMap)
+            .toList();
     }
 
     @Override
@@ -42,6 +45,17 @@ public class AttributeDefinitionRepositoryJdbcAdapter implements AttributeDefini
     }
 
     @Override
+    public void isValidTheseAttributeDefinitionIds(Set<String> ids) {
+        Map<String, AttributeDefinition> attrDefs = 
+            this.findByIds(ids);
+
+        ids.removeAll(attrDefs.keySet());
+
+        if(!ids.isEmpty())
+            throw new RuntimeException("These attribute definitions not exists: " + String.join(", ", ids));
+    }
+
+    @Override
     public AttributeDefinition getBySlug(Slug find_slug) {
         AttributeDefinitionEntity attrDef = attributeDefinitionJdbcRepository 
             .findBySlug(find_slug.value());
@@ -53,7 +67,7 @@ public class AttributeDefinitionRepositoryJdbcAdapter implements AttributeDefini
     }
 
     @Override
-    public Map<String, AttributeDefinition> findByIds(List<String> ids) {
+    public Map<String, AttributeDefinition> findByIds(Set<String> ids) {
         Map<String, AttributeDefinition> map = 
             new HashMap<String, AttributeDefinition>();
 

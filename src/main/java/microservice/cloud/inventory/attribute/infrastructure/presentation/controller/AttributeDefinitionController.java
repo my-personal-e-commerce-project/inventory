@@ -22,6 +22,7 @@ import microservice.cloud.inventory.attribute.application.ports.in.ListAttribute
 import microservice.cloud.inventory.attribute.application.ports.in.UpdateAttributeDefinitionUseCasePort;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.infrastructure.presentation.validate.AttributeDefinitionDTO;
+import microservice.cloud.inventory.attribute.infrastructure.presentation.validate.UpdateAttributeDefinitionDTO;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 import microservice.cloud.inventory.shared.infrastructure.dto.ResponsePayload;
@@ -56,13 +57,11 @@ public class AttributeDefinitionController {
         Slug slug = Slug.create(attribute.slug());
 
         createAttributeDefinitionUseCasePort.execute(
-            new AttributeDefinition(
-                Id.fromString(id), 
-                attribute.name(),
-                slug,
-                DataType.valueOf(attribute.type()), 
-                attribute.is_global() 
-            )
+            Id.fromString(id), 
+            attribute.name(),
+            slug,
+            DataType.valueOf(attribute.type()), 
+            attribute.is_global() 
         );
 
         attribute = new AttributeDefinitionDTO(
@@ -81,11 +80,11 @@ public class AttributeDefinitionController {
     }
 
     @PutMapping(name = "/{find_slug}")
-    public ResponseEntity<ResponsePayload<AttributeDefinitionDTO>> updateDefaultAttribute(
+    public ResponseEntity<ResponsePayload<UpdateAttributeDefinitionDTO>> updateAttributeDefinition(
         @RequestParam String find_slug,
-        @Valid @RequestBody AttributeDefinitionDTO attribute
+        @Valid @RequestBody UpdateAttributeDefinitionDTO attribute
     ) {
-        updateAttributeDefinitionUseCasePort.execute(
+        AttributeDefinition attrDef = updateAttributeDefinitionUseCasePort.execute(
             Slug.fromString(find_slug),
             attribute.name(), 
             Slug.fromString(attribute.slug()), 
@@ -93,21 +92,22 @@ public class AttributeDefinitionController {
             attribute.is_global() 
         );
 
-        attribute = new AttributeDefinitionDTO(
-            attribute.name(), 
-            attribute.slug(), 
-            attribute.type(), 
-            attribute.is_global()
+        attribute = new UpdateAttributeDefinitionDTO(
+            attrDef.id().value(),
+            attrDef.name(), 
+            attrDef.slug().value(), 
+            attrDef.type().toString(), 
+            attrDef.is_global()
         );
 
         return ResponseEntity.ok(
-                ResponsePayload.<AttributeDefinitionDTO>builder()
+                ResponsePayload.<UpdateAttributeDefinitionDTO>builder()
                     .payload(attribute).build()
             );
     }
 
     @DeleteMapping("/{find_slug}")
-    public ResponseEntity<?> deleteDefaultAttribute(
+    public ResponseEntity<?> deleteAttributeDefinition(
         @PathVariable String find_slug
     ) {
         deleteAttributeDefinitionUseCasePort.execute(

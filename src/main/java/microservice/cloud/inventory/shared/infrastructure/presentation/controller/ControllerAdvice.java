@@ -10,7 +10,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import microservice.cloud.inventory.shared.infrastructure.dto.ResponsePayload;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.exception.UnauthorizedException;
@@ -37,6 +36,15 @@ public class ControllerAdvice {
         return response;
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ResponsePayload<?>> handleRuntimeException(
+            RuntimeException ex) {
+
+        return new ResponseEntity<ResponsePayload<?>>(
+            ResponsePayload.builder().message(ex.getMessage()).build(), 
+            HttpStatus.BAD_REQUEST
+        );
+    }
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ResponsePayload<?>> handleUnauthorizedException(

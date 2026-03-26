@@ -6,20 +6,16 @@ import java.util.Set;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 @Setter
 @Getter
 public class ProductDTO {
 
-    @Builder.Default
     private String id = null;
 
     @NotNull
@@ -47,8 +43,5 @@ public class ProductDTO {
     @NotNull
     private int stock;
 
-    private Set<String> images;
-
-    @NotNull
     private Set<String> tags;
 }

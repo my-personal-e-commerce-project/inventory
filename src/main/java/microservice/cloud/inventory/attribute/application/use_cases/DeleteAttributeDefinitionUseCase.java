@@ -4,7 +4,6 @@ import microservice.cloud.inventory.attribute.application.ports.in.DeleteAttribu
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
-import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class DeleteAttributeDefinitionUseCase implements DeleteAttributeDefinitionUseCasePort{

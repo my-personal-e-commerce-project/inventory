@@ -114,6 +114,8 @@ CREATE TRIGGER trg_product_changes
 AFTER INSERT OR UPDATE OR DELETE ON products
 FOR EACH ROW EXECUTE FUNCTION fn_build_product_outbox();
 
+
+
 CREATE OR REPLACE FUNCTION fn_trigger_product_refresh()
 RETURNS TRIGGER AS $$
 BEGIN

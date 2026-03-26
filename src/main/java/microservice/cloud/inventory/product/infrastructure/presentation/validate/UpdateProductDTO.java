@@ -1,56 +1,30 @@
 package microservice.cloud.inventory.product.infrastructure.presentation.validate;
 
-import java.util.List;
 import java.util.Set;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@Setter
-@Getter
-public class UpdateProductDTO {
-
-    @Builder.Default
-    private String id = null;
-
+public record UpdateProductDTO (
     @NotNull
     @NotEmpty
-    private String title;
-
+    String title,
     @NotNull
     @NotEmpty
-    private String slug;
-
+    String slug,
     @NotNull
     @NotEmpty
-    private String description;
-
+    String description,
     @NotNull
     @NotEmpty
-    private Set<String> categories;
-
+    Set<String> categories,
     @Valid
     @NotNull
-    private Set<UpdateProductAttributeValueDTO> attributes;
-
+    Set<UpdateProductAttributeValueDTO> attributes,
     @NotNull
-    private Double price;
-
+    Double price,
     @NotNull
-    private int stock;
-
-    @NotNull
-    private Set<String> images;
-
-    @NotNull
-    private Set<String> tags;
-}
+    int stock,
+    Set<String> tags
+) {}

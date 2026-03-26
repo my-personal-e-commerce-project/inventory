@@ -13,10 +13,6 @@ public record Permission (
         this.value = value;
     }
 
-    public boolean equals(Permission permission) {
-        return this.value.equals(permission.value());
-    }
-
     public static Permission createCategory() {
         return new Permission("create_category");
     }
@@ -52,5 +48,4 @@ public record Permission (
     public static Permission deleteAttributeDefinition() {
         return new Permission("delete_attribute_definition");
     }
-    
 }
