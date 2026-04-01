@@ -1,14 +1,18 @@
 package microservice.cloud.inventory.product.infrastructure.persistence.repository;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
+import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
@@ -26,6 +30,7 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 public class ProductRepositoryJdbcAdapter implements ProductRepository {
 
     private final JdbcAggregateTemplate aggregateTemplate;
+    private final JdbcTemplate jdbcTemplate;
     private final ProductAttributeValueJdbcRepository productAttributeValueJdbcRepository;
     private final ProductJdbcRepository productJdbcRepository;
 
@@ -40,6 +45,66 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
         return toMap(
             attr
         );
+    }
+
+    @Transactional
+    @Override
+    public void massCreateDefaultProductAttributeValues(AttributeDefinition attributeDefinition) {
+        String sql = """
+            INSERT INTO product_attribute_values (
+                id, attribute_definition_id, product_id, 
+                string_value, integer_value, double_value, boolean_value
+            )
+            SELECT 
+                gen_random_uuid()::text, ?, id, 
+                ?, ?, ?, ?
+            FROM products;
+            """;
+
+        String defId = attributeDefinition.id().value();
+
+        switch(attributeDefinition.type().toString()){
+            case "STRING" -> 
+                jdbcTemplate.update(sql, defId, "", null, null, null);
+            case "INTEGER" -> 
+                jdbcTemplate.update(sql, defId, null, 0, null, null);
+            case "DOUBLE" -> 
+                jdbcTemplate.update(sql, defId, null, null, 0.0, null);
+            case "BOOLEAN" -> 
+                jdbcTemplate.update(sql, defId, null, null, null, false);
+        }
+    }
+
+    @Transactional
+    @Override
+    public void updateTheValueTypeOfProductAttributesByAttributeDefinition(Id attributeDefinitionId, DataType type) {
+        String sql = """
+            UPDATE product_attribute_values 
+            SET string_value = ?, 
+                integer_value = ?, 
+                double_value = ?, 
+                boolean_value = ?
+            WHERE attribute_definition_id = ?;
+            """;
+
+        String defId = attributeDefinitionId.value();
+
+        switch(type.toString()) {
+            case "STRING" -> 
+                jdbcTemplate.update(sql, "", null, null, null, defId);
+            case "INTEGER" -> 
+                jdbcTemplate.update(sql, null, 0, null, null, defId);
+            case "DOUBLE" -> 
+                jdbcTemplate.update(sql, null, null, 0.0, null, defId);
+            case "BOOLEAN" -> 
+                jdbcTemplate.update(sql, null, null, null, false, defId);
+        }
+    }
+
+    @Override
+    public void deleteOrphanAttributeValues(Id categoryId, Id attributeDefinitionId) {
+        productJdbcRepository
+            .deleteOrphanAttributeValues(attributeDefinitionId.value(), categoryId.value());
     }
 
     @Override
@@ -85,7 +150,6 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
             }
             throw t; 
         }
-        
     }
 
     @Override

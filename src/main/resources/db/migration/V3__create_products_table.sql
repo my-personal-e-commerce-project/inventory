@@ -48,34 +48,6 @@ BEGIN
     IF (TG_OP = 'DELETE') THEN
         INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
         VALUES ('product', OLD.id, 'PRODUCT_DELETED', jsonb_build_object('id', OLD.id, 'deleted', true), now());
-    ELSIF (TG_OP = 'INSERT') THEN
-        SELECT jsonb_build_object(
-            'id', NEW.id,
-            'title', NEW.title,
-            'slug', NEW.slug,
-            'description', NEW.description,
-            'price', NEW.price,
-            'stock', NEW.stock,
-            'images', NEW.images,
-            'tags', NEW.tags,
-            'categories', (
-                SELECT coalesce(jsonb_agg(c.slug), '[]'::jsonb)
-                FROM product_categories pc
-                JOIN category c ON pc.category_id = c.id
-                WHERE pc.product_id = NEW.id
-            ),
-            'attributes', (
-                SELECT coalesce(jsonb_agg(attr), '[]'::jsonb) 
-                FROM (
-                    SELECT id, attribute_definition_id, string_value, integer_value, double_value, boolean_value 
-                    FROM product_attribute_values 
-                    WHERE product_id = NEW.id
-                ) attr
-            )
-        ) INTO v_payload;
-
-        INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
-        VALUES ('product', NEW.id, 'PRODUCT_CREATED', v_payload, now());
     ELSE
         SELECT jsonb_build_object(
             'id', NEW.id,
@@ -95,21 +67,34 @@ BEGIN
             'attributes', (
                 SELECT coalesce(jsonb_agg(attr), '[]'::jsonb) 
                 FROM (
-                    SELECT id, attribute_definition_id, string_value, integer_value, double_value, boolean_value 
-                    FROM product_attribute_values 
-                    WHERE product_id = NEW.id
+                    SELECT 
+                        pav.id, 
+                        pav.attribute_definition_id, 
+                        ad.slug AS attribute_definition_slug,
+                        ad.name AS attribute_definition_name,
+                        pav.string_value, 
+                        pav.integer_value, 
+                        pav.double_value, 
+                        pav.boolean_value
+                    FROM product_attribute_values pav
+                    JOIN AttributeDefinition ad ON pav.attribute_definition_id = ad.id
+                    WHERE pav.product_id = NEW.id
                 ) attr
             )
         ) INTO v_payload;
 
-        INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
-        VALUES ('product', NEW.id, 'PRODUCT_UPDATED', v_payload, now());
+        IF (TG_OP = 'INSERT') THEN
+            INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
+            VALUES ('product', NEW.id, 'PRODUCT_CREATED', v_payload, now());
+        ELSE
+            INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
+            VALUES ('product', NEW.id, 'PRODUCT_UPDATED', v_payload, now());
+        END IF;
     END IF;
 
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
-
 CREATE TRIGGER trg_product_changes
 AFTER INSERT OR UPDATE OR DELETE ON products
 FOR EACH ROW EXECUTE FUNCTION fn_build_product_outbox();

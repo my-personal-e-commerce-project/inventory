@@ -17,6 +17,7 @@ import microservice.cloud.inventory.category.application.use_cases.DeleteCategor
 import microservice.cloud.inventory.category.application.use_cases.ListCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.UpdateCategoryUseCase;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
+import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 
 @Configuration
@@ -62,12 +63,14 @@ public class CategoryConfigAdapter {
     public CreateCategoryAttributeUseCasePort createCategoryAttributeUseCasePort(
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
+        ProductRepository productRepository,
         GetMePort getMePort
     ) {
     
         return new CreateCategoryAttributeUseCase(
             categoryRepository, 
-            attributeDefinitionRepository, 
+            attributeDefinitionRepository,
+            productRepository,
             getMePort
         );
     }
@@ -75,10 +78,12 @@ public class CategoryConfigAdapter {
     @Bean
     public DeleteCategoryAttributeUseCasePort deleteCategoryAttributeUseCasePort(
         CategoryRepository categoryRepository,
+        ProductRepository productRepository,
         GetMePort getMePort
     ) {
         return new DeleteCategoryAttributeUseCase(
-            categoryRepository, 
+            categoryRepository,
+            productRepository,
             getMePort
         );
     }

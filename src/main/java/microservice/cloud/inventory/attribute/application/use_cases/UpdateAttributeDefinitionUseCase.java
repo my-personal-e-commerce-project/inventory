@@ -4,19 +4,23 @@ import microservice.cloud.inventory.attribute.application.ports.in.UpdateAttribu
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
+import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class UpdateAttributeDefinitionUseCase implements UpdateAttributeDefinitionUseCasePort {
 
-    private AttributeDefinitionRepository attributeDefinitionRepository;
-    private GetMePort getMePort;
+    private final AttributeDefinitionRepository attributeDefinitionRepository;
+    private final ProductRepository productRepository;
+    private final GetMePort getMePort;
 
     public UpdateAttributeDefinitionUseCase(
         AttributeDefinitionRepository attributeDefinitionRepository,
+        ProductRepository productRepository,
         GetMePort getMePort
     ) {
         this.attributeDefinitionRepository = attributeDefinitionRepository;
+        this.productRepository = productRepository;
         this.getMePort = getMePort;
     }
 
@@ -39,6 +43,10 @@ public class UpdateAttributeDefinitionUseCase implements UpdateAttributeDefiniti
             );
 
         attributeDefinitionRepository.update(attr);
+
+        productRepository.updateTheValueTypeOfProductAttributesByAttributeDefinition(attr.id(), type);
+
+
         return attr;
     } 
 }

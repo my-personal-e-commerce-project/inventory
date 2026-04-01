@@ -248,8 +248,7 @@ public class AttributeDefinitionControllerTest {
                 .with(jwt().jwt(j -> j.claim("realm_access", Map.of("roles", List.of("delete_attribute_definition")))
                                  .subject("random-user")))
         )
-            .andExpect(MockMvcResultMatchers.status().isNoContent())
-            .andDo(System.out::println);
+            .andExpect(MockMvcResultMatchers.status().isNoContent());
 
         Integer attributeDefinitionCount = jdbcTemplate.queryForObject(
             "SELECT count(*) FROM attributedefinition", Integer.class);
@@ -271,7 +270,6 @@ public class AttributeDefinitionControllerTest {
 
         JsonNode actual = mapper.readTree(outboxEntry.get("payload").toString());
 
-        System.out.println(actual);
         JsonNode expected = mapper.readTree("""
             {
                 "id": "%s", 

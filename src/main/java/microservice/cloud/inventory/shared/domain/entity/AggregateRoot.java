@@ -1,5 +1,19 @@
 package microservice.cloud.inventory.shared.domain.entity;
 
-public abstract class AggregateRoot {
+import java.util.ArrayList;
+import java.util.List;
 
+import microservice.cloud.inventory.shared.domain.event.DomainEvent;
+
+public abstract class AggregateRoot {
+    private List<DomainEvent> events = new ArrayList<>();
+
+    public void publishEvent(DomainEvent event) {
+
+        events.add(event);
+    };
+
+    public List<DomainEvent> getEvents() {
+        return new ArrayList<>(events);
+    }
 }

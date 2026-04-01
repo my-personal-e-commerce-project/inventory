@@ -91,6 +91,11 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
     }
 
     @Override
+    public CategoryAttribute getCategoryAttributeById(Id id) {
+        return toMap(aggregateTemplate.findById(id.value(), CategoryAttributeEntity.class));
+    }
+
+    @Override
     public void isValidTheseCategoryIds(Set<String> ids) {
         if(!categoryJdbcRepository.countByIdIn(ids))
             throw new RuntimeException("Not all provided category ids are valid");
@@ -141,6 +146,8 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
                 )
                 .orElseThrow(() -> new DataNotFound("Category not found")));
     }
+
+    
 
     @Transactional
     @Override

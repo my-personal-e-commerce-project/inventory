@@ -8,8 +8,8 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class DeleteAttributeDefinitionUseCase implements DeleteAttributeDefinitionUseCasePort{
 
-    private AttributeDefinitionRepository attributeDefinitionRepository;
-    private GetMePort getMePort;
+    private final AttributeDefinitionRepository attributeDefinitionRepository;
+    private final GetMePort getMePort;
         
     public DeleteAttributeDefinitionUseCase(
         AttributeDefinitionRepository attributeDefinitionRepository,

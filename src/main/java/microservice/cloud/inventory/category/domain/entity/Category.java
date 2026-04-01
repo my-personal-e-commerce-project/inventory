@@ -4,13 +4,14 @@ import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
 
+import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
-public class Category {
+public class Category extends AggregateRoot{
     private Id id;
     private String name;
     private Slug slug;
@@ -67,7 +68,9 @@ public class Category {
             throw new RuntimeException("You do not have permission to perform this action.");
 
         me.IHavePermission(Permission.updateCategory());
-     
+    
+        // TODO: this.publishEvent(...)
+
         validAddCategoryAttribute(attr);
     }
 
@@ -95,10 +98,9 @@ public class Category {
             )
                 throw new RuntimeException("Category attribute with id: '" 
                     + attr.id().value() 
-                    + "' not found in your new updated list of 'category attributes'.");
+                    + "' not found in your new list of 'category attributes'.");
 
         });
-        
         categoryAttributes.stream().forEach(attr -> {
             if(this.categoryAttributes.stream()
                 .filter(currentAttr -> currentAttr.id().equals(attr.id()))
@@ -112,6 +114,8 @@ public class Category {
                     }
         });
 
+        // TODO: this.publishEvent(...)
+        
         this.categoryAttributes = categoryAttributes;
         this.name = name;
         this.slug = slug;

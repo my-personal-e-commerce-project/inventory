@@ -13,7 +13,6 @@ RETURNS TRIGGER AS $$
 DECLARE
     v_payload JSONB;
 BEGIN
-    
     IF (TG_OP = 'INSERT' AND NEW.is_global = TRUE) THEN
         v_payload = jsonb_build_object(
             'id', NEW.id,

@@ -1,12 +1,13 @@
 package microservice.cloud.inventory.attribute.domain.entity;
 
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
+import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
-public class AttributeDefinition {
+public class AttributeDefinition extends AggregateRoot {
     private Id id;
     private String name;
     private Slug slug;
@@ -46,6 +47,7 @@ public class AttributeDefinition {
 
         me.IHavePermission(Permission.createAttributeDefinition());
 
+        // TODO: this.publishEvent(...)
         return new AttributeDefinition(id, name, slug, type, is_global);
     }
 

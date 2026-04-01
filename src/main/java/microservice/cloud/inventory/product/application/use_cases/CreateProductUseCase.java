@@ -68,21 +68,17 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
 
         categoryRepository.isValidTheseCategoryIds(categories);
         
-        List<AttributeDefinition> default_attributes = attributeDefinitionRepository
+        List<AttributeDefinition> defaultAttributes = attributeDefinitionRepository
             .getGlobalAttributes();
 
-        List<CategoryAttribute> attrs = 
+        List<CategoryAttribute> catAttrs = 
            categoryRepository 
             .getCategoryAttributesWithAttributeDefinitionsByCategoryIds(
                 categories
             );
         
-        if(attrs != null)
-            product.validCategoryAttributes(new HashSet<>(attrs));
+        product.validGlobalAttributesAndCategoryAttributes(new HashSet<>(defaultAttributes), new HashSet<>(catAttrs));
       
-        if(default_attributes != null)
-            product.validGlobalAttributeDefinitions(new HashSet<>(default_attributes));
-       
         productRepository.save(product);
     }
 }

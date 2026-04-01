@@ -17,4 +17,5 @@ public interface CategoryRepository {
     Category findBySlug(Slug slug);
     List<CategoryAttribute> getCategoryAttributesWithAttributeDefinitionsByCategoryIds(Set<String> ids);
     CategoryAttribute getCategoryAttributeByAttributeDefinitionId(Id id);
+    CategoryAttribute getCategoryAttributeById(Id id);
 }

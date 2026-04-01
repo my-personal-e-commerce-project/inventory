@@ -1,7 +1,9 @@
 package microservice.cloud.inventory.product.domain.entity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -43,7 +45,7 @@ public class Product {
         Set<String> tags
     ) {
         if(title == null)
-            throw new InvalidProductException("Products must have at least one category");
+            throw new InvalidProductException("The title cannot be null");
 
         this.id = id;
         this.title = title;
@@ -89,21 +91,21 @@ public class Product {
         );
     }
 
-    public void validGlobalAttributeDefinitions(Set<AttributeDefinition> attrs) {
+    public void validGlobalAttributesAndCategoryAttributes(Set<AttributeDefinition> globalAttrs, Set<CategoryAttribute> catAttrs) {
         Map<String, ProductAttributeValue> productAttributeByAttributeDefinitionId =
             attributeValues.values().stream()
                 .collect(Collectors.toMap(
                     pav -> pav.attribute_definition_id().value(),
                     Function.identity()
                 ));
-                
-        for (AttributeDefinition attr : attrs) {
+
+        List<String> validatedIds = new ArrayList<>();
+
+        for (AttributeDefinition attr : globalAttrs) {
             String def = attr.id().value();
             ProductAttributeValue productAttr = 
                 productAttributeByAttributeDefinitionId
                 .get(def);
-
-            System.out.println();
 
             if (productAttr == null) {
                 throw new IllegalStateException(
@@ -117,18 +119,11 @@ public class Product {
             if (productAttr != null) {
                 productAttr.validTypes(attr);
             }
+
+            validatedIds.add(def);
         }
-    }
-
-    public void validCategoryAttributes(Set<CategoryAttribute> category_attrs) {
-        Map<String, ProductAttributeValue> productAttributeByAttributeDefinitionId =
-            attributeValues.values().stream()
-                .collect(Collectors.toMap(
-                    pav -> pav.attribute_definition_id().value(),
-                    Function.identity()
-                ));
-
-        for (CategoryAttribute categoryAttr : category_attrs) {
+  
+        for (CategoryAttribute categoryAttr : catAttrs) {
 
             String def = categoryAttr.attribute_definition_id().value();
 
@@ -145,7 +140,15 @@ public class Product {
             if (productAttr != null) {
                 productAttr.validTypes(categoryAttr.attribute_definition());
             }
+            
+            validatedIds.add(def);
         }
+        
+        Set<String> result = productAttributeByAttributeDefinitionId.keySet();
+        result.removeAll(validatedIds);
+
+        if(result.size() != 0)
+            throw new RuntimeException("The next ids: %s, do not defined by the categories or attribute definition".formatted(validatedIds));
     }
 
     public void addProductAttribute(Me me, ProductAttributeValue attr) {
