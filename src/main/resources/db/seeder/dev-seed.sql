@@ -103,6 +103,50 @@ INSERT INTO product_attribute_values (id, product_id, attribute_definition_id, s
 -- HP Victus
 (gen_random_uuid(), 'l-2', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'HP', NULL, NULL, NULL),
 (gen_random_uuid(), 'l-2', (SELECT id FROM AttributeDefinition WHERE slug = 'ram-gb'), NULL, 16, NULL, NULL),
+--Lenovo Legion Slin 5
+(gen_random_uuid(), 'l-3', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'Lenovo', NULL, NULL, NULL),
+(gen_random_uuid(), 'l-3', (SELECT id FROM AttributeDefinition WHERE slug = 'ram-gb'), NULL, 24, NULL, NULL),
+--HP Omen 17
+(gen_random_uuid(), 'l-4', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'HP', NULL, NULL, NULL),
+(gen_random_uuid(), 'l-4', (SELECT id FROM AttributeDefinition WHERE slug = 'ram-gb'), NULL, 28, NULL, NULL),
+--Lenovo LOQ 15
+(gen_random_uuid(), 'l-5', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'Lenovo', NULL, NULL, NULL),
+(gen_random_uuid(), 'l-5', (SELECT id FROM AttributeDefinition WHERE slug = 'ram-gb'), NULL, 28, NULL, NULL),
 -- Lavarropas James
 (gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'James', NULL, NULL, NULL),
 (gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5);
+-- Lavarropas LG
+(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'LG', NULL, NULL, NULL),
+(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5);
+-- Lavarropas Samsung
+(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'Samsung', NULL, NULL, NULL),
+(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5);
+-- lav-1: Samsung EcoBubble
+(gen_random_uuid(), 'lav-1', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'Samsung', NULL, NULL, NULL),
+(gen_random_uuid(), 'lav-1', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 24, NULL, NULL),
+(gen_random_uuid(), 'lav-1', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 10.0),
+-- lav-2: LG Vivace
+(gen_random_uuid(), 'lav-2', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'LG', NULL, NULL, NULL),
+(gen_random_uuid(), 'lav-2', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 24, NULL, NULL),
+(gen_random_uuid(), 'lav-2', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 8.0),
+-- lav-3: James (Específico para Uruguay)
+(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'James', NULL, NULL, NULL),
+(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 12, NULL, NULL),
+(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5);
+-- h-1: Taladro DeWalt (Inalámbrico)
+(gen_random_uuid(), 'h-1', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'DeWalt', NULL, NULL, NULL),
+(gen_random_uuid(), 'h-1', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 36, NULL, NULL),
+(gen_random_uuid(), 'h-1', (SELECT id FROM AttributeDefinition WHERE slug = 'es-inalambrico'), NULL, NULL, TRUE, NULL),
+-- h-2: Amoladora Bosch
+(gen_random_uuid(), 'h-2', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'Bosch', NULL, NULL, NULL),
+(gen_random_uuid(), 'h-2', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 12, NULL, NULL),
+(gen_random_uuid(), 'h-2', (SELECT id FROM AttributeDefinition WHERE slug = 'potencia-watts'), NULL, 710, NULL, NULL),
+-- h-3: Rotomartillo Makita
+(gen_random_uuid(), 'h-3', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'Makita', NULL, NULL, NULL),
+(gen_random_uuid(), 'h-3', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 12, NULL, NULL),
+-- h-6: Soldadora Lusqtoff
+(gen_random_uuid(), 'h-6', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'Lusqtoff', NULL, NULL, NULL),
+(gen_random_uuid(), 'h-6', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 6, NULL, NULL),
+-- h-9: Hidrolavadora Karcher
+(gen_random_uuid(), 'h-9', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'Karcher', NULL, NULL, NULL),
+(gen_random_uuid(), 'h-9', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 12, NULL, NULL),
