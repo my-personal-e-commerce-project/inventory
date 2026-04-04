@@ -50,7 +50,7 @@ BEGIN
                 SELECT coalesce(jsonb_agg(attr), '[]'::jsonb)
                 FROM (
                     SELECT ca.id, ca.is_required, ca.is_filterable, ca.is_sortable,
-                           row_to_json(ad)::jsonb AS attribute
+                           row_to_json(ad)::jsonb AS attribute_definition
                     FROM CategoryAttribute ca
                     INNER JOIN AttributeDefinition ad ON ca.attribute_definition_id = ad.id
                     WHERE ca.category_id = NEW.id

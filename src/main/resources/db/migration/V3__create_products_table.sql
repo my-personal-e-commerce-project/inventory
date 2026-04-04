@@ -59,7 +59,10 @@ BEGIN
             'images', NEW.images,
             'tags', NEW.tags,
             'categories', (
-                SELECT coalesce(jsonb_agg(c.slug), '[]'::jsonb)
+                SELECT coalesce(
+                    jsonb_agg(jsonb_build_object('slug', c.slug, 'name', c.name)), 
+                    '[]'::jsonb
+                )
                 FROM product_categories pc
                 JOIN category c ON pc.category_id = c.id
                 WHERE pc.product_id = NEW.id

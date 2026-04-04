@@ -2,11 +2,6 @@
 -- SEEDER MASIVO USA:  docker exec -i inventory-postgres-1 psql -U root -d inventory < src/main/resources/db/seeder/dev-seed.sql
 -- ==========================================================
 
--- 1. Matamos cualquier proceso que esté usando el slot (el worker de Go)
-SELECT pg_terminate_backend(active_pid) 
-FROM pg_replication_slots 
-WHERE slot_name = 'outbox_worker_slot';
-
 -- 2. Borramos el slot (esto elimina el LSN asociado en el servidor)
 SELECT pg_drop_replication_slot('outbox_worker_slot');
 
@@ -114,13 +109,13 @@ INSERT INTO product_attribute_values (id, product_id, attribute_definition_id, s
 (gen_random_uuid(), 'l-5', (SELECT id FROM AttributeDefinition WHERE slug = 'ram-gb'), NULL, 28, NULL, NULL),
 -- Lavarropas James
 (gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'James', NULL, NULL, NULL),
-(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5);
+(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5),
 -- Lavarropas LG
 (gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'LG', NULL, NULL, NULL),
-(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5);
+(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5),
 -- Lavarropas Samsung
 (gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'Samsung', NULL, NULL, NULL),
-(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5);
+(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5),
 -- lav-1: Samsung EcoBubble
 (gen_random_uuid(), 'lav-1', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'Samsung', NULL, NULL, NULL),
 (gen_random_uuid(), 'lav-1', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 24, NULL, NULL),
@@ -129,10 +124,6 @@ INSERT INTO product_attribute_values (id, product_id, attribute_definition_id, s
 (gen_random_uuid(), 'lav-2', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'LG', NULL, NULL, NULL),
 (gen_random_uuid(), 'lav-2', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 24, NULL, NULL),
 (gen_random_uuid(), 'lav-2', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 8.0),
--- lav-3: James (Específico para Uruguay)
-(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'James', NULL, NULL, NULL),
-(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 12, NULL, NULL),
-(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5);
 -- h-1: Taladro DeWalt (Inalámbrico)
 (gen_random_uuid(), 'h-1', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'DeWalt', NULL, NULL, NULL),
 (gen_random_uuid(), 'h-1', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 36, NULL, NULL),
@@ -149,4 +140,4 @@ INSERT INTO product_attribute_values (id, product_id, attribute_definition_id, s
 (gen_random_uuid(), 'h-6', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 6, NULL, NULL),
 -- h-9: Hidrolavadora Karcher
 (gen_random_uuid(), 'h-9', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'Karcher', NULL, NULL, NULL),
-(gen_random_uuid(), 'h-9', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 12, NULL, NULL),
+(gen_random_uuid(), 'h-9', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 12, NULL, NULL);
