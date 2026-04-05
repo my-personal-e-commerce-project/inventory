@@ -45,7 +45,7 @@ public class ProductReadRepositoryJdbcAdapter implements ProductReadRepository {
                 pav.boolean_value,
                 ad.slug AS attr_slug,
                 ad.id AS attr_id,
-                pc.category_id AS prod_category_id
+                (SELECT string_agg(category_id, ',') FROM product_categories WHERE product_id = p.id) AS all_categories
             FROM (
                 SELECT * FROM products 
                 ORDER BY id 
@@ -53,7 +53,6 @@ public class ProductReadRepositoryJdbcAdapter implements ProductReadRepository {
             ) p
             LEFT JOIN product_attribute_values pav ON p.id = pav.product_id
             LEFT JOIN attributedefinition ad ON pav.attribute_definition_id = ad.id
-            LEFT JOIN product_categories pc ON p.id = pc.product_id
             """,
             params,
             new ProductResultSetExtractor()

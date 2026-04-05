@@ -63,7 +63,9 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
             SELECT 
                 gen_random_uuid()::text, ?, id, 
                 ?, ?, ?, ?
-            FROM products;
+            FROM products
+            ON CONFLICT (product_id, attribute_id) 
+            DO NOTHING;
             """;
 
         String defId = attributeDefinition.id().value();
@@ -77,6 +79,32 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
                 jdbcTemplate.update(sql, defId, null, null, 0.0, null);
             case "BOOLEAN" -> 
                 jdbcTemplate.update(sql, defId, null, null, null, false);
+        }
+    }
+
+    @Transactional
+    @Override
+    public void massCreateProductAttributeValuesByCategory(Id categoryId, AttributeDefinition attributeDefinition) {
+        String sql = """
+            INSERT INTO product_attribute_values (product_id, attribute_id, value)
+                SELECT gen_random_uuid()::text, pc.product_id, ?, ?, ?, ?, ? 
+                FROM product_categories pc
+                WHERE pc.category_id = ?
+                ON CONFLICT (product_id, attribute_id) 
+                DO NOTHING;
+            """;
+
+        String defId = attributeDefinition.id().value();
+
+        switch(attributeDefinition.type().toString()){
+            case "STRING" -> 
+                jdbcTemplate.update(sql, defId, "", null, null, null, categoryId.value());
+            case "INTEGER" -> 
+                jdbcTemplate.update(sql, defId, null, 0, null, null, categoryId.value());
+            case "DOUBLE" -> 
+                jdbcTemplate.update(sql, defId, null, null, 0.0, null, categoryId.value());
+            case "BOOLEAN" -> 
+                jdbcTemplate.update(sql, defId, null, null, null, false, categoryId.value());
         }
     }
 

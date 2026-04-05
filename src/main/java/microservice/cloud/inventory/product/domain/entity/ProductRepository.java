@@ -17,6 +17,7 @@ public interface ProductRepository {
     public ProductAttributeValue findProductAttributeValueById(Id id);
     public void deleteOrphanAttributeValues(Id categoryId, Id attributeDefinitionId);
     public void massCreateDefaultProductAttributeValues(AttributeDefinition attributeDefinition);
+    public void massCreateProductAttributeValuesByCategory(Id categoryId, AttributeDefinition attributeDefinition);
     public void updateTheValueTypeOfProductAttributesByAttributeDefinition(Id attributeDefinitionId, DataType type);
     public void getProductIdsWithTheseCategoriesAndPriceRange(Price minPrice, Price maxPrice, Set<String> categoryIds);
 }

@@ -34,7 +34,10 @@ CREATE TABLE product_attribute_values (
     CONSTRAINT fk_pav_definition 
         FOREIGN KEY (attribute_definition_id) 
         REFERENCES AttributeDefinition (id) 
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+
+    CONSTRAINT uq_product_attribute_definition 
+        UNIQUE (product_id, attribute_definition_id)
 );
 
 CREATE INDEX idx_pav_product ON product_attribute_values(product_id);

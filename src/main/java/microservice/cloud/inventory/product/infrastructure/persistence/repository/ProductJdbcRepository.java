@@ -25,7 +25,7 @@ public interface ProductJdbcRepository extends CrudRepository<ProductEntity, Str
           AND NOT EXISTS (
               SELECT 1 
               FROM product_categories pc_other
-              JOIN category_attributes ca ON pc_other.category_id = ca.category_id
+              JOIN categoryattribute ca ON pc_other.category_id = ca.category_id
               WHERE pc_other.product_id = product_attribute_values.product_id
                 AND pc_other.category_id != :categoryId
                 AND ca.attribute_definition_id = :attributeId

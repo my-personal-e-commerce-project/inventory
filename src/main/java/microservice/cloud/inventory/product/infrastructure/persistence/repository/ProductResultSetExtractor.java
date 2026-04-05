@@ -3,6 +3,7 @@ package microservice.cloud.inventory.product.infrastructure.persistence.reposito
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,12 +49,11 @@ public class ProductResultSetExtractor implements ResultSetExtractor<List<Produc
                 productsMap.put(productId, product);
             }
 
-            if(rs.getString("prod_category_id") != null) {
-                product
-                    .getCategories()
-                    .add(
-                        rs.getString("prod_category_id")
-                    );
+            
+            String rawCategories = rs.getString("all_categories");
+            if (rawCategories != null && !rawCategories.isBlank()) {
+                String[] catsArray = rawCategories.split(",");
+                product.setCategories(new ArrayList<>(Arrays.asList(catsArray)));
             }
 
             String valId = rs.getString("val_id");
@@ -71,6 +71,6 @@ public class ProductResultSetExtractor implements ResultSetExtractor<List<Produc
                     );
             }
         }
-
         return new ArrayList<>(productsMap.values());
-    }}
+    }
+}

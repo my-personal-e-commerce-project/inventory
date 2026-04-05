@@ -2,19 +2,6 @@
 -- SEEDER MASIVO USA:  docker exec -i inventory-postgres-1 psql -U root -d inventory < src/main/resources/db/seeder/dev-seed.sql
 -- ==========================================================
 
--- 2. Borramos el slot (esto elimina el LSN asociado en el servidor)
-SELECT pg_drop_replication_slot('outbox_worker_slot');
-
--- 3. Borramos la publicación para que no queden filtros viejos
-DROP PUBLICATION IF EXISTS dbz_publication;
-
--- 4. Creamos la publicación de cero apuntando a tu tabla
-CREATE PUBLICATION dbz_publication FOR TABLE outbox;
-
--- 5. OPCIONAL: Si querés que el worker ignore TODO lo viejo y arranque desde "ahora"
--- creamos el slot manualmente antes de prender el worker:
-SELECT pg_create_logical_replication_slot('outbox_worker_slot', 'pgoutput');
-
 -- 1. LIMPIEZA TOTAL
 TRUNCATE TABLE 
     product_attribute_values, 
