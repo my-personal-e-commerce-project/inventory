@@ -218,7 +218,6 @@ public class Product {
         Set<String> categories,
         Price price,
         Set<ProductAttributeValue> attributes,
-        Set<Coupon> coupons,
         Quantity stock,
         Set<String> images,
         Set<String> tags
@@ -244,8 +243,6 @@ public class Product {
             
             mapNewAttrs.put(a.id().value(), a);
         });
-
-        coupons.forEach(c -> this.applyCoupon(c));
 
         this.attributeValues = mapNewAttrs;
         this.title = title;

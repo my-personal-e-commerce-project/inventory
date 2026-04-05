@@ -110,12 +110,6 @@ INSERT INTO product_attribute_values (id, product_id, attribute_definition_id, s
 -- Lavarropas James
 (gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'James', NULL, NULL, NULL),
 (gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5),
--- Lavarropas LG
-(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'LG', NULL, NULL, NULL),
-(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5),
--- Lavarropas Samsung
-(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'Samsung', NULL, NULL, NULL),
-(gen_random_uuid(), 'lav-3', (SELECT id FROM AttributeDefinition WHERE slug = 'capacidad-carga-kg'), NULL, NULL, NULL, 6.5),
 -- lav-1: Samsung EcoBubble
 (gen_random_uuid(), 'lav-1', (SELECT id FROM AttributeDefinition WHERE slug = 'marca'), 'Samsung', NULL, NULL, NULL),
 (gen_random_uuid(), 'lav-1', (SELECT id FROM AttributeDefinition WHERE slug = 'garantia-meses'), NULL, 24, NULL, NULL),

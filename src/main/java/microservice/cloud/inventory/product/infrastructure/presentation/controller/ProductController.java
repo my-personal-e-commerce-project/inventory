@@ -92,6 +92,7 @@ public class ProductController {
                     attr.getBoolean_value()
                 )
             ).collect(Collectors.toSet()),
+            null,
             new Quantity(productDTO.getStock()),
             null,
             productDTO.getTags()

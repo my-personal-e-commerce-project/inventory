@@ -8,6 +8,7 @@ import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
+import microservice.cloud.inventory.coupon.domain.entity.Coupon;
 import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.product.domain.entity.Product;
@@ -66,20 +67,16 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
 
         categoryRepository.isValidTheseCategoryIds(categories);
 
-        List<AttributeDefinition> default_attributes = attributeDefinitionRepository
+        List<AttributeDefinition> defaultAttributes = attributeDefinitionRepository
             .getGlobalAttributes();
 
-        List<CategoryAttribute> attrs = 
+        List<CategoryAttribute> catAttrs = 
            categoryRepository 
             .getCategoryAttributesWithAttributeDefinitionsByCategoryIds(
                 categories
             );
      
-        if(attrs != null)
-            p.validCategoryAttributes(new HashSet<>(attrs));
-
-        if(default_attributes != null)
-            p.validGlobalAttributeDefinitions(new HashSet<>(default_attributes));
+        p.validGlobalAttributesAndCategoryAttributes(new HashSet<>(defaultAttributes), new HashSet<>(catAttrs));
 
         productRepository.update(p);
     }
