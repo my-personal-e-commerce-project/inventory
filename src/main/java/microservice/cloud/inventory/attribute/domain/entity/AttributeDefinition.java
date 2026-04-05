@@ -63,7 +63,7 @@ public class AttributeDefinition extends AggregateRoot {
         this.is_global = is_global;
     }
 
-    public static void delete(Me me) {
+    public void canIDeleteThisAttributeDefinition(Me me) {
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
 

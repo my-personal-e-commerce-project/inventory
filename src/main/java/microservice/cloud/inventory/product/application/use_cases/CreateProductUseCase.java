@@ -3,12 +3,13 @@ package microservice.cloud.inventory.product.application.use_cases;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
+import microservice.cloud.inventory.coupon.domain.entity.Coupon;
+import microservice.cloud.inventory.coupon.domain.repository.CouponRepository;
 import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
@@ -24,12 +25,14 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
     private AttributeDefinitionRepository attributeDefinitionRepository;
+    private CouponRepository couponRepository;
     private GetMePort getMePort;
 
     public CreateProductUseCase(
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
+        CouponRepository couponRepository,
         GetMePort getMePort
     ) {
 
@@ -48,6 +51,7 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
         Set<String> categories, 
         Price price, 
         Set<ProductAttributeValue> attributeValues,
+        Set<Coupon> coupons,
         Quantity stock,
         Set<String> images,
         Set<String> tags    
@@ -60,7 +64,8 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
             description, 
             categories, 
             price, 
-            attributeValues, 
+            attributeValues,
+            coupons,
             stock, 
             images, 
             tags
@@ -68,6 +73,8 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
 
         categoryRepository.isValidTheseCategoryIds(categories);
         
+        couponRepository.applyAutomaticCoupons(product);
+
         List<AttributeDefinition> defaultAttributes = attributeDefinitionRepository
             .getGlobalAttributes();
 

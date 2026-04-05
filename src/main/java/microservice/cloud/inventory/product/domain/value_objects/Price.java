@@ -10,4 +10,12 @@ public record Price (
 
         this.value = value;
     }
+
+    public boolean isLessThan(Price other) {
+        return this.value < other.value();
+    }
+
+    public boolean isGreater(Price other) {
+        return this.value > other.value();
+    }
 }

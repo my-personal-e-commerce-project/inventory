@@ -21,8 +21,8 @@ public class DeleteAttributeDefinitionUseCase implements DeleteAttributeDefiniti
 
     @Override
     public void execute(Slug find_slug) {
-        AttributeDefinition.delete(getMePort.execute());
         AttributeDefinition attrDef = attributeDefinitionRepository.getBySlug(find_slug);
+        attrDef.canIDeleteThisAttributeDefinition(getMePort.execute());
         attributeDefinitionRepository.delete(attrDef);
     } 
 }

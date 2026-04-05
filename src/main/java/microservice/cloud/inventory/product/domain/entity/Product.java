@@ -1,6 +1,7 @@
 package microservice.cloud.inventory.product.domain.entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
+import microservice.cloud.inventory.coupon.domain.entity.Coupon;
 import microservice.cloud.inventory.product.domain.exception.InvalidProductException;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
@@ -28,6 +30,7 @@ public class Product {
     private Set<String> categories;
     private Price price;
     private Map<String, ProductAttributeValue> attributeValues = new HashMap<>();
+    private Set<String> coupons;
     private Quantity stock;
     private Set<String> images;
     private Set<String> tags;
@@ -40,6 +43,7 @@ public class Product {
         Set<String> categories, 
         Price price, 
         Set<ProductAttributeValue> attributeValues,
+        Set<String> coupons,
         Quantity stock,
         Set<String> images,
         Set<String> tags
@@ -53,6 +57,7 @@ public class Product {
         this.description = description;
         this.categories = categories;
         attributeValues.stream().forEach(attr -> this.attributeValues.put(attr.id().value(), attr));
+        this.coupons = coupons;
         this.price = price;
         this.stock = stock;
         this.images = images;
@@ -68,6 +73,7 @@ public class Product {
         Set<String> categories, 
         Price price, 
         Set<ProductAttributeValue> attributeValues,
+        Set<Coupon> coupons,
         Quantity stock,
         Set<String> images,
         Set<String> tags
@@ -77,18 +83,57 @@ public class Product {
 
         me.IHavePermission(Permission.createProduct());
 
-        return new Product(
+        Product product = new Product(
             id, 
             title, 
             slug, 
             description, 
             categories, 
             price, 
-            attributeValues, 
+            attributeValues,
+            null,
             stock, 
             images, 
             tags
         );
+
+        coupons
+            .stream()
+            .forEach(c -> {
+                product.applyCoupon(c);
+            });
+
+        return product;
+    }
+
+    public void applyCoupon(Coupon coupon) {
+        if(coupon.autoApply())
+            throw new RuntimeException("This coupon has already been applied by default.");
+      
+        if(coupons.contains(coupon.id().value())) {
+            throw new RuntimeException("This coupon has already been applied.");
+        }
+
+        if(coupon.validAllCategories() && !categories.containsAll(coupon.allowedCategories()))
+            throw new RuntimeException("This coupon cannot be applied to this product, this product does not have all specified categories.");
+
+        if(Collections.disjoint(categories, coupon.allowedCategories()))
+            throw new RuntimeException("This coupon cannot be applied to this product, this product does not have nor a specified category.");
+
+        if(!price.isGreater(coupon.minPrice()))
+            throw new RuntimeException();
+
+        if(price.isLessThan(coupon.minPrice()))
+            throw new RuntimeException();
+
+        coupons.add(coupon.id().value());
+    }
+
+    public void removeCoupon(Coupon coupon) {
+        if(!coupons.contains(coupon.id().value()))
+            throw new RuntimeException("Coupon not found in this product.");
+        
+        coupons.remove(coupon.id().value());
     }
 
     public void validGlobalAttributesAndCategoryAttributes(Set<AttributeDefinition> globalAttrs, Set<CategoryAttribute> catAttrs) {
@@ -173,6 +218,7 @@ public class Product {
         Set<String> categories,
         Price price,
         Set<ProductAttributeValue> attributes,
+        Set<Coupon> coupons,
         Quantity stock,
         Set<String> images,
         Set<String> tags
@@ -198,6 +244,8 @@ public class Product {
             
             mapNewAttrs.put(a.id().value(), a);
         });
+
+        coupons.forEach(c -> this.applyCoupon(c));
 
         this.attributeValues = mapNewAttrs;
         this.title = title;
@@ -228,7 +276,7 @@ public class Product {
         attributeValues.remove(productAttributeId.value());
     }
 
-    public static void delete(Me me) {
+    public static void canIDeleteThisProduct(Me me) {
         if(me == null)
             throw new RuntimeException("You must be authenticated to do this action");
 
@@ -259,16 +307,20 @@ public class Product {
         return price;
     }
 
-    public Set<ProductAttributeValue> attributeValues() {
-        return new HashSet<>(attributeValues.values());
+    public List<ProductAttributeValue> attributeValues() {
+        return new ArrayList<>(attributeValues.values());
+    }
+
+    public List<String> coupons() {
+        return new ArrayList<>(coupons);
     }
 
     public Quantity stock() {
         return stock;
     }
 
-    public Set<String> images() {
-        return images == null? null: new HashSet<>(images);
+    public List<String> images() {
+        return images == null? null: new ArrayList<>(images);
     }
 
     public Set<String> tags() {

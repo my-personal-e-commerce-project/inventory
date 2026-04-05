@@ -1,6 +1,6 @@
 package microservice.cloud.inventory.product.infrastructure.persistence.repository;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,6 +33,11 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     private final JdbcTemplate jdbcTemplate;
     private final ProductAttributeValueJdbcRepository productAttributeValueJdbcRepository;
     private final ProductJdbcRepository productJdbcRepository;
+
+    @Override
+    public void getProductIdsWithTheseCategoriesAndPriceRange(Price minPrice, Price maxPrice, Set<String> categoryIds) {
+        // TODO Auto-generated method stub
+    }
 
     @Override
     public ProductAttributeValue findProductAttributeValueById(Id id) {
@@ -172,7 +177,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
             categories,
             product.price().value(),
             product.stock().value(),
-            product.images(),
+            new HashSet<>(product.images()),
             product.attributeValues()
                 .stream()
                 .map(attr -> new ProductAttributeValueEntity(
@@ -215,6 +220,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
                         attr.getBoolean_value()
                     )
                 ).collect(Collectors.toSet()),
+            null,
             new Quantity(product.getStock()),
             product.getImages(),
             product.getTags()
