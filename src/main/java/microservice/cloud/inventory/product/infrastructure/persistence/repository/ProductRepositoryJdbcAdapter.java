@@ -86,12 +86,23 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     @Override
     public void massCreateProductAttributeValuesByCategory(Id categoryId, AttributeDefinition attributeDefinition) {
         String sql = """
-            INSERT INTO product_attribute_values (product_id, attribute_id, value)
-                SELECT gen_random_uuid()::text, pc.product_id, ?, ?, ?, ?, ? 
-                FROM product_categories pc
-                WHERE pc.category_id = ?
-                ON CONFLICT (product_id, attribute_id) 
-                DO NOTHING;
+            INSERT INTO product_attribute_values (
+                id, 
+                product_id, 
+                attribute_definition_id, 
+                string_value, 
+                integer_value, 
+                double_value, 
+                boolean_value
+            )
+            SELECT 
+                gen_random_uuid()::text, 
+                pc.product_id, 
+                ?, ?, ?, ?, ? 
+            FROM product_categories pc
+            WHERE pc.category_id = ?
+            ON CONFLICT (product_id, attribute_id) 
+            DO NOTHING;
             """;
 
         String defId = attributeDefinition.id().value();

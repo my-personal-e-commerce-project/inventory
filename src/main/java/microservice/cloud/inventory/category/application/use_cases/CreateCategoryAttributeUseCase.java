@@ -41,7 +41,7 @@ public class CreateCategoryAttributeUseCase implements CreateCategoryAttributeUs
         categoryRepository.update(category);
 
         if(categoryAttribute.is_required())
-            productRepository.massCreateDefaultProductAttributeValues(attrDef);
+            productRepository.massCreateProductAttributeValuesByCategory(category.id(), attrDef);
 
         return category;
     }
