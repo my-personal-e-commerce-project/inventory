@@ -73,7 +73,7 @@ public class Product {
         Set<String> categories, 
         Price price, 
         Set<ProductAttributeValue> attributeValues,
-        Set<Coupon> coupons,
+        List<Coupon> coupons,
         Quantity stock,
         Set<String> images,
         Set<String> tags
@@ -97,36 +97,42 @@ public class Product {
             tags
         );
 
-        coupons
-            .stream()
-            .forEach(c -> {
-                product.applyCoupon(c);
-            });
+        product.addCoupons(coupons);
 
         return product;
     }
 
-    public void applyCoupon(Coupon coupon) {
-        if(coupon.autoApply())
-            throw new RuntimeException("This coupon has already been applied by default.");
-      
-        if(coupons.contains(coupon.id().value())) {
-            throw new RuntimeException("This coupon has already been applied.");
-        }
+    private void addCoupons(List<Coupon> coupons) {
+        coupons.forEach((c) -> {
+            if(c.autoApply())
+                throw new RuntimeException("This coupon has already been applied by default.");
 
-        if(coupon.validAllCategories() && !categories.containsAll(coupon.allowedCategories()))
-            throw new RuntimeException("This coupon cannot be applied to this product, this product does not have all specified categories.");
+            if(c.validAllCategories() && !categories.containsAll(c.allowedCategories()))
+                throw new RuntimeException("This coupon cannot be applied to this product, this product does not have all specified categories.");
 
-        if(Collections.disjoint(categories, coupon.allowedCategories()))
-            throw new RuntimeException("This coupon cannot be applied to this product, this product does not have nor a specified category.");
+            if(Collections.disjoint(categories, c.allowedCategories()))
+                throw new RuntimeException("This coupon cannot be applied to this product, this product does not have nor a specified category.");
 
-        if(!price.isGreater(coupon.minPrice()))
-            throw new RuntimeException();
+            if(!price.isGreater(c.minPrice()))
+                throw new RuntimeException();
 
-        if(price.isLessThan(coupon.minPrice()))
-            throw new RuntimeException();
+            if(price.isLessThan(c.minPrice()))
+                throw new RuntimeException();
 
-        coupons.add(coupon.id().value());
+            this.coupons.add(c.id().value());
+        });
+    }
+
+    public void applyCouponsOfUser(Set<Coupon> coupons) {
+        addCoupons(coupons.stream()
+            .map(c -> {
+                if (this.coupons.contains(c.id().value())) {
+                    throw new IllegalArgumentException("Coupon " + c.id().value() + " is already applied.");
+                }
+                return c;
+            })
+            .collect(Collectors.toList())
+        );
     }
 
     public void removeCoupon(Coupon coupon) {
@@ -218,6 +224,7 @@ public class Product {
         Set<String> categories,
         Price price,
         Set<ProductAttributeValue> attributes,
+        List<Coupon> coupons,
         Quantity stock,
         Set<String> images,
         Set<String> tags
@@ -237,12 +244,26 @@ public class Product {
 
             if(attr == null)
                 throw new RuntimeException(
-                    "'Product attribute value' with id: %s not found"
-                    .formatted(a.id().value())
+                    "Product attribute value with attribute definition: %s of your new list of attributes, not found in current product attribute values"
+                    .formatted(a.attribute_definition_id())
                 );
             
             mapNewAttrs.put(a.id().value(), a);
         });
+
+        this.attributeValues().stream().forEach(a -> {
+            ProductAttributeValue attr = mapNewAttrs.get(a.id().value());
+
+            if(attr == null)
+                throw new RuntimeException(
+                    "Product attribute value with id: %s and attribute_definition_id %s not found in your new list of attributes"
+                    .formatted(a.id().value(), a.attribute_definition_id().value())
+                );
+            
+            mapNewAttrs.put(a.id().value(), a);
+        });
+
+        addCoupons(coupons);
 
         this.attributeValues = mapNewAttrs;
         this.title = title;

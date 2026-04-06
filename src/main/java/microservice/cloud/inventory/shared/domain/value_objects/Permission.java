@@ -48,4 +48,16 @@ public record Permission (
     public static Permission deleteAttributeDefinition() {
         return new Permission("delete_attribute_definition");
     }
+
+    public static Permission createCoupon() {
+        return new Permission("create_coupon");
+    }
+
+    public static Permission updateCoupon() {
+        return new Permission("update_coupon");
+    }
+
+    public static Permission deleteCoupon() {
+        return new Permission("delete_coupon");
+    }
 }

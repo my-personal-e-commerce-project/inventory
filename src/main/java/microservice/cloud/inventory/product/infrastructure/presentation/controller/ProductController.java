@@ -129,6 +129,7 @@ public class ProductController {
                     attr.boolean_value()
                 )
             ).collect(Collectors.toSet()),
+            null,
             productDTO.tags()
         );
 

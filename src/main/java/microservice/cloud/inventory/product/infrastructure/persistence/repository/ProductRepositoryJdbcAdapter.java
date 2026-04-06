@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
+import microservice.cloud.inventory.coupon.domain.entity.Coupon;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
@@ -35,7 +36,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     private final ProductJdbcRepository productJdbcRepository;
 
     @Override
-    public void getProductIdsWithTheseCategoriesAndPriceRange(Price minPrice, Price maxPrice, Set<String> categoryIds) {
+    public void applyThisAutomaticCouponToTheCorrespondingProducts(Coupon coupon) {
         // TODO Auto-generated method stub
     }
 

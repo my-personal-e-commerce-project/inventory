@@ -51,11 +51,13 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
         Set<String> categories, 
         Price price, 
         Set<ProductAttributeValue> attributeValues,
-        Set<Coupon> coupons,
+        Set<String> coupons,
         Quantity stock,
         Set<String> images,
         Set<String> tags    
     ) {
+        List<Coupon> foundCoupons = couponRepository.getCouponsByIds(coupons);
+        
         Product product = Product.factory(
             getMePort.execute(),
             id,
@@ -65,7 +67,7 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
             categories, 
             price, 
             attributeValues,
-            coupons,
+            foundCoupons,
             stock, 
             images, 
             tags

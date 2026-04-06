@@ -4,9 +4,10 @@ import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import jdk.jfr.Percentage;
 import microservice.cloud.inventory.coupon.domain.value_objects.DiscountType;
+import microservice.cloud.inventory.coupon.domain.value_objects.Percentage;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
+import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 
 public class Coupon {
@@ -19,6 +20,8 @@ public class Coupon {
     private boolean validAllCategories;
     private Price minPrice;
     private Price maxPrice;
+    private Quantity minStock;
+    private Quantity maxStock;
     private boolean autoApply;
     private ZonedDateTime expiredAt;
 
@@ -32,6 +35,8 @@ public class Coupon {
         boolean validAllCategories,
         Price minPrice,
         Price maxPrice,
+        Quantity minStock,
+        Quantity maxStock,
         boolean autoApply,
         ZonedDateTime expiredAt
     ) {
@@ -50,6 +55,8 @@ public class Coupon {
         this.validAllCategories = validAllCategories;
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
+        this.minStock = minStock;
+        this.maxStock = maxStock;
         this.autoApply = autoApply;
         this.expiredAt = expiredAt;
     }
@@ -63,6 +70,8 @@ public class Coupon {
     public boolean validAllCategories() {return validAllCategories;}
     public Price minPrice() {return minPrice;}
     public Price maxPrice() {return maxPrice;}
+    public Quantity minStock() {return minStock;}
+    public Quantity maxStock() {return maxStock;}
     public boolean autoApply() {return autoApply;}
     public ZonedDateTime expiredAt() {return expiredAt;}
 }

@@ -106,12 +106,10 @@ public class Category extends AggregateRoot{
                 .filter(currentAttr -> currentAttr.id().equals(attr.id()))
                 .findFirst()
                 .isEmpty()
-            ){
+            )
                 throw new RuntimeException("'Category attribute' with id: '" 
                     + attr.id().value() 
                     + "' not found in the current list of category attributes.");
-
-                    }
         });
 
         // TODO: this.publishEvent(...)

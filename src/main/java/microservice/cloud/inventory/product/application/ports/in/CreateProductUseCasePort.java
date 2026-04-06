@@ -2,7 +2,6 @@ package microservice.cloud.inventory.product.application.ports.in;
 
 import java.util.Set;
 
-import microservice.cloud.inventory.coupon.domain.entity.Coupon;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
@@ -19,7 +18,7 @@ public interface CreateProductUseCasePort {
         Set<String> categories, 
         Price price, 
         Set<ProductAttributeValue> attributeValues,
-        Set<Coupon> coupons,
+        Set<String> coupons,
         Quantity stock,
         Set<String> images,
         Set<String> tags    
