@@ -4,6 +4,8 @@ import microservice.cloud.inventory.attribute.application.ports.in.DeleteAttribu
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
+import microservice.cloud.inventory.shared.domain.value_objects.Me;
+import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class DeleteAttributeDefinitionUseCase implements DeleteAttributeDefinitionUseCasePort{
@@ -21,8 +23,15 @@ public class DeleteAttributeDefinitionUseCase implements DeleteAttributeDefiniti
 
     @Override
     public void execute(Slug find_slug) {
+        Me me = getMePort.execute();
+
+        if(me == null)
+            throw new RuntimeException("You do not have permission to perform this action");
+
+        me.IHavePermission(Permission.deleteAttributeDefinition());
+
         AttributeDefinition attrDef = attributeDefinitionRepository.getBySlug(find_slug);
-        attrDef.canIDeleteThisAttributeDefinition(getMePort.execute());
+
         attributeDefinitionRepository.delete(attrDef);
     } 
 }

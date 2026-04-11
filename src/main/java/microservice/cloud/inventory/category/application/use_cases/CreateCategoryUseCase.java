@@ -12,6 +12,8 @@ import microservice.cloud.inventory.category.domain.repository.CategoryRepositor
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Me;
+import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
@@ -32,7 +34,7 @@ public class CreateCategoryUseCase implements CreateCategoryUseCasePort {
         this.getMePort = getMePort;
     }
 
-    private void loadAttributeDefinitions(List<CategoryAttribute> attributes){
+    private void loadAttributeDefinitions(Set<CategoryAttribute> attributes){
         Set<String> ids = attributes.stream()
             .map(attr -> attr.attribute_definition_id().value())
             .collect(Collectors.toSet());
@@ -53,16 +55,20 @@ public class CreateCategoryUseCase implements CreateCategoryUseCasePort {
 
     @Override
     public void execute(
-       Id id,
-       String name,
-       Slug slug,
-       Id parent_id,
-       List<CategoryAttribute> attributes
+        Category category
     ) {
-        loadAttributeDefinitions(attributes);
+        Me me = getMePort.execute();
 
-        Category category = Category
-            .factory(getMePort.execute(), id, name, slug, parent_id, attributes);
+        if(me == null)
+            throw new RuntimeException("You do not have permission to perform this action.");
+
+        me.IHavePermission(Permission.createCategory());
+
+        loadAttributeDefinitions(category.categoryAttributes());
+
+        category.categoryAttributes().forEach(attr -> {
+            category.validAddCategoryAttribute(attr);
+        });
 
         categoryRepository.save(category);
     }

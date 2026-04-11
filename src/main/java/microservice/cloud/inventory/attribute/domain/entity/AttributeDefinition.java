@@ -34,40 +34,11 @@ public class AttributeDefinition extends AggregateRoot {
         this.is_global = is_global;
     }
 
-    public static AttributeDefinition factory(
-        Me me,
-        Id id, 
-        String name, 
-        Slug slug, 
-        DataType type, 
-        boolean is_global
-    ) {
-        if(me == null)
-            throw new RuntimeException("You do not have permission to perform this action");
-
-        me.IHavePermission(Permission.createAttributeDefinition());
-
-        // TODO: this.publishEvent(...)
-        return new AttributeDefinition(id, name, slug, type, is_global);
-    }
-
     public void update(Me me, String name, Slug slug, DataType type, boolean is_global) {
-        if(me == null)
-            throw new RuntimeException("You do not have permission to perform this action");
-
-        me.IHavePermission(Permission.updateAttributeDefinition());
-
         this.name = name;
         this.slug = slug;
         this.type = type;
         this.is_global = is_global;
-    }
-
-    public void canIDeleteThisAttributeDefinition(Me me) {
-        if(me == null)
-            throw new RuntimeException("You do not have permission to perform this action");
-
-        me.IHavePermission(Permission.deleteAttributeDefinition());
     }
 
     public Id id() {

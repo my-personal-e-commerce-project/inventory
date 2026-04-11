@@ -1,21 +1,21 @@
-package microservice.cloud.inventory.coupon.domain.entity;
+package microservice.cloud.inventory.discount.domain.entity;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import microservice.cloud.inventory.coupon.domain.value_objects.DiscountType;
-import microservice.cloud.inventory.coupon.domain.value_objects.Percentage;
+import microservice.cloud.inventory.discount.domain.value_objects.DiscountType;
+import microservice.cloud.inventory.discount.domain.value_objects.Percentage;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 
-public class Coupon {
+public class Discount {
     private final Id id;
     private String name;
     private DiscountType discountType;
     private Percentage percentageValue;
-    private Price decrementValue;
+    private Double decrementValue;
     private Set<String> allowedCategories;
     private boolean validAllCategories;
     private Price minPrice;
@@ -23,14 +23,14 @@ public class Coupon {
     private Quantity minStock;
     private Quantity maxStock;
     private boolean autoApply;
-    private ZonedDateTime expiredAt;
+    private LocalDateTime expiredAt;
 
-    public Coupon(
+    public Discount(
         Id id,
         String name, 
         DiscountType discountType,
         Percentage percentageValue,
-        Price decrementValue,
+        Double decrementValue,
         Set<String> allowedCategories,
         boolean validAllCategories,
         Price minPrice,
@@ -38,8 +38,11 @@ public class Coupon {
         Quantity minStock,
         Quantity maxStock,
         boolean autoApply,
-        ZonedDateTime expiredAt
+        LocalDateTime expiredAt
     ) {
+        if(discountType == null)
+            throw new RuntimeException("The discountType field cannot be null");
+
         if(discountType.toString().equals(DiscountType.DECREMENT.toString()) && percentageValue != null)
             throw new RuntimeException("The percentageValue should be null");
 
@@ -65,7 +68,7 @@ public class Coupon {
     public String name() {return name;}
     public DiscountType discountType() {return discountType;}
     public Percentage percentageValue() {return percentageValue;}
-    public Price decrementValue() {return decrementValue;}
+    public Double decrementValue() {return decrementValue;}
     public Set<String> allowedCategories() {return new HashSet<>(allowedCategories);}
     public boolean validAllCategories() {return validAllCategories;}
     public Price minPrice() {return minPrice;}
@@ -73,5 +76,5 @@ public class Coupon {
     public Quantity minStock() {return minStock;}
     public Quantity maxStock() {return maxStock;}
     public boolean autoApply() {return autoApply;}
-    public ZonedDateTime expiredAt() {return expiredAt;}
+    public LocalDateTime expiredAt() {return expiredAt;}
 }

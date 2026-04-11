@@ -8,6 +8,8 @@ import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Me;
+import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
@@ -31,6 +33,15 @@ public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
         Id parent_id, 
         Set<CategoryAttribute> categoryAttributes
     ) {
+        Me me = getMePort.execute();
+
+        if(me == null)
+            throw new RuntimeException(
+                "You do not have permission to perform this action."
+                );
+
+        me.IHavePermission(Permission.updateCategory());
+
         Category category = categoryRepository.findBySlug(find_slug);
 
         category.update(getMePort.execute(), name, slug, parent_id, categoryAttributes);

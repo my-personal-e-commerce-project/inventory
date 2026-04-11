@@ -56,12 +56,14 @@ public class ProductConfigAdapter {
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
+        CouponRepository couponRepository,
         GetMePort getMePort
     ) {
         return new UpdateProductUseCase(
             productRepository, 
             categoryRepository,
             attributeDefinitionRepository,
+            couponRepository,
             getMePort
         );
     }

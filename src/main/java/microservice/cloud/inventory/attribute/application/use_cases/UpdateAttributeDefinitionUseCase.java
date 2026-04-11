@@ -6,6 +6,8 @@ import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinit
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
+import microservice.cloud.inventory.shared.domain.value_objects.Me;
+import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class UpdateAttributeDefinitionUseCase implements UpdateAttributeDefinitionUseCasePort {
@@ -32,6 +34,13 @@ public class UpdateAttributeDefinitionUseCase implements UpdateAttributeDefiniti
         DataType type,
         boolean is_global
     ) {
+        Me me = getMePort.execute();
+
+        if(me == null)
+            throw new RuntimeException("You do not have permission to perform this action");
+
+        me.IHavePermission(Permission.updateAttributeDefinition());
+
         AttributeDefinition attr = attributeDefinitionRepository.getBySlug(find_slug);
 
         attr.update(

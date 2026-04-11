@@ -49,15 +49,15 @@ public record Permission (
         return new Permission("delete_attribute_definition");
     }
 
-    public static Permission createCoupon() {
-        return new Permission("create_coupon");
+    public static Permission createDiscount() {
+        return new Permission("create_discount");
     }
 
-    public static Permission updateCoupon() {
-        return new Permission("update_coupon");
+    public static Permission updateDiscount() {
+        return new Permission("update_discount");
     }
 
-    public static Permission deleteCoupon() {
-        return new Permission("delete_coupon");
+    public static Permission deleteDiscount() {
+        return new Permission("delete_discount");
     }
 }

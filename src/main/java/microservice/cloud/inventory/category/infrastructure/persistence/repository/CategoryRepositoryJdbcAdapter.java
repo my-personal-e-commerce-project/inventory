@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.exception.NestableException;
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -99,12 +98,6 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
             throw new DataNotFound("Category attribute not found");
 
         return toMap(entity);
-    }
-
-    @Override
-    public void isValidTheseCategoryIds(Set<String> ids) {
-        if(!categoryJdbcRepository.countByIdIn(ids))
-            throw new RuntimeException("Not all provided category ids are valid");
     }
 
     private Set<CategoryAttributeEntity> helper_getCategoryAttributesWithAttributeDefinitionsByCategoryIds(Set<String> categoriesIds) {

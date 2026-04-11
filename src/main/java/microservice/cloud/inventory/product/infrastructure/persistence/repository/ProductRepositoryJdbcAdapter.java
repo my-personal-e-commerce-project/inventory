@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
+import microservice.cloud.inventory.category.infrastructure.persistence.repository.CategoryJdbcRepository;
 import microservice.cloud.inventory.coupon.domain.entity.Coupon;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
@@ -34,6 +35,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     private final JdbcTemplate jdbcTemplate;
     private final ProductAttributeValueJdbcRepository productAttributeValueJdbcRepository;
     private final ProductJdbcRepository productJdbcRepository;
+    private final CategoryJdbcRepository categoryJdbcRepository;
 
     @Override
     public void applyThisAutomaticCouponToTheCorrespondingProducts(Coupon coupon) {
@@ -164,6 +166,9 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     @Transactional
     @Override
     public void save(Product product) {
+        if(!categoryJdbcRepository.countByIdIn(product.categories()))
+            throw new RuntimeException("Not all provided category ids are valid");
+
         try {
             aggregateTemplate.insert(toMap(product));
         } catch(DataIntegrityViolationException e) {
@@ -177,6 +182,9 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     @Transactional
     @Override
     public void update(Product product) {
+        if(!categoryJdbcRepository.countByIdIn(product.categories()))
+            throw new RuntimeException("Not all provided category ids are valid");
+
         try {
             aggregateTemplate.update(toMap(product));
         } catch (Throwable t) { 

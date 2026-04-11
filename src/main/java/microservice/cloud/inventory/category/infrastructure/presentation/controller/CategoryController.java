@@ -24,6 +24,7 @@ import microservice.cloud.inventory.category.application.ports.in.DeleteCategory
 import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.ListCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryUseCasePort;
+import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.shared.infrastructure.dto.ResponsePayload;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryAttributeDTO;
@@ -73,16 +74,18 @@ public class CategoryController {
         Slug slug = Slug.fromString(category.getSlug());
 
         createCategoryUseCasePort.execute(
-            Id.fromString(category.getId()),
-            category.getName(),
-            slug,
-            category.getParent_id() == null? null: Id.fromString(category.getParent_id()),
-            category.getCategoryAttributes() == null
-                ? null
-                : category.getCategoryAttributes().stream().map(attr -> {
-                    attr.setId(Id.generate().value());
-                    return toMap(attr);
-                }).toList()
+            new Category(
+                Id.fromString(category.getId()),
+                category.getName(),
+                slug,
+                category.getParent_id() == null? null: Id.fromString(category.getParent_id()),
+                category.getCategoryAttributes() == null
+                    ? null
+                    : category.getCategoryAttributes().stream().map(attr -> {
+                        attr.setId(Id.generate().value());
+                        return toMap(attr);
+                    }).collect(Collectors.toSet())
+            )
         );
 
         return new ResponseEntity<>(

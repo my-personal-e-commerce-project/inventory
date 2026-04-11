@@ -25,6 +25,7 @@ import microservice.cloud.inventory.product.application.ports.in.DeleteProductAt
 import microservice.cloud.inventory.product.application.ports.in.DeleteProductUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.ListProductsUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
+import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
@@ -76,26 +77,28 @@ public class ProductController {
         productDTO.setId(Id.generate().value());
 
         createProductUseCasePort.execute(
-            Id.fromString(productDTO.getId()),
-            productDTO.getTitle(),
-            Slug.fromString(productDTO.getSlug()),
-            productDTO.getDescription(),
-            productDTO.getCategories(),
-            new Price(productDTO.getPrice()),
-            productDTO.getAttributes().stream().map(attr -> 
-                new ProductAttributeValue(
-                    Id.fromString(attr.getId()),
-                    Id.fromString(attr.getAttribute_definition_id()),
-                    attr.getString_value(),
-                    attr.getInteger_value(),
-                    attr.getDouble_value(),
-                    attr.getBoolean_value()
-                )
-            ).collect(Collectors.toSet()),
-            null,
-            new Quantity(productDTO.getStock()),
-            null,
-            productDTO.getTags()
+            new Product(
+                Id.fromString(productDTO.getId()),
+                productDTO.getTitle(),
+                Slug.fromString(productDTO.getSlug()),
+                productDTO.getDescription(),
+                productDTO.getCategories(),
+                new Price(productDTO.getPrice()),
+                productDTO.getAttributes().stream().map(attr -> 
+                    new ProductAttributeValue(
+                        Id.fromString(attr.getId()),
+                        Id.fromString(attr.getAttribute_definition_id()),
+                        attr.getString_value(),
+                        attr.getInteger_value(),
+                        attr.getDouble_value(),
+                        attr.getBoolean_value()
+                    )
+                ).collect(Collectors.toSet()),
+                null,
+                new Quantity(productDTO.getStock()),
+                null,
+                productDTO.getTags()
+            )
         );
 
 

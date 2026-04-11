@@ -3,11 +3,10 @@ package microservice.cloud.inventory.attribute.application.use_cases;
 import microservice.cloud.inventory.attribute.application.ports.in.CreateAttributeDefinitionUseCasePort;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
-import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
-import microservice.cloud.inventory.shared.domain.value_objects.Id;
-import microservice.cloud.inventory.shared.domain.value_objects.Slug;
+import microservice.cloud.inventory.shared.domain.value_objects.Me;
+import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 
 public class CreateAttributeDefinitionUseCase implements CreateAttributeDefinitionUseCasePort {
 
@@ -27,24 +26,18 @@ public class CreateAttributeDefinitionUseCase implements CreateAttributeDefiniti
 
     @Override
     public void execute(
-        Id id,
-        String name,
-        Slug slug,
-        DataType type,
-        boolean is_global
+        AttributeDefinition attributeDefinition
     ) {
-        AttributeDefinition attr = AttributeDefinition.factory(
-            getMePort.execute(), 
-            id, 
-            name, 
-            slug, 
-            type, 
-            is_global
-        );
+        Me me = getMePort.execute();
 
-        if(is_global)
-            productRepository.massCreateDefaultProductAttributeValues(attr);
+        if(me == null)
+            throw new RuntimeException("You do not have permission to perform this action");
 
-        attributeDefinitionRepository.save(attr);
+        me.IHavePermission(Permission.createAttributeDefinition());
+
+        if(attributeDefinition.is_global())
+            productRepository.massCreateDefaultProductAttributeValues(attributeDefinition);
+
+        attributeDefinitionRepository.save(attributeDefinition);
     }
 }

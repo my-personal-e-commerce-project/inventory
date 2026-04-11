@@ -8,11 +8,13 @@ import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
-import microservice.cloud.inventory.coupon.domain.entity.Coupon;
-import microservice.cloud.inventory.coupon.domain.repository.CouponRepository;
+import microservice.cloud.inventory.discount.domain.entity.Discount;
+import microservice.cloud.inventory.discount.domain.repository.DiscountRepository;
 import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Me;
+import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
@@ -25,14 +27,14 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
     private AttributeDefinitionRepository attributeDefinitionRepository;
-    private CouponRepository couponRepository;
+    private DiscountRepository discountRepository;
     private GetMePort getMePort;
 
     public CreateProductUseCase(
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        CouponRepository couponRepository,
+        DiscountRepository discountRepository,
         GetMePort getMePort
     ) {
 
@@ -44,38 +46,21 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
    
     @Override
     public void execute(
-        Id id,
-        String title,
-        Slug slug,
-        String description,
-        Set<String> categories, 
-        Price price, 
-        Set<ProductAttributeValue> attributeValues,
-        Set<String> coupons,
-        Quantity stock,
-        Set<String> images,
-        Set<String> tags    
+        Product product
     ) {
-        List<Coupon> foundCoupons = couponRepository.getCouponsByIds(coupons);
-        
-        Product product = Product.factory(
-            getMePort.execute(),
-            id,
-            title, 
-            slug, 
-            description, 
-            categories, 
-            price, 
-            attributeValues,
-            foundCoupons,
-            stock, 
-            images, 
-            tags
-        );
+        Me me = getMePort.execute();
 
-        categoryRepository.isValidTheseCategoryIds(categories);
+        if(me == null)
+            throw new RuntimeException("You do not have permission to perform this action");
+
+        me.IHavePermission(Permission.createProduct());
         
-        couponRepository.applyAutomaticCoupons(product);
+        List<Discount> foundDiscounts = null;
+
+        if(product.discounts() != null)
+             foundDiscounts = discountRepository.getDiscountsByIds(new HashSet<>(product.discounts()));
+      
+        product.applyAndValidateDiscounts(foundDiscounts);
 
         List<AttributeDefinition> defaultAttributes = attributeDefinitionRepository
             .getGlobalAttributes();
@@ -83,11 +68,13 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
         List<CategoryAttribute> catAttrs = 
            categoryRepository 
             .getCategoryAttributesWithAttributeDefinitionsByCategoryIds(
-                categories
+                product.categories()
             );
         
         product.validGlobalAttributesAndCategoryAttributes(new HashSet<>(defaultAttributes), new HashSet<>(catAttrs));
       
         productRepository.save(product);
+
+        discountRepository.applyAutomaticDiscounts(product);
     }
 }

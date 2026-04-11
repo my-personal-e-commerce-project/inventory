@@ -1,6 +1,8 @@
 -- ==========================================================
 -- SEEDER MASIVO USA:  docker exec -i inventory-postgres-1 psql -U root -d inventory < src/main/resources/db/seeder/dev-seed.sql
 -- ==========================================================
+ 
+-- comando para los seeders docker exec -i inventory-postgres-1 psql -U root -d inventory < ~/project/microservice_ecommerce/inventory/src/main/resources/db/seeder/dev-seed.sql
 
 -- 1. LIMPIEZA TOTAL
 TRUNCATE TABLE 

@@ -13,7 +13,6 @@ public interface CategoryRepository {
     void save(Category category);
     void update(Category category);
     void delete(Category category);
-    void isValidTheseCategoryIds(Set<String> ids);
     Category findBySlug(Slug slug);
     List<CategoryAttribute> getCategoryAttributesWithAttributeDefinitionsByCategoryIds(Set<String> ids);
     CategoryAttribute getCategoryAttributeByAttributeDefinitionId(Id id);
