@@ -17,6 +17,15 @@ CREATE TABLE product_categories (
     CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES Category (id) ON DELETE CASCADE
 );
 
+CREATE TABLE product_discounts (
+    product_id VARCHAR(255) NOT NULL,
+    discount_id VARCHAR(255) NOT NULL,
+    PRIMARY KEY (product_id, discount_id),
+    CONSTRAINT fk_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE,
+    CONSTRAINT fk_discount FOREIGN KEY (discount_id) REFERENCES discounts (id) ON DELETE CASCADE
+);
+
+
 CREATE TABLE product_attribute_values (
     id VARCHAR(255) PRIMARY KEY UNIQUE NOT NULL,
     product_id VARCHAR(255) NOT NULL,

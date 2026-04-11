@@ -1,16 +1,8 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
 import java.security.InvalidParameterException;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
-import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
-import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
-import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
-import microservice.cloud.inventory.discount.domain.entity.Discount;
-import microservice.cloud.inventory.discount.domain.repository.DiscountRepository;
 import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.product.domain.entity.Product;

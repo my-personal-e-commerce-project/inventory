@@ -69,7 +69,11 @@ public class Discount {
     public DiscountType discountType() {return discountType;}
     public Percentage percentageValue() {return percentageValue;}
     public Double decrementValue() {return decrementValue;}
-    public Set<String> allowedCategories() {return new HashSet<>(allowedCategories);}
+    public Set<String> allowedCategories() {
+        return allowedCategories != null
+            ? new HashSet<>(allowedCategories)
+            : null;
+    }
     public boolean validAllCategories() {return validAllCategories;}
     public Price minPrice() {return minPrice;}
     public Price maxPrice() {return maxPrice;}

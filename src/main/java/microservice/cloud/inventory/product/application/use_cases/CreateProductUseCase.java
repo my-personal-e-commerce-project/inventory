@@ -2,7 +2,6 @@ package microservice.cloud.inventory.product.application.use_cases;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
@@ -12,15 +11,10 @@ import microservice.cloud.inventory.discount.domain.entity.Discount;
 import microservice.cloud.inventory.discount.domain.repository.DiscountRepository;
 import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
-import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
-import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 import microservice.cloud.inventory.product.domain.entity.Product;
-import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
-import microservice.cloud.inventory.product.domain.value_objects.Price;
-import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 
 public class CreateProductUseCase implements CreateProductUseCasePort {
 
@@ -57,10 +51,10 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
         
         List<Discount> foundDiscounts = null;
 
-        if(product.discounts() != null)
-             foundDiscounts = discountRepository.getDiscountsByIds(new HashSet<>(product.discounts()));
-      
-        product.applyAndValidateDiscounts(foundDiscounts);
+        if(product.discounts() != null) {
+            foundDiscounts = discountRepository.getDiscountsByIds(new HashSet<>(product.discounts()));
+            product.applyAndValidateDiscounts(foundDiscounts);
+        }
 
         List<AttributeDefinition> defaultAttributes = attributeDefinitionRepository
             .getGlobalAttributes();
@@ -74,7 +68,5 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
         product.validGlobalAttributesAndCategoryAttributes(new HashSet<>(defaultAttributes), new HashSet<>(catAttrs));
       
         productRepository.save(product);
-
-        discountRepository.applyAutomaticDiscounts(product);
     }
 }

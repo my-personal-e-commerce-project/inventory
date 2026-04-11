@@ -14,7 +14,6 @@ import microservice.cloud.inventory.discount.domain.repository.DiscountRepositor
 import microservice.cloud.inventory.discount.domain.value_objects.DiscountType;
 import microservice.cloud.inventory.discount.domain.value_objects.Percentage;
 import microservice.cloud.inventory.discount.infrastrcture.persistence.model.DiscountEntity;
-import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
@@ -29,7 +28,11 @@ public class DiscountRepositoryJdbcAdapter implements DiscountRepository {
 
     @Override
     public void save(Discount discount) {
-        if(!categoryJdbcRepository.countByIdIn(discount.allowedCategories()))
+        if(
+            discount.allowedCategories() != null 
+            && discount.allowedCategories().size() == 0 
+            && !categoryJdbcRepository.countByIdIn(discount.allowedCategories())
+        )
             throw new RuntimeException("Not all provided category ids are valid");
 
         jdbcAggregateTemplate.insert(toMap(discount));
@@ -37,7 +40,11 @@ public class DiscountRepositoryJdbcAdapter implements DiscountRepository {
 
     @Override
     public void update(Discount discount) {
-        if(!categoryJdbcRepository.countByIdIn(discount.allowedCategories()))
+        if(
+            discount.allowedCategories() != null 
+            && discount.allowedCategories().size() == 0 
+            && !categoryJdbcRepository.countByIdIn(discount.allowedCategories())
+        )            
             throw new RuntimeException("Not all provided category ids are valid");
 
         jdbcAggregateTemplate.update(toMap(discount));
@@ -46,12 +53,6 @@ public class DiscountRepositoryJdbcAdapter implements DiscountRepository {
     @Override
     public void delete(Id id) {
         jdbcAggregateTemplate.deleteById(id, DiscountEntity.class);
-    }
-
-    @Override
-    public void applyAutomaticDiscounts(Product product) {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override

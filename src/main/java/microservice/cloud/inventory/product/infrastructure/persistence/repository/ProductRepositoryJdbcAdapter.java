@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.category.infrastructure.persistence.repository.CategoryJdbcRepository;
-import microservice.cloud.inventory.coupon.domain.entity.Coupon;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
@@ -23,6 +22,7 @@ import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 import microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductAttributeValueEntity;
 import static microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductEntity.ProductCategoryReference;
 import microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductEntity;
+import microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductEntity.ProductDiscountReference;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
@@ -36,11 +36,6 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     private final ProductAttributeValueJdbcRepository productAttributeValueJdbcRepository;
     private final ProductJdbcRepository productJdbcRepository;
     private final CategoryJdbcRepository categoryJdbcRepository;
-
-    @Override
-    public void applyThisAutomaticCouponToTheCorrespondingProducts(Coupon coupon) {
-        // TODO Auto-generated method stub
-    }
 
     @Override
     public ProductAttributeValue findProductAttributeValueById(Id id) {
@@ -212,9 +207,18 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
 
     private ProductEntity toMap(Product product) {
 
-        Set<ProductCategoryReference> categories = product.categories()
+        Set<ProductCategoryReference> categories = product.categories() == null
+            ? null
+            : product.categories()
                 .stream()
                 .map(cat -> new ProductCategoryReference(cat))
+                .collect(Collectors.toSet());
+
+        Set<ProductDiscountReference> discounts = product.discounts() == null
+            ? null
+            : product.discounts()
+                .stream()
+                .map(dis -> new ProductDiscountReference(dis))
                 .collect(Collectors.toSet());
 
         return new ProductEntity(
@@ -223,9 +227,10 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
             product.slug().value(),
             product.description(),
             categories,
+            discounts,
             product.price().value(),
             product.stock().value(),
-            new HashSet<>(product.images()),
+            product.images() == null? null: new HashSet<>(product.images()),
             product.attributeValues()
                 .stream()
                 .map(attr -> new ProductAttributeValueEntity(

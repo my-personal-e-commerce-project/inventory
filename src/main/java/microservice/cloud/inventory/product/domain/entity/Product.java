@@ -118,6 +118,9 @@ public class Product {
 
 
     public void applyAndValidateDiscounts(List<Discount> discounts) {
+        if(discounts == null)
+            return;
+
         discounts.forEach((c) -> {
 
             if(c.autoApply()) {
@@ -268,7 +271,7 @@ public class Product {
     }
 
     public List<String> discounts() {
-        return new ArrayList<>(discounts);
+        return discounts == null? null :new ArrayList<>(discounts);
     }
 
     public Quantity stock() {

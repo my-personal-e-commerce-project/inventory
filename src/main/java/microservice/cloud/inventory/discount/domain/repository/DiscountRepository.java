@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 
 import microservice.cloud.inventory.discount.domain.entity.Discount;
-import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 
 public interface DiscountRepository {
@@ -12,6 +11,5 @@ public interface DiscountRepository {
     public void save(Discount coupon);
     public void update(Discount coupon);
     public void delete(Id id);
-    public void applyAutomaticDiscounts(Product product);
     public List<Discount> getDiscountsByIds(Set<String> couponIds);
 }
