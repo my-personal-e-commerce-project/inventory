@@ -22,6 +22,7 @@ public record UpdateProductDTO (
     @Valid
     @NotNull
     Set<UpdateProductAttributeValueDTO> attributes,
+    Set<String> discounts,
     @NotNull
     Double price,
     @NotNull

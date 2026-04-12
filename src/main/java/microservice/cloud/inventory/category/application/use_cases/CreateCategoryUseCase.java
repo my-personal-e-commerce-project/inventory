@@ -8,7 +8,6 @@ import microservice.cloud.inventory.category.application.ports.in.CreateCategory
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
-import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
@@ -19,19 +18,16 @@ import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinit
 public class CreateCategoryUseCase implements CreateCategoryUseCasePort {
 
     private CategoryRepository categoryRepository;
-    private ProductRepository productRepository;
     private AttributeDefinitionRepository attributeDefinitionRepository;
     private GetMePort getMePort;
 
     public CreateCategoryUseCase(
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        ProductRepository productRepository,
         GetMePort getMePort
     ) {
         this.categoryRepository = categoryRepository;
         this.attributeDefinitionRepository = attributeDefinitionRepository;
-        this.productRepository = productRepository;
         this.getMePort = getMePort;
     }
 
@@ -69,10 +65,6 @@ public class CreateCategoryUseCase implements CreateCategoryUseCasePort {
 
         category.categoryAttributes().forEach(attr -> {
             category.validAddCategoryAttribute(attr);
-
-            if(attr.is_required())
-                // TODO: cambiar esto a enviar todos los eventos a un publisher
-                productRepository.massCreateProductAttributeValuesByCategory(category.id(), attr.attribute_definition());
         });
 
         categoryRepository.save(category);

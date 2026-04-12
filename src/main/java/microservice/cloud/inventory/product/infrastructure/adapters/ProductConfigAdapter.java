@@ -54,10 +54,12 @@ public class ProductConfigAdapter {
     @Bean
     public UpdateProductUseCasePort updateProductUseCasePort(
         ProductRepository productRepository,
+        DiscountRepository discountRepository,
         GetMePort getMePort
     ) {
         return new UpdateProductUseCase(
-            productRepository, 
+            productRepository,
+            discountRepository,
             getMePort
         );
     }

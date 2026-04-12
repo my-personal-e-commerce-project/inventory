@@ -37,6 +37,8 @@ public class ProductDTO {
     @Valid
     private List<ProductAttributeValueDTO> attributes;
 
+    private Set<String> discounts;
+
     @NotNull
     private Double price;
 

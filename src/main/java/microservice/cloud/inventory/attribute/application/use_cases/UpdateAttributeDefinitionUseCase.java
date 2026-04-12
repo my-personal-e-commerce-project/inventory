@@ -53,8 +53,8 @@ public class UpdateAttributeDefinitionUseCase implements UpdateAttributeDefiniti
 
         attributeDefinitionRepository.update(attr);
 
+        // TODO: cambiar esto a enviar todos los eventos a un publisher
         productRepository.updateTheValueTypeOfProductAttributesByAttributeDefinition(attr.id(), type);
-
 
         return attr;
     } 

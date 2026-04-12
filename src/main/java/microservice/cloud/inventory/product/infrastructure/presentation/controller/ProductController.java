@@ -94,7 +94,7 @@ public class ProductController {
                         attr.getBoolean_value()
                     )
                 ).collect(Collectors.toSet()),
-                null,
+                productDTO.getDiscounts(),
                 new Quantity(productDTO.getStock()),
                 null,
                 productDTO.getTags()
@@ -132,7 +132,7 @@ public class ProductController {
                     attr.boolean_value()
                 )
             ).collect(Collectors.toSet()),
-            null,
+            productDTO.discounts(),
             productDTO.tags()
         );
 

@@ -32,7 +32,6 @@ public class CategoryConfigAdapter {
 
     @Bean
     public CreateCategoryUseCasePort createCategoryUseCasePort(
-        ProductRepository productRepository,
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
         GetMePort getMePort
@@ -40,7 +39,6 @@ public class CategoryConfigAdapter {
         return new CreateCategoryUseCase(
                 categoryRepository,
                 attributeDefinitionRepository, 
-                productRepository,
                 getMePort
             );
     }

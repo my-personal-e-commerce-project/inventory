@@ -166,7 +166,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
         if(product.categories() != null && categoryJdbcRepository.countByIdIn(product.categories()) == 0)
             throw new RuntimeException("Not all provided category ids are valid");
 
-        if(product.discounts() != null && discountJdbcRepository.countByIdIn(product.discounts()).isEmpty())
+        if(product.discounts() != null && discountJdbcRepository.countByIdIn(product.discounts()) == 0)
             throw new RuntimeException("Not all provided coupon ids are valid");
         
         try {
@@ -182,10 +182,13 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     @Transactional
     @Override
     public void update(Product product) {
-        if(product.categories() != null && categoryJdbcRepository.countByIdIn(product.categories()) == 0)
+        if(
+            product.categories() != null 
+            && categoryJdbcRepository.countByIdIn(product.categories()) != product.categories().size()
+        )
             throw new RuntimeException("Not all provided category ids are valid");
 
-        if(product.discounts() != null && discountJdbcRepository.countByIdIn(product.discounts()).isEmpty())
+        if(product.discounts() != null && discountJdbcRepository.countByIdIn(product.discounts()) != product.discounts().size())
             throw new RuntimeException("Not all provided coupon ids are valid");
 
         try {
@@ -281,7 +284,9 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
                         attr.getBoolean_value()
                     )
                 ).collect(Collectors.toSet()),
-            null,
+            product.getDiscounts() == null
+                ? null
+                : product.getDiscounts().stream().map(d -> d.discountId()).collect(Collectors.toSet()),
             new Quantity(product.getStock()),
             product.getImages(),
             product.getTags()

@@ -22,8 +22,13 @@ public class ProductResultSetExtractor implements ResultSetExtractor<List<Produc
     {
         Map<String, ProductReadDTO> productsMap = new LinkedHashMap<>();
 
+        String discount = null;
+        String rawCategories = null;
+        String valId = null;
+        String productId = null;
+
         while (rs.next()) {
-            String productId = rs.getString("prod_id");
+            productId = rs.getString("prod_id");
 
             ProductReadDTO product = productsMap.get(productId);
             if (product == null) {
@@ -32,6 +37,7 @@ public class ProductResultSetExtractor implements ResultSetExtractor<List<Produc
                     rs.getString("title"),
                     rs.getString("slug"),
                     rs.getString("description"),
+                    new ArrayList<>(),
                     new ArrayList<>(),
                     new ArrayList<>(),
                     rs.getDouble("price"),
@@ -47,16 +53,20 @@ public class ProductResultSetExtractor implements ResultSetExtractor<List<Produc
                 product.setTags(tagsArr != null ? List.of((String[]) tagsArr.getArray()) : new ArrayList<>());
 
                 productsMap.put(productId, product);
-            }
+            }   
 
+            discount = rs.getString("discount_id");
+            if (discount != null) {
+                product.getDiscounts().add(discount);
+            }
             
-            String rawCategories = rs.getString("all_categories");
+            rawCategories = rs.getString("all_categories");
             if (rawCategories != null && !rawCategories.isBlank()) {
                 String[] catsArray = rawCategories.split(",");
                 product.setCategories(new ArrayList<>(Arrays.asList(catsArray)));
             }
 
-            String valId = rs.getString("val_id");
+            valId = rs.getString("val_id");
             if (valId != null) {
                 product.getAttributes().add(
                         new ProductAttributeValueReadDTO(

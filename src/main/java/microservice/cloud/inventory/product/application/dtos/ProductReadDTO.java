@@ -12,14 +12,15 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ProductReadDTO {
-    String id;
-    String title;
-    String slug;
-    String description;
-    List<String> categories;
-    List<ProductAttributeValueReadDTO> attributes;
-    Double price;
-    int stock;
-    List<String> images;
-    List<String> tags;
+    private String id;
+    private String title;
+    private String slug;
+    private String description;
+    private List<String> categories;
+    private List<ProductAttributeValueReadDTO> attributes;
+    private List<String> discounts;
+    private Double price;
+    private int stock;
+    private List<String> images;
+    private List<String> tags;
 }

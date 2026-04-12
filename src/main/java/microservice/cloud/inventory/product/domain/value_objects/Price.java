@@ -18,4 +18,9 @@ public record Price (
     public boolean isGreater(Price other) {
         return this.value > other.value();
     }
+
+    public Price decrementValue(Double decrementAmount) {
+
+        return new Price(value - decrementAmount);
+    }
 }

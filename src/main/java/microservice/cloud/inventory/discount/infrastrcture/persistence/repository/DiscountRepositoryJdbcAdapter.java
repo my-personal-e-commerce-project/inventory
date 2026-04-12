@@ -69,9 +69,9 @@ public class DiscountRepositoryJdbcAdapter implements DiscountRepository {
     @Override
     public List<Discount> getDiscountsByIds(Set<String> discountIds) {
         List<DiscountEntity> discounts = 
-            discountJdbcRepository.countByIdIn(discountIds);
+            discountJdbcRepository.findByIdIn(discountIds);
 
-            return discounts.stream().map(this::toMap).toList();
+        return discounts.stream().map(this::toMap).toList();
     }
 
     private Discount toMap(DiscountEntity entity) {

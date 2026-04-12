@@ -73,7 +73,7 @@ public class Product {
         Quantity stock,
         Set<String> images,
         Set<ProductAttributeValue> attributes,
-        Set<String> discounts,
+        List<Discount> discounts,
         Set<String> tags
     ) {
         Map<String, ProductAttributeValue> mapNewAttrs = new HashMap<>();
@@ -102,8 +102,9 @@ public class Product {
 
         this.attributeValues = mapNewAttrs;
 
-        if(discounts != null && this.discounts.containsAll(discounts))
-            throw new RuntimeException("Your discounts is not valid, not all are declared.");
+        this.discounts = new HashSet<>();
+
+        applyAndValidateDiscounts(discounts);
 
         this.title = title;
         this.slug = slug;
@@ -112,42 +113,32 @@ public class Product {
         this.price = price;
         this.stock = stock;
         this.images = images;
-        this.discounts = discounts;
         this.tags = tags;
     }
 
-
+    
     public void applyAndValidateDiscounts(List<Discount> discounts) {
         if(discounts == null)
             return;
-
+        
         discounts.forEach((c) -> {
-
-            if(c.autoApply()) {
+            if(c.autoApply())
                 throw new RuntimeException("This discount has already been applied by default.");
-            }
 
-            if(c.validAllCategories() && !categories.containsAll(c.allowedCategories()))
+            if(c.validAllCategories() && c.allowedCategories() != null && !c.allowedCategories().isEmpty() && !categories.containsAll(c.allowedCategories()))
                 throw new RuntimeException("This discount cannot be applied to this product, this product does not have all specified categories.");
 
-            if(Collections.disjoint(categories, c.allowedCategories()))
+            if(!c.validAllCategories() && c.allowedCategories() != null && !c.allowedCategories().isEmpty() && Collections.disjoint(categories, c.allowedCategories()))
                 throw new RuntimeException("This discount cannot be applied to this product, this product does not have nor a specified category.");
 
             if(!price.isGreater(c.minPrice()))
-                throw new RuntimeException();
+                throw new RuntimeException("The price of this product is not higher than the minimum discount price");
 
-            if(price.isLessThan(c.minPrice()))
-                throw new RuntimeException();
+            if(!price.isLessThan(c.maxPrice()))
+                throw new RuntimeException("The price of this product is not less than the price than the maximum discount price");
 
             this.discounts.add(c.id().value());
         });
-    }
-
-    public void removeDiscount(Discount discount) {
-        if(!discounts.contains(discount.id().value()))
-            throw new RuntimeException("Discount not found in this product.");
-        
-        discounts.remove(discount.id().value());
     }
 
     public void validGlobalAttributesAndCategoryAttributes(Set<AttributeDefinition> globalAttrs, Set<CategoryAttribute> catAttrs) {

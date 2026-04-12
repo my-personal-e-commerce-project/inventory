@@ -36,6 +36,7 @@ public class CreateAttributeDefinitionUseCase implements CreateAttributeDefiniti
         me.IHavePermission(Permission.createAttributeDefinition());
 
         if(attributeDefinition.is_global())
+            // TODO: cambiar esto a enviar todos los eventos a un publisher
             productRepository.massCreateDefaultProductAttributeValues(attributeDefinition);
 
         attributeDefinitionRepository.save(attributeDefinition);
