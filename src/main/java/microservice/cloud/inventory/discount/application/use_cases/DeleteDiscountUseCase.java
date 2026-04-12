@@ -3,15 +3,16 @@ package microservice.cloud.inventory.discount.application.use_cases;
 import microservice.cloud.inventory.discount.domain.entity.Discount;
 import microservice.cloud.inventory.discount.domain.repository.DiscountRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
+import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 
-public class UpdateDiscountUseCase {
+public class DeleteDiscountUseCase {
 
     private final DiscountRepository discountRepository;
     private final GetMePort getMePort;
 
-    public UpdateDiscountUseCase(
+    public DeleteDiscountUseCase(
         DiscountRepository discountRepository,
         GetMePort getMePort
     ) {
@@ -19,7 +20,7 @@ public class UpdateDiscountUseCase {
         this.getMePort = getMePort;
     }
 
-    public void execute(Discount discount) {
+    public void execute(Id id) {
         Me me = getMePort.execute();
 
         if(me == null)
@@ -27,6 +28,8 @@ public class UpdateDiscountUseCase {
 
         me.IHavePermission(Permission.updateDiscount());
 
-        discountRepository.update(discount);
+        Discount discount = discountRepository.getById(id);
+
+        discountRepository.delete(discount);
     }
 }

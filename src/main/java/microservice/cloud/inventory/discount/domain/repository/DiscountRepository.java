@@ -10,6 +10,7 @@ public interface DiscountRepository {
 
     public void save(Discount coupon);
     public void update(Discount coupon);
-    public void delete(Id id);
+    public void delete(Discount discount);
+    public Discount getById(Id id);
     public List<Discount> getDiscountsByIds(Set<String> couponIds);
 }

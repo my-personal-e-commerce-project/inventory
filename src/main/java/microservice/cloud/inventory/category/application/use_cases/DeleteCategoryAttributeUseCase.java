@@ -34,6 +34,7 @@ public class DeleteCategoryAttributeUseCase implements DeleteCategoryAttributeUs
 
         categoryRepository.update(category);
 
+        // TODO: cambiar esto a enviar todos los eventos a un publisher
         productRepository.deleteOrphanAttributeValues(category.id(), catAttr.attribute_definition_id());
 
         return category;

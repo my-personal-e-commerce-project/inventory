@@ -41,6 +41,7 @@ public class CreateCategoryAttributeUseCase implements CreateCategoryAttributeUs
         categoryRepository.update(category);
 
         if(categoryAttribute.is_required())
+            // TODO: cambiar esto a enviar todos los eventos a un publisher
             productRepository.massCreateProductAttributeValuesByCategory(category.id(), attrDef);
 
         return category;

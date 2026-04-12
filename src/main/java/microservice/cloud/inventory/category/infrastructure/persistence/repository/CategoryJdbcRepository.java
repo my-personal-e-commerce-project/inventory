@@ -11,7 +11,7 @@ public interface CategoryJdbcRepository extends CrudRepository<CategoryEntity, S
 
     Optional<CategoryEntity> findBySlug(String slug);
 
-    boolean countByIdIn(Set<String> ids);
+    long countByIdIn(Set<String> ids);
 
     boolean existsByName(String name);
     boolean existsBySlug(String slug);

@@ -1,7 +1,9 @@
 package microservice.cloud.inventory.discount.presentation.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.discount.application.dtos.DiscountReadDTO;
 import microservice.cloud.inventory.discount.application.use_cases.CreateDiscountUseCase;
+import microservice.cloud.inventory.discount.application.use_cases.DeleteDiscountUseCase;
 import microservice.cloud.inventory.discount.application.use_cases.ListDiscountsUseCase;
 import microservice.cloud.inventory.discount.domain.entity.Discount;
 import microservice.cloud.inventory.discount.domain.value_objects.DiscountType;
@@ -28,6 +31,7 @@ import microservice.cloud.inventory.shared.domain.value_objects.Id;
 public class DiscountController {
 
     private final CreateDiscountUseCase createDiscountUseCase;
+    private final DeleteDiscountUseCase deleteDiscountUseCase;
     private final ListDiscountsUseCase listDiscountsUseCase;
 
     @GetMapping 
@@ -49,6 +53,15 @@ public class DiscountController {
         createDiscountUseCase.execute(toMap(discount));
 
         return ResponseEntity.ok(discount);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteDiscount(
+        @PathVariable String id
+    ) {
+        deleteDiscountUseCase.execute(Id.fromString(id));
+
+        return ResponseEntity.noContent().build();
     }
 
     private Discount toMap(DiscountDTO discount) {

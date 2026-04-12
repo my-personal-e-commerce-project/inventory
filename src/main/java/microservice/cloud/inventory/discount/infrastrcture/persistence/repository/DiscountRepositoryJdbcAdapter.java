@@ -16,6 +16,7 @@ import microservice.cloud.inventory.discount.domain.value_objects.Percentage;
 import microservice.cloud.inventory.discount.infrastrcture.persistence.model.DiscountEntity;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
+import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 
 @RequiredArgsConstructor
@@ -31,7 +32,7 @@ public class DiscountRepositoryJdbcAdapter implements DiscountRepository {
         if(
             discount.allowedCategories() != null 
             && discount.allowedCategories().size() == 0 
-            && !categoryJdbcRepository.countByIdIn(discount.allowedCategories())
+            && categoryJdbcRepository.countByIdIn(discount.allowedCategories()) == 0
         )
             throw new RuntimeException("Not all provided category ids are valid");
 
@@ -43,7 +44,7 @@ public class DiscountRepositoryJdbcAdapter implements DiscountRepository {
         if(
             discount.allowedCategories() != null 
             && discount.allowedCategories().size() == 0 
-            && !categoryJdbcRepository.countByIdIn(discount.allowedCategories())
+            && categoryJdbcRepository.countByIdIn(discount.allowedCategories()) == 0
         )            
             throw new RuntimeException("Not all provided category ids are valid");
 
@@ -51,8 +52,18 @@ public class DiscountRepositoryJdbcAdapter implements DiscountRepository {
     }
 
     @Override
-    public void delete(Id id) {
-        jdbcAggregateTemplate.deleteById(id, DiscountEntity.class);
+    public void delete(Discount discount) {
+        jdbcAggregateTemplate.deleteById(discount.id().value(), DiscountEntity.class);
+    }
+
+    @Override
+    public Discount getById(Id id) {
+        DiscountEntity entity = jdbcAggregateTemplate.findById(id.value(), DiscountEntity.class);
+
+        if(entity == null)
+            throw new DataNotFound("Discount not found");
+
+        return toMap(entity);
     }
 
     @Override

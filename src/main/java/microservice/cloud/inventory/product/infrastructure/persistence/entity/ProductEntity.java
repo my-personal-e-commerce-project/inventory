@@ -21,7 +21,7 @@ public class ProductEntity {
         @Column("category_id") String categoryId
     ) {}
 
-    @Table("discount_categories")
+    @Table("product_discounts")
     public static record ProductDiscountReference(
         @Column("discount_id") String discountId
     ) {}

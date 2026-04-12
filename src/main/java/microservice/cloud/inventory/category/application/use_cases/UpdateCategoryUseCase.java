@@ -6,6 +6,7 @@ import microservice.cloud.inventory.category.application.ports.in.UpdateCategory
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
+import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
@@ -15,13 +16,16 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
 
     private CategoryRepository categoryRepository;
+    private ProductRepository productRepository;
     private GetMePort getMePort;
 
     public UpdateCategoryUseCase(
         CategoryRepository categoryRepository,
+        ProductRepository productRepository,
         GetMePort getMePort
     ) {
         this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
         this.getMePort = getMePort;
     }
 
@@ -47,5 +51,11 @@ public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
         category.update(getMePort.execute(), name, slug, parent_id, categoryAttributes);
 
         categoryRepository.update(category);
+
+        category.categoryAttributes().forEach(attr -> {
+            // TODO: cambiar esto a enviar todos los eventos a un publisher
+            if(attr.is_required())
+                productRepository.massCreateProductAttributeValuesByCategory(category.id(), attr.attribute_definition());
+        });
     }
 }

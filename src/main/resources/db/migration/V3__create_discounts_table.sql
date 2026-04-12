@@ -20,6 +20,6 @@ CREATE TABLE discount_categories (
     discount_id VARCHAR(255) NOT NULL,
     category_id VARCHAR(255) NOT NULL,
     PRIMARY KEY (discount_id, category_id),
-    CONSTRAINT fk_product FOREIGN KEY (discount_id) REFERENCES discounts (id) ON DELETE CASCADE,
-    CONSTRAINT fk_discount FOREIGN KEY (category_id) REFERENCES Category (id) ON DELETE CASCADE
+    CONSTRAINT fk_discount FOREIGN KEY (discount_id) REFERENCES discounts (id) ON DELETE CASCADE,
+    CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES Category (id) ON DELETE CASCADE
 );

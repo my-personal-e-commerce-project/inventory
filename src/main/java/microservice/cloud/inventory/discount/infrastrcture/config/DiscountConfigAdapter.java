@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Configuration;
 
 import microservice.cloud.inventory.discount.application.ports.out.DiscountReadRepository;
 import microservice.cloud.inventory.discount.application.use_cases.CreateDiscountUseCase;
+import microservice.cloud.inventory.discount.application.use_cases.DeleteDiscountUseCase;
 import microservice.cloud.inventory.discount.application.use_cases.ListDiscountsUseCase;
-import microservice.cloud.inventory.discount.application.use_cases.UpdateDiscountUseCase;
 import microservice.cloud.inventory.discount.domain.repository.DiscountRepository;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 
@@ -22,11 +22,11 @@ public class DiscountConfigAdapter {
     }
 
     @Bean
-    public UpdateDiscountUseCase updateCouponUseCase(
+    public DeleteDiscountUseCase deleteDiscountUseCase(
         DiscountRepository discountRepository,
         GetMePort getMePort
     ) {
-        return new UpdateDiscountUseCase(discountRepository, getMePort);
+        return new DeleteDiscountUseCase(discountRepository, getMePort);
     }
 
     @Bean 

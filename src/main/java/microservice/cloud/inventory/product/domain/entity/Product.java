@@ -102,7 +102,7 @@ public class Product {
 
         this.attributeValues = mapNewAttrs;
 
-        if(this.discounts.containsAll(discounts))
+        if(discounts != null && this.discounts.containsAll(discounts))
             throw new RuntimeException("Your discounts is not valid, not all are declared.");
 
         this.title = title;
@@ -266,20 +266,20 @@ public class Product {
         return price;
     }
 
-    public List<ProductAttributeValue> attributeValues() {
-        return new ArrayList<>(attributeValues.values());
+    public Set<ProductAttributeValue> attributeValues() {
+        return attributeValues == null? null: new HashSet<>(attributeValues.values());
     }
 
-    public List<String> discounts() {
-        return discounts == null? null :new ArrayList<>(discounts);
+    public Set<String> discounts() {
+        return discounts == null? null :new HashSet<>(discounts);
     }
 
     public Quantity stock() {
         return stock;
     }
 
-    public List<String> images() {
-        return images == null? null: new ArrayList<>(images);
+    public Set<String> images() {
+        return images == null? null: new HashSet<>(images);
     }
 
     public Set<String> tags() {

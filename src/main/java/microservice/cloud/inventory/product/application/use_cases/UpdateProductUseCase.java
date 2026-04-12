@@ -41,7 +41,6 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
         Set<String> discounts,
         Set<String> tags
     ) {
-
         Me me = getMePort.execute();
 
         if(me == null)

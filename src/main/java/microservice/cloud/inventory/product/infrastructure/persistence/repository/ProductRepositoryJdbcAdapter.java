@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.category.infrastructure.persistence.repository.CategoryJdbcRepository;
+import microservice.cloud.inventory.discount.infrastrcture.persistence.repository.DiscountJdbcRepository;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
@@ -35,6 +36,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     private final JdbcTemplate jdbcTemplate;
     private final ProductAttributeValueJdbcRepository productAttributeValueJdbcRepository;
     private final ProductJdbcRepository productJdbcRepository;
+    private final DiscountJdbcRepository discountJdbcRepository;
     private final CategoryJdbcRepository categoryJdbcRepository;
 
     @Override
@@ -161,9 +163,12 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     @Transactional
     @Override
     public void save(Product product) {
-        if(!categoryJdbcRepository.countByIdIn(product.categories()))
+        if(product.categories() != null && categoryJdbcRepository.countByIdIn(product.categories()) == 0)
             throw new RuntimeException("Not all provided category ids are valid");
 
+        if(product.discounts() != null && discountJdbcRepository.countByIdIn(product.discounts()).isEmpty())
+            throw new RuntimeException("Not all provided coupon ids are valid");
+        
         try {
             aggregateTemplate.insert(toMap(product));
         } catch(DataIntegrityViolationException e) {
@@ -177,8 +182,11 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     @Transactional
     @Override
     public void update(Product product) {
-        if(!categoryJdbcRepository.countByIdIn(product.categories()))
+        if(product.categories() != null && categoryJdbcRepository.countByIdIn(product.categories()) == 0)
             throw new RuntimeException("Not all provided category ids are valid");
+
+        if(product.discounts() != null && discountJdbcRepository.countByIdIn(product.discounts()).isEmpty())
+            throw new RuntimeException("Not all provided coupon ids are valid");
 
         try {
             aggregateTemplate.update(toMap(product));
