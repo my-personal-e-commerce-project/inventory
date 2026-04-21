@@ -25,7 +25,7 @@ public class DiscountDTO {
     private Double decrementValue;
 
     private Set<String> allowedCategories = null;
-    private boolean validAllCategories = false;
+    private boolean globalCategories = false;
     private Double minPrice = null;
     private Double maxPrice = null;
     private int minStock = 0;

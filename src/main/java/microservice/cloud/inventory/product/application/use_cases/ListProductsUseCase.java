@@ -2,7 +2,7 @@ package microservice.cloud.inventory.product.application.use_cases;
 
 import microservice.cloud.inventory.product.application.dtos.ProductReadDTO;
 import microservice.cloud.inventory.product.application.ports.in.ListProductsUseCasePort;
-import microservice.cloud.inventory.product.application.ports.put.ProductReadRepository;
+import microservice.cloud.inventory.product.application.ports.out.ProductReadRepository;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
 
 public class ListProductsUseCase implements ListProductsUseCasePort {

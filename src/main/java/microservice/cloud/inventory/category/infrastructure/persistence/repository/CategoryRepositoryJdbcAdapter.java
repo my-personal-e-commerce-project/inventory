@@ -190,6 +190,9 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
 
         if(categoryJdbcRepository.existsByNameAndIdNot(category.name(), category.id().value()))
             throw new RuntimeException("This name already exists");
+
+        if(!categoryJdbcRepository.existsById(category.parent_id().value()))
+            throw new RuntimeException("The category %s does not exists".formatted(category.parent_id().value()));
         
         aggregateTemplate.update(toMap(category));
     }

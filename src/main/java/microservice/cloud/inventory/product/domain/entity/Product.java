@@ -122,14 +122,14 @@ public class Product {
             return;
         
         discounts.forEach((c) -> {
+            if(c.isACoupon())
+                throw new RuntimeException("This discount is a coupon.");
+
             if(c.autoApply())
                 throw new RuntimeException("This discount has already been applied by default.");
 
-            if(c.validAllCategories() && c.allowedCategories() != null && !c.allowedCategories().isEmpty() && !categories.containsAll(c.allowedCategories()))
+            if(c.globalCategories() && c.allowedCategories() != null && !c.allowedCategories().isEmpty() && !categories.containsAll(c.allowedCategories()))
                 throw new RuntimeException("This discount cannot be applied to this product, this product does not have all specified categories.");
-
-            if(!c.validAllCategories() && c.allowedCategories() != null && !c.allowedCategories().isEmpty() && Collections.disjoint(categories, c.allowedCategories()))
-                throw new RuntimeException("This discount cannot be applied to this product, this product does not have nor a specified category.");
 
             if(!price.isGreater(c.minPrice()))
                 throw new RuntimeException("The price of this product is not higher than the minimum discount price");
@@ -161,7 +161,7 @@ public class Product {
                 throw new IllegalStateException(
                     "The product attribute is missing for: " 
                     + attr.slug().value() 
-                    + ", it is global attribute definition. Go create a new attribute in the appropriate endpoint, the id is: " 
+                    + ", this is a global attribute definition. Go create a new attribute in the appropriate endpoint, the id is: " 
                     + attr.id().value()
                 );
             }

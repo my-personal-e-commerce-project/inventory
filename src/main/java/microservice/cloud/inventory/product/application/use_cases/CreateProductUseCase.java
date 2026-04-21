@@ -31,10 +31,10 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
         DiscountRepository discountRepository,
         GetMePort getMePort
     ) {
-
         this.attributeDefinitionRepository = attributeDefinitionRepository;
         this.getMePort = getMePort;
         this.productRepository = productRepository;
+        this.discountRepository = discountRepository;
         this.categoryRepository = categoryRepository;
     }
    
@@ -68,5 +68,7 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
         product.validGlobalAttributesAndCategoryAttributes(new HashSet<>(defaultAttributes), new HashSet<>(catAttrs));
       
         productRepository.save(product);
+
+        discountRepository.applyDiscountsToThisProduct(product);
     }
 }

@@ -19,8 +19,7 @@ public record Price (
         return this.value > other.value();
     }
 
-    public Price decrementValue(Double decrementAmount) {
-
-        return new Price(value - decrementAmount);
+    public Price decrementValue(Price decrementAmount) {
+        return new Price(value - decrementAmount.value);
     }
 }

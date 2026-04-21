@@ -44,7 +44,7 @@ public class DiscountReadRepositoryJdbcAdapter implements DiscountReadRepository
                 .stream()
                 .map(c -> c.categoryId())
                 .toList(),
-            entity.isValidAllCategories(),
+            entity.isGlobalCategories(),
             entity.getMinPrice(),
             entity.getMaxPrice(),
             entity.getMinStock(),

@@ -1,8 +1,12 @@
 package microservice.cloud.inventory.category.domain.entity;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import microservice.cloud.inventory.category.domain.event.CreatedCategoryAttribute;
+import microservice.cloud.inventory.category.domain.event.DeletedCategoryAttribute;
 import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
@@ -10,7 +14,7 @@ import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
-public class Category extends AggregateRoot{
+public class Category extends AggregateRoot {
     private Id id;
     private String name;
     private Slug slug;
@@ -25,6 +29,55 @@ public class Category extends AggregateRoot{
 
         if(categoryAttributes != null)
             this.categoryAttributes = new HashSet<>(categoryAttributes);
+    }
+
+    public List<CategoryAttribute> updateAndReturnNewRequiredCategoryAttributes(
+        String name, 
+        Slug slug, 
+        Id parent_id, 
+        Set<CategoryAttribute> categoryAttributes
+    ) {
+        List<CategoryAttribute> newRequiredCategoryAttributes = new ArrayList<>();
+
+        this.categoryAttributes.stream().forEach(attr -> {
+            if(
+                categoryAttributes
+                    .stream()
+                    .filter(updateAttr -> updateAttr.id().equals(attr.id()))
+                    .findFirst()
+                    .isEmpty()
+            )
+                throw new RuntimeException("Category attribute with id: '" 
+                    + attr.id().value() 
+                    + "' not found in your new list of category attributes.");
+
+        });
+
+        categoryAttributes.stream().forEach(newAttr -> {
+            CategoryAttribute oldAttr = this.categoryAttributes.stream()
+                .filter(currentAttr -> currentAttr.id().equals(newAttr.id()))
+                .findFirst()
+                .orElse(null);
+
+            if(
+                oldAttr == null
+            ) {
+                throw new RuntimeException("'Category attribute' with id: '" 
+                    + newAttr.id().value() 
+                    + "' not found in the current list of category attributes.");
+            }
+
+            if(!oldAttr.is_required() && newAttr.is_required()) {
+                newRequiredCategoryAttributes.add(newAttr);
+            }
+        });
+
+        this.categoryAttributes = categoryAttributes;
+        this.name = name;
+        this.slug = slug;
+        this.parent_id = parent_id;
+
+        return newRequiredCategoryAttributes;
     }
 
     public void validAddCategoryAttribute(CategoryAttribute attr) {
@@ -47,45 +100,22 @@ public class Category extends AggregateRoot{
             throw new RuntimeException("The 'category attribute' with 'attribute definition id': '" 
                     + attr.attribute_definition_id().value() 
                     + "' already exists.");
+
+
+        if(attr.is_required()) {
+            this.publishEvent(
+                new CreatedCategoryAttribute(
+                    this.id().value(),
+                    attr.id().value(), 
+                    attr.attribute_definition_id().value(), 
+                    attr.is_required(), 
+                    attr.is_filterable(), 
+                    attr.is_sortable()
+                )
+            );
+        }
     }
-
-    public void update(
-        Me me, 
-        String name, 
-        Slug slug, 
-        Id parent_id, 
-        Set<CategoryAttribute> categoryAttributes
-    ) {
-        this.categoryAttributes.stream().forEach(attr -> {
-            if(
-                categoryAttributes
-                    .stream()
-                    .filter(updateAttr -> updateAttr.id().equals(attr.id()))
-                    .findFirst()
-                    .isEmpty()
-            )
-                throw new RuntimeException("Category attribute with id: '" 
-                    + attr.id().value() 
-                    + "' not found in your new list of 'category attributes'.");
-
-        });
-        categoryAttributes.stream().forEach(attr -> {
-            if(this.categoryAttributes.stream()
-                .filter(currentAttr -> currentAttr.id().equals(attr.id()))
-                .findFirst()
-                .isEmpty()
-            )
-                throw new RuntimeException("'Category attribute' with id: '" 
-                    + attr.id().value() 
-                    + "' not found in the current list of category attributes.");
-        });
-
-        this.categoryAttributes = categoryAttributes;
-        this.name = name;
-        this.slug = slug;
-        this.parent_id = parent_id;
-    }
-
+    
     public void removeCategoryAttribute(Me me, Id id) {
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action.");
@@ -95,9 +125,15 @@ public class Category extends AggregateRoot{
         if(id == null)
             throw new RuntimeException("Id can not be null.");
 
-        boolean removed = this.categoryAttributes.removeIf(attr -> attr.id().equals(id));
-    
-        if(!removed) throw new DataNotFound("'Category attribute' not found.");
+        CategoryAttribute catAttr = this.categoryAttributes.stream()
+            .filter(currentAttr -> currentAttr.id().equals(id))
+            .findFirst()
+            .orElse(null);
+
+        if(catAttr == null) throw new DataNotFound("'Category attribute' not found.");
+
+        this.categoryAttributes
+            .removeIf(attr -> attr.id().equals(id));
     }
 
     public Id id() {

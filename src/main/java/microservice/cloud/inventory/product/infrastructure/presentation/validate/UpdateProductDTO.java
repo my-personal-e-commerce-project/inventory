@@ -17,7 +17,6 @@ public record UpdateProductDTO (
     @NotEmpty
     String description,
     @NotNull
-    @NotEmpty
     Set<String> categories,
     @Valid
     @NotNull

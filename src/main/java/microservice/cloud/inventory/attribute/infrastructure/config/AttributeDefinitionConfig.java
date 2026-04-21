@@ -7,13 +7,14 @@ import microservice.cloud.inventory.attribute.application.ports.in.CreateAttribu
 import microservice.cloud.inventory.attribute.application.ports.in.DeleteAttributeDefinitionUseCasePort;
 import microservice.cloud.inventory.attribute.application.ports.in.ListAttributeDefinitionUseCasePort;
 import microservice.cloud.inventory.attribute.application.ports.in.UpdateAttributeDefinitionUseCasePort;
+import microservice.cloud.inventory.attribute.application.ports.out.AsynchronousBulkCreationOfDefaultValuesForProductAttributes;
 import microservice.cloud.inventory.attribute.application.ports.out.AttributeDefinitionReadRepository;
 import microservice.cloud.inventory.attribute.application.use_cases.CreateAttributeDefinitionUseCase;
 import microservice.cloud.inventory.attribute.application.use_cases.DeleteAttributeDefinitionUseCase;
 import microservice.cloud.inventory.attribute.application.use_cases.ListAttributeDefinitionUseCase;
 import microservice.cloud.inventory.attribute.application.use_cases.UpdateAttributeDefinitionUseCase;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
-import microservice.cloud.inventory.product.domain.entity.ProductRepository;
+import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 
 @Configuration
@@ -29,19 +30,24 @@ public class AttributeDefinitionConfig {
     @Bean
     public CreateAttributeDefinitionUseCasePort createAttributeDefinitionUseCasePort(
         AttributeDefinitionRepository attributeDefinitionRepository,
-        ProductRepository productRepository,
+        AsynchronousBulkCreationOfDefaultValuesForProductAttributes asynchronousBulkCreationOfDefaultValuesForProductAttributes,
+        EventPublisher eventPublisher,
         GetMePort getMePort
     ) {
-        return new CreateAttributeDefinitionUseCase(attributeDefinitionRepository, productRepository, getMePort);
+        return new CreateAttributeDefinitionUseCase(
+            attributeDefinitionRepository, 
+            asynchronousBulkCreationOfDefaultValuesForProductAttributes, 
+            eventPublisher, 
+            getMePort
+        );
     }
 
     @Bean
     public UpdateAttributeDefinitionUseCasePort UpdateAttributeDefinitionUseCase(
         AttributeDefinitionRepository attributeDefinitionRepository,
-        ProductRepository productRepository,
         GetMePort getMePort
     ) {
-        return new UpdateAttributeDefinitionUseCase(attributeDefinitionRepository, productRepository, getMePort);
+        return new UpdateAttributeDefinitionUseCase(attributeDefinitionRepository, getMePort);
     }
     
     @Bean

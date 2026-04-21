@@ -1,12 +1,15 @@
 package microservice.cloud.inventory.category.application.use_cases;
 
+import java.util.List;
+
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.application.ports.in.CreateCategoryAttributeUseCasePort;
+import microservice.cloud.inventory.category.application.ports.out.CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously;
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
-import microservice.cloud.inventory.product.domain.entity.ProductRepository;
+import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
@@ -14,22 +17,25 @@ public class CreateCategoryAttributeUseCase implements CreateCategoryAttributeUs
 
     private CategoryRepository categoryRepository;
     private AttributeDefinitionRepository attributeDefinitionRepository;
-    private ProductRepository productRepository;
+    private CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously;
+    private EventPublisher eventPublisher;
     private GetMePort getMePort;
 
     public CreateCategoryAttributeUseCase(
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        ProductRepository productRepository,
+        CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously,
+        EventPublisher eventPublisher,
         GetMePort getMePort
     ) {
         this.categoryRepository = categoryRepository;
         this.attributeDefinitionRepository = attributeDefinitionRepository;
-        this.productRepository = productRepository;
+        this.createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously = createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously;
+        this.eventPublisher = eventPublisher;
         this.getMePort = getMePort;
     }
 
-    public Category execute(Slug find_slug, CategoryAttribute categoryAttribute) {
+    public void execute(Slug find_slug, CategoryAttribute categoryAttribute) {
         Category category = categoryRepository.findBySlug(find_slug);
 
         AttributeDefinition attrDef = attributeDefinitionRepository.getById(categoryAttribute.attribute_definition_id());
@@ -41,9 +47,9 @@ public class CreateCategoryAttributeUseCase implements CreateCategoryAttributeUs
         categoryRepository.update(category);
 
         if(categoryAttribute.is_required())
-            // TODO: cambiar esto a enviar todos los eventos a un publisher
-            productRepository.massCreateProductAttributeValuesByCategory(category.id(), attrDef);
+            createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously
+                .execute(category.id(), List.of(categoryAttribute));
 
-        return category;
+        eventPublisher.publish(category.getEvents());
     }
 }

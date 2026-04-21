@@ -57,13 +57,11 @@ public class AttributeDefinitionController {
         Slug slug = Slug.create(attribute.slug());
 
         createAttributeDefinitionUseCasePort.execute(
-            new AttributeDefinition(            
-                Id.fromString(id), 
-                attribute.name(),
-                slug,
-                DataType.valueOf(attribute.type()), 
-                attribute.is_global()
-            )
+            Id.fromString(id), 
+            attribute.name(),
+            slug,
+            DataType.valueOf(attribute.type()), 
+            attribute.is_global()
         );
 
         attribute = new AttributeDefinitionDTO(

@@ -1,10 +1,9 @@
 package microservice.cloud.inventory.attribute.domain.entity;
 
+import microservice.cloud.inventory.attribute.domain.event.CreatedGlobalAttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
-import microservice.cloud.inventory.shared.domain.value_objects.Me;
-import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class AttributeDefinition extends AggregateRoot {
@@ -34,7 +33,28 @@ public class AttributeDefinition extends AggregateRoot {
         this.is_global = is_global;
     }
 
-    public void update(Me me, String name, Slug slug, DataType type, boolean is_global) {
+    public static AttributeDefinition factory(Id id, String name, Slug slug, DataType type, boolean is_global) {
+        AttributeDefinition attrDef = new AttributeDefinition(id, name, slug, type, is_global);
+
+        if(is_global) {
+            attrDef.publishEvent(
+                new CreatedGlobalAttributeDefinition(
+                    id.value(), 
+                    name, 
+                    slug.value(), 
+                    type.toString(), 
+                    is_global
+                )
+            );
+        }
+
+        return attrDef;
+    }
+
+    public void update(String name, Slug slug, DataType type, boolean is_global) {
+        if(is_global != this.is_global)
+            throw new RuntimeException("Can you not change the value of is_global.");
+
         this.name = name;
         this.slug = slug;
         this.type = type;

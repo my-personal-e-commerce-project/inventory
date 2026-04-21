@@ -16,7 +16,6 @@ import microservice.cloud.inventory.discount.application.dtos.DiscountReadDTO;
 import microservice.cloud.inventory.discount.application.use_cases.CreateDiscountUseCase;
 import microservice.cloud.inventory.discount.application.use_cases.DeleteDiscountUseCase;
 import microservice.cloud.inventory.discount.application.use_cases.ListDiscountsUseCase;
-import microservice.cloud.inventory.discount.domain.entity.Discount;
 import microservice.cloud.inventory.discount.domain.value_objects.DiscountType;
 import microservice.cloud.inventory.discount.domain.value_objects.Percentage;
 import microservice.cloud.inventory.discount.presentation.validate.DiscountDTO;
@@ -50,32 +49,16 @@ public class DiscountController {
     ) {
         discount.setId(Id.generate().value());
 
-        createDiscountUseCase.execute(toMap(discount));
-
-        return ResponseEntity.ok(discount);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteDiscount(
-        @PathVariable String id
-    ) {
-        deleteDiscountUseCase.execute(Id.fromString(id));
-
-        return ResponseEntity.noContent().build();
-    }
-
-    private Discount toMap(DiscountDTO discount) {
-
-        return new Discount(
+        createDiscountUseCase.execute(
             Id.fromString(discount.getId()),
             discount.getName(),
             DiscountType.valueOf(discount.getDiscountType()),
             discount.getPercentageValue() == null
                 ? null
                 : new Percentage(discount.getPercentageValue()),
-            discount.getDecrementValue(),
+            discount.getDecrementValue() == null? null: new Price(discount.getDecrementValue()),
             discount.getAllowedCategories(),
-            discount.isValidAllCategories(),
+            discount.isGlobalCategories(),
             discount.getMinPrice() == null
                 ? null
                 : new Price(discount.getMinPrice()),
@@ -87,5 +70,16 @@ public class DiscountController {
             discount.isAutoApply(),
             discount.getExpiredAt()
         );
+
+        return ResponseEntity.ok(discount);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteDiscount(
+        @PathVariable String id
+    ) {
+        deleteDiscountUseCase.execute(Id.fromString(id));
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import microservice.cloud.inventory.discount.application.ports.out.DiscountReadRepository;
+import microservice.cloud.inventory.discount.application.ports.out.PublisherOfAutomaticallyAppliedDiscountsCreated;
 import microservice.cloud.inventory.discount.application.use_cases.CreateDiscountUseCase;
 import microservice.cloud.inventory.discount.application.use_cases.DeleteDiscountUseCase;
 import microservice.cloud.inventory.discount.application.use_cases.ListDiscountsUseCase;
@@ -16,9 +17,10 @@ public class DiscountConfigAdapter {
     @Bean
     public CreateDiscountUseCase createCouponUseCase(
         DiscountRepository discountRepository,
+        PublisherOfAutomaticallyAppliedDiscountsCreated publisherOfAutomaticallyAppliedDiscountsCreated,
         GetMePort getMePort
     ) {
-        return new CreateDiscountUseCase(discountRepository, getMePort);
+        return new CreateDiscountUseCase(discountRepository, publisherOfAutomaticallyAppliedDiscountsCreated, getMePort);
     }
 
     @Bean

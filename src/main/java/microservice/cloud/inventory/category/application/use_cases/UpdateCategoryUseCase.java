@@ -1,12 +1,14 @@
 package microservice.cloud.inventory.category.application.use_cases;
 
+import java.util.List;
 import java.util.Set;
 
 import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryUseCasePort;
+import microservice.cloud.inventory.category.application.ports.out.CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously;
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
-import microservice.cloud.inventory.product.domain.entity.ProductRepository;
+import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
@@ -16,16 +18,19 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
 
     private CategoryRepository categoryRepository;
-    private ProductRepository productRepository;
+    private CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously;
+    private EventPublisher eventPublisher;
     private GetMePort getMePort;
 
     public UpdateCategoryUseCase(
         CategoryRepository categoryRepository,
-        ProductRepository productRepository,
+        CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously,
+        EventPublisher eventPublisher,
         GetMePort getMePort
     ) {
         this.categoryRepository = categoryRepository;
-        this.productRepository = productRepository;
+        this.createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously = createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously;
+        this.eventPublisher = eventPublisher;
         this.getMePort = getMePort;
     }
 
@@ -48,14 +53,16 @@ public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
 
         Category category = categoryRepository.findBySlug(find_slug);
 
-        category.update(getMePort.execute(), name, slug, parent_id, categoryAttributes);
+        List<CategoryAttribute> newRequiredCategoryAttributes = 
+            category.updateAndReturnNewRequiredCategoryAttributes(name, slug, parent_id, categoryAttributes);
 
         categoryRepository.update(category);
 
-        category.categoryAttributes().forEach(attr -> {
-            // TODO: cambiar esto a enviar todos los eventos a un publisher
-            if(attr.is_required())
-                productRepository.massCreateProductAttributeValuesByCategory(category.id(), attr.attribute_definition());
-        });
+        if (!newRequiredCategoryAttributes.isEmpty()) {
+            createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously
+                .execute(category.id(), newRequiredCategoryAttributes);
+        }
+
+        eventPublisher.publish(category.getEvents());
     }
 }

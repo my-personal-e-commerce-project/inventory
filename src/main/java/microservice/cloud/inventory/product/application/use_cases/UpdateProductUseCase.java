@@ -52,14 +52,13 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
 
-        if(categories == null || categories.size() < 1)
-            throw new InvalidParameterException("Products must have at least one category");
-
         me.IHavePermission(Permission.updateProduct());
 
         Product p = productRepository.findBySlug(find_slug);
-
-        List<Discount> objectDiscounts = discountRepository.getDiscountsByIds(discounts); 
+    
+        List<Discount> objectDiscounts = null;
+        if (discounts != null && !discounts.isEmpty())
+           objectDiscounts = discountRepository.getDiscountsByIds(discounts); 
 
         p.update(
             title, 

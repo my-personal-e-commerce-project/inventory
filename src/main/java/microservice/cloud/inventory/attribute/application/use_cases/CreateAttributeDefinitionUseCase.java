@@ -1,32 +1,44 @@
 package microservice.cloud.inventory.attribute.application.use_cases;
 
 import microservice.cloud.inventory.attribute.application.ports.in.CreateAttributeDefinitionUseCasePort;
+import microservice.cloud.inventory.attribute.application.ports.out.AsynchronousBulkCreationOfDefaultValuesForProductAttributes;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
-import microservice.cloud.inventory.product.domain.entity.ProductRepository;
+import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
+import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
+import microservice.cloud.inventory.shared.domain.value_objects.Slug;
+
+import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 
 public class CreateAttributeDefinitionUseCase implements CreateAttributeDefinitionUseCasePort {
 
     private AttributeDefinitionRepository attributeDefinitionRepository;
-    private ProductRepository productRepository;
+    private AsynchronousBulkCreationOfDefaultValuesForProductAttributes asynchronousBulkCreationOfDefaultValuesForProductAttributes;
+    private EventPublisher eventPublisher;
     private GetMePort getMePort;
 
     public CreateAttributeDefinitionUseCase(
         AttributeDefinitionRepository attributeDefinitionRepository,
-        ProductRepository productRepository,
+        AsynchronousBulkCreationOfDefaultValuesForProductAttributes asynchronousBulkCreationOfDefaultValuesForProductAttributes,
+        EventPublisher eventPublisher,
         GetMePort getMePort
     ) {
         this.attributeDefinitionRepository = attributeDefinitionRepository;
-        this.productRepository = productRepository;
+        this.asynchronousBulkCreationOfDefaultValuesForProductAttributes = asynchronousBulkCreationOfDefaultValuesForProductAttributes;
+        this.eventPublisher = eventPublisher;
         this.getMePort = getMePort;
     }
 
     @Override
     public void execute(
-        AttributeDefinition attributeDefinition
+        Id id, 
+        String name, 
+        Slug slug, 
+        DataType type, 
+        boolean is_global
     ) {
         Me me = getMePort.execute();
 
@@ -35,10 +47,21 @@ public class CreateAttributeDefinitionUseCase implements CreateAttributeDefiniti
 
         me.IHavePermission(Permission.createAttributeDefinition());
 
-        if(attributeDefinition.is_global())
-            // TODO: cambiar esto a enviar todos los eventos a un publisher
-            productRepository.massCreateDefaultProductAttributeValues(attributeDefinition);
+        AttributeDefinition attrDef = AttributeDefinition.factory(
+            id, 
+            name, 
+            slug, 
+            type, 
+            is_global
+        );
 
-        attributeDefinitionRepository.save(attributeDefinition);
+        attributeDefinitionRepository.save(
+            attrDef
+        );
+
+        if(attrDef.is_global())
+            asynchronousBulkCreationOfDefaultValuesForProductAttributes.execute(attrDef);
+        
+        eventPublisher.publish(attrDef.getEvents());
     }
 }

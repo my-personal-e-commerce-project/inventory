@@ -31,7 +31,7 @@ public class DiscountEntity {
     @MappedCollection(idColumn = "discount_id")
     private Set<DiscountCategoryReference> allowedCategories;
     
-    private boolean validAllCategories;
+    private boolean globalCategories;
     private Double minPrice;
     private Double maxPrice;
     private int minStock;

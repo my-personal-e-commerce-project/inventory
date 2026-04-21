@@ -5,10 +5,11 @@ CREATE TABLE discounts (
     decrement_value DOUBLE PRECISION DEFAULT NULL,
     percentage_value DOUBLE PRECISION DEFAULT NULL,
 
-    valid_all_categories BOOLEAN DEFAULT NULL,
+    global_categories BOOLEAN DEFAULT NULL,
 
     min_price DOUBLE PRECISION DEFAULT NULL,
     max_price DOUBLE PRECISION DEFAULT NULL,
+    
     min_stock int DEFAULT NULL,
     max_stock int DEFAULT NULL,
 

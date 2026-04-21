@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.product.application.dtos.ProductReadDTO;
-import microservice.cloud.inventory.product.application.ports.put.ProductReadRepository;
+import microservice.cloud.inventory.product.application.ports.out.ProductReadRepository;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
 
 @Repository
