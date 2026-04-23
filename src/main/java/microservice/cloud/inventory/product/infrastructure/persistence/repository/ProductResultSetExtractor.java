@@ -23,7 +23,6 @@ public class ProductResultSetExtractor implements ResultSetExtractor<List<Produc
     {
         Map<String, ProductReadDTO> productsMap = new LinkedHashMap<>();
 
-        String discount = null;
         String rawCategories = null;
         String valId = null;
         String productId = null;
@@ -40,7 +39,6 @@ public class ProductResultSetExtractor implements ResultSetExtractor<List<Produc
                     rs.getString("description"),
                     new ArrayList<>(),
                     new ArrayList<>(),
-                    new HashSet<>(),
                     rs.getDouble("price"),
                     rs.getInt("stock"),
                     null,
@@ -55,11 +53,6 @@ public class ProductResultSetExtractor implements ResultSetExtractor<List<Produc
 
                 productsMap.put(productId, product);
             }   
-
-            discount = rs.getString("discount_id");
-            if (discount != null) {
-                product.getDiscounts().add(discount);
-            }
             
             rawCategories = rs.getString("all_categories");
             if (rawCategories != null && !rawCategories.isBlank()) {

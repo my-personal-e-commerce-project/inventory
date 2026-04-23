@@ -54,7 +54,6 @@ public class ProductReadRepositoryJdbcAdapter implements ProductReadRepository {
             ) p
             LEFT JOIN product_attribute_values pav ON p.id = pav.product_id
             LEFT JOIN attributedefinition ad ON pav.attribute_definition_id = ad.id
-            LEFT JOIN product_discounts pd ON pd.product_id = p.id
             """,
             params,
             new ProductResultSetExtractor()

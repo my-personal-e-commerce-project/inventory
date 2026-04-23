@@ -1,7 +1,6 @@
 package microservice.cloud.inventory.product.domain.entity;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.stream.Collectors;
 
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
-import microservice.cloud.inventory.discount.domain.entity.Discount;
 import microservice.cloud.inventory.product.domain.exception.InvalidProductException;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
@@ -30,7 +28,6 @@ public class Product {
     private Set<String> categories;
     private Price price;
     private Map<String, ProductAttributeValue> attributeValues = new HashMap<>();
-    private Set<String> discounts;
     private Quantity stock;
     private Set<String> images;
     private Set<String> tags;
@@ -43,7 +40,6 @@ public class Product {
         Set<String> categories, 
         Price price, 
         Set<ProductAttributeValue> attributeValues,
-        Set<String> discounts,
         Quantity stock,
         Set<String> images,
         Set<String> tags
@@ -57,7 +53,6 @@ public class Product {
         this.description = description;
         this.categories = categories;
         attributeValues.stream().forEach(attr -> this.attributeValues.put(attr.id().value(), attr));
-        this.discounts = discounts;
         this.price = price;
         this.stock = stock;
         this.images = images;
@@ -73,7 +68,6 @@ public class Product {
         Quantity stock,
         Set<String> images,
         Set<ProductAttributeValue> attributes,
-        List<Discount> discounts,
         Set<String> tags
     ) {
         Map<String, ProductAttributeValue> mapNewAttrs = new HashMap<>();
@@ -102,10 +96,6 @@ public class Product {
 
         this.attributeValues = mapNewAttrs;
 
-        this.discounts = new HashSet<>();
-
-        applyAndValidateDiscounts(discounts);
-
         this.title = title;
         this.slug = slug;
         this.description = description;
@@ -114,31 +104,6 @@ public class Product {
         this.stock = stock;
         this.images = images;
         this.tags = tags;
-    }
-
-    
-    public void applyAndValidateDiscounts(List<Discount> discounts) {
-        if(discounts == null)
-            return;
-        
-        discounts.forEach((c) -> {
-            if(c.isACoupon())
-                throw new RuntimeException("This discount is a coupon.");
-
-            if(c.autoApply())
-                throw new RuntimeException("This discount has already been applied by default.");
-
-            if(c.globalCategories() && c.allowedCategories() != null && !c.allowedCategories().isEmpty() && !categories.containsAll(c.allowedCategories()))
-                throw new RuntimeException("This discount cannot be applied to this product, this product does not have all specified categories.");
-
-            if(!price.isGreater(c.minPrice()))
-                throw new RuntimeException("The price of this product is not higher than the minimum discount price");
-
-            if(!price.isLessThan(c.maxPrice()))
-                throw new RuntimeException("The price of this product is not less than the price than the maximum discount price");
-
-            this.discounts.add(c.id().value());
-        });
     }
 
     public void validGlobalAttributesAndCategoryAttributes(Set<AttributeDefinition> globalAttrs, Set<CategoryAttribute> catAttrs) {
@@ -259,10 +224,6 @@ public class Product {
 
     public Set<ProductAttributeValue> attributeValues() {
         return attributeValues == null? null: new HashSet<>(attributeValues.values());
-    }
-
-    public Set<String> discounts() {
-        return discounts == null? null :new HashSet<>(discounts);
     }
 
     public Quantity stock() {

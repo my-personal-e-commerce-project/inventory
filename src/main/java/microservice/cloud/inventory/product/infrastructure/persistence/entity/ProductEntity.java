@@ -21,11 +21,6 @@ public class ProductEntity {
         @Column("category_id") String categoryId
     ) {}
 
-    @Table("product_discounts")
-    public static record ProductDiscountReference(
-        @Column("discount_id") String discountId
-    ) {}
-
     @Id
     private String id;
     
@@ -37,9 +32,6 @@ public class ProductEntity {
 
     @MappedCollection(idColumn = "product_id")
     private Set<ProductCategoryReference> categories = new HashSet<>();
-
-    @MappedCollection(idColumn = "product_id")
-    private Set<ProductDiscountReference> discounts = new HashSet<>();
 
     private Double price;
     

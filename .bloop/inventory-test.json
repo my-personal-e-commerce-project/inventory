@@ -23,6 +23,7 @@
             "/home/mauroc/.m2/repository/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar",
             "/home/mauroc/.m2/repository/org/keycloak/keycloak-admin-client/26.0.0/keycloak-admin-client-26.0.0.jar",
             "/home/mauroc/.m2/repository/org/keycloak/keycloak-client-common-synced/26.0.0/keycloak-client-common-synced-26.0.0.jar",
+            "/home/mauroc/.m2/repository/org/jboss/logging/jboss-logging/3.6.1.Final/jboss-logging-3.6.1.Final.jar",
             "/home/mauroc/.m2/repository/org/jboss/logging/commons-logging-jboss-logging/1.0.0.Final/commons-logging-jboss-logging-1.0.0.Final.jar",
             "/home/mauroc/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.19.2/jackson-core-2.19.2.jar",
             "/home/mauroc/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.19.2/jackson-annotations-2.19.2.jar",
@@ -35,7 +36,6 @@
             "/home/mauroc/.m2/repository/org/jboss/jandex/2.4.5.Final/jandex-2.4.5.Final.jar",
             "/home/mauroc/.m2/repository/org/eclipse/angus/angus-activation/2.0.3/angus-activation-2.0.3.jar",
             "/home/mauroc/.m2/repository/com/ibm/async/asyncutil/0.1.0/asyncutil-0.1.0.jar",
-            "/home/mauroc/.m2/repository/commons-codec/commons-codec/1.18.0/commons-codec-1.18.0.jar",
             "/home/mauroc/.m2/repository/org/reactivestreams/reactive-streams/1.0.4/reactive-streams-1.0.4.jar",
             "/home/mauroc/.m2/repository/org/jboss/resteasy/resteasy-multipart-provider/6.2.9.Final/resteasy-multipart-provider-6.2.9.Final.jar",
             "/home/mauroc/.m2/repository/jakarta/mail/jakarta.mail-api/2.1.5/jakarta.mail-api-2.1.5.jar",
@@ -56,6 +56,7 @@
             "/home/mauroc/.m2/repository/org/glassfish/jaxb/codemodel/4.0.6/codemodel-4.0.6.jar",
             "/home/mauroc/.m2/repository/org/glassfish/jaxb/jaxb-core/4.0.6/jaxb-core-4.0.6.jar",
             "/home/mauroc/.m2/repository/org/glassfish/jaxb/jaxb-jxc/4.0.6/jaxb-jxc-4.0.6.jar",
+            "/home/mauroc/.m2/repository/org/glassfish/jaxb/jaxb-runtime/4.0.6/jaxb-runtime-4.0.6.jar",
             "/home/mauroc/.m2/repository/org/glassfish/jaxb/txw2/4.0.6/txw2-4.0.6.jar",
             "/home/mauroc/.m2/repository/org/glassfish/jaxb/jaxb-xjc/4.0.6/jaxb-xjc-4.0.6.jar",
             "/home/mauroc/.m2/repository/org/glassfish/jaxb/xsom/4.0.6/xsom-4.0.6.jar",
@@ -95,39 +96,26 @@
             "/home/mauroc/.m2/repository/org/springframework/security/spring-security-config/6.5.6/spring-security-config-6.5.6.jar",
             "/home/mauroc/.m2/repository/org/springframework/security/spring-security-web/6.5.6/spring-security-web-6.5.6.jar",
             "/home/mauroc/.m2/repository/org/springframework/spring-expression/6.2.12/spring-expression-6.2.12.jar",
-            "/home/mauroc/.m2/repository/org/springframework/security/spring-security-test/6.5.6/spring-security-test-6.5.6.jar",
+            "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-starter-oauth2-resource-server/3.5.7/spring-boot-starter-oauth2-resource-server-3.5.7.jar",
             "/home/mauroc/.m2/repository/org/springframework/security/spring-security-core/6.5.6/spring-security-core-6.5.6.jar",
             "/home/mauroc/.m2/repository/org/springframework/security/spring-security-crypto/6.5.6/spring-security-crypto-6.5.6.jar",
-            "/home/mauroc/.m2/repository/org/springframework/spring-core/6.2.12/spring-core-6.2.12.jar",
-            "/home/mauroc/.m2/repository/org/springframework/spring-jcl/6.2.12/spring-jcl-6.2.12.jar",
-            "/home/mauroc/.m2/repository/org/springframework/spring-test/6.2.12/spring-test-6.2.12.jar",
-            "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-starter-oauth2-resource-server/3.5.7/spring-boot-starter-oauth2-resource-server-3.5.7.jar",
             "/home/mauroc/.m2/repository/org/springframework/security/spring-security-oauth2-resource-server/6.5.6/spring-security-oauth2-resource-server-6.5.6.jar",
             "/home/mauroc/.m2/repository/org/springframework/security/spring-security-oauth2-core/6.5.6/spring-security-oauth2-core-6.5.6.jar",
             "/home/mauroc/.m2/repository/org/springframework/security/spring-security-oauth2-jose/6.5.6/spring-security-oauth2-jose-6.5.6.jar",
             "/home/mauroc/.m2/repository/com/nimbusds/nimbus-jose-jwt/9.37.4/nimbus-jose-jwt-9.37.4.jar",
             "/home/mauroc/.m2/repository/com/github/stephenc/jcip/jcip-annotations/1.0-1/jcip-annotations-1.0-1.jar",
+            "/home/mauroc/.m2/repository/org/springframework/security/spring-security-test/6.5.6/spring-security-test-6.5.6.jar",
+            "/home/mauroc/.m2/repository/org/springframework/spring-core/6.2.12/spring-core-6.2.12.jar",
+            "/home/mauroc/.m2/repository/org/springframework/spring-jcl/6.2.12/spring-jcl-6.2.12.jar",
+            "/home/mauroc/.m2/repository/org/springframework/spring-test/6.2.12/spring-test-6.2.12.jar",
             "/home/mauroc/.m2/repository/com/github/slugify/slugify/3.0.7/slugify-3.0.7.jar",
-            "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-starter-data-jpa/3.5.7/spring-boot-starter-data-jpa-3.5.7.jar",
+            "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-starter-data-jdbc/3.5.7/spring-boot-starter-data-jdbc-3.5.7.jar",
             "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-starter-jdbc/3.5.7/spring-boot-starter-jdbc-3.5.7.jar",
             "/home/mauroc/.m2/repository/com/zaxxer/HikariCP/6.3.3/HikariCP-6.3.3.jar",
             "/home/mauroc/.m2/repository/org/springframework/spring-jdbc/6.2.12/spring-jdbc-6.2.12.jar",
-            "/home/mauroc/.m2/repository/org/hibernate/orm/hibernate-core/6.6.33.Final/hibernate-core-6.6.33.Final.jar",
-            "/home/mauroc/.m2/repository/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0.jar",
-            "/home/mauroc/.m2/repository/jakarta/transaction/jakarta.transaction-api/2.0.1/jakarta.transaction-api-2.0.1.jar",
-            "/home/mauroc/.m2/repository/org/jboss/logging/jboss-logging/3.6.1.Final/jboss-logging-3.6.1.Final.jar",
-            "/home/mauroc/.m2/repository/org/hibernate/common/hibernate-commons-annotations/7.0.3.Final/hibernate-commons-annotations-7.0.3.Final.jar",
-            "/home/mauroc/.m2/repository/io/smallrye/jandex/3.2.0/jandex-3.2.0.jar",
-            "/home/mauroc/.m2/repository/com/fasterxml/classmate/1.7.1/classmate-1.7.1.jar",
-            "/home/mauroc/.m2/repository/net/bytebuddy/byte-buddy/1.17.8/byte-buddy-1.17.8.jar",
-            "/home/mauroc/.m2/repository/org/glassfish/jaxb/jaxb-runtime/4.0.6/jaxb-runtime-4.0.6.jar",
-            "/home/mauroc/.m2/repository/jakarta/inject/jakarta.inject-api/2.0.1/jakarta.inject-api-2.0.1.jar",
-            "/home/mauroc/.m2/repository/org/antlr/antlr4-runtime/4.13.0/antlr4-runtime-4.13.0.jar",
-            "/home/mauroc/.m2/repository/org/springframework/data/spring-data-jpa/3.5.5/spring-data-jpa-3.5.5.jar",
+            "/home/mauroc/.m2/repository/org/springframework/data/spring-data-jdbc/3.5.5/spring-data-jdbc-3.5.5.jar",
+            "/home/mauroc/.m2/repository/org/springframework/data/spring-data-relational/3.5.5/spring-data-relational-3.5.5.jar",
             "/home/mauroc/.m2/repository/org/springframework/data/spring-data-commons/3.5.5/spring-data-commons-3.5.5.jar",
-            "/home/mauroc/.m2/repository/org/springframework/spring-orm/6.2.12/spring-orm-6.2.12.jar",
-            "/home/mauroc/.m2/repository/org/springframework/spring-aspects/6.2.12/spring-aspects-6.2.12.jar",
-            "/home/mauroc/.m2/repository/org/aspectj/aspectjweaver/1.9.24/aspectjweaver-1.9.24.jar",
             "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-starter-web/3.5.7/spring-boot-starter-web-3.5.7.jar",
             "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-starter-json/3.5.7/spring-boot-starter-json-3.5.7.jar",
             "/home/mauroc/.m2/repository/com/fasterxml/jackson/module/jackson-module-parameter-names/2.19.2/jackson-module-parameter-names-2.19.2.jar",
@@ -165,9 +153,8 @@
             "/home/mauroc/.m2/repository/io/github/x-stream/mxparser/1.2.2/mxparser-1.2.2.jar",
             "/home/mauroc/.m2/repository/xmlpull/xmlpull/1.1.3.1/xmlpull-1.1.3.1.jar",
             "/home/mauroc/.m2/repository/jakarta/ws/rs/jakarta.ws.rs-api/3.1.0/jakarta.ws.rs-api-3.1.0.jar",
+            "/home/mauroc/.m2/repository/jakarta/inject/jakarta.inject-api/2.0.1/jakarta.inject-api-2.0.1.jar",
             "/home/mauroc/.m2/repository/com/netflix/spectator/spectator-api/1.7.3/spectator-api-1.7.3.jar",
-            "/home/mauroc/.m2/repository/org/apache/httpcomponents/httpclient/4.5.3/httpclient-4.5.3.jar",
-            "/home/mauroc/.m2/repository/org/apache/httpcomponents/httpcore/4.4.16/httpcore-4.4.16.jar",
             "/home/mauroc/.m2/repository/commons-configuration/commons-configuration/1.10/commons-configuration-1.10.jar",
             "/home/mauroc/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6.jar",
             "/home/mauroc/.m2/repository/com/netflix/netflix-commons/netflix-eventbus/0.3.0/netflix-eventbus-0.3.0.jar",
@@ -208,6 +195,7 @@
             "/home/mauroc/.m2/repository/net/minidev/accessors-smart/2.5.2/accessors-smart-2.5.2.jar",
             "/home/mauroc/.m2/repository/org/ow2/asm/asm/9.7.1/asm-9.7.1.jar",
             "/home/mauroc/.m2/repository/org/assertj/assertj-core/3.27.6/assertj-core-3.27.6.jar",
+            "/home/mauroc/.m2/repository/net/bytebuddy/byte-buddy/1.17.8/byte-buddy-1.17.8.jar",
             "/home/mauroc/.m2/repository/org/junit/jupiter/junit-jupiter/5.12.2/junit-jupiter-5.12.2.jar",
             "/home/mauroc/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.12.2/junit-jupiter-api-5.12.2.jar",
             "/home/mauroc/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar",
@@ -228,7 +216,22 @@
             "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-starter-validation/4.0.0-M3/spring-boot-starter-validation-4.0.0-M3.jar",
             "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-validation/4.0.0-M3/spring-boot-validation-4.0.0-M3.jar",
             "/home/mauroc/.m2/repository/org/hibernate/validator/hibernate-validator/8.0.3.Final/hibernate-validator-8.0.3.Final.jar",
-            "/home/mauroc/.m2/repository/jakarta/validation/jakarta.validation-api/3.0.2/jakarta.validation-api-3.0.2.jar"
+            "/home/mauroc/.m2/repository/jakarta/validation/jakarta.validation-api/3.0.2/jakarta.validation-api-3.0.2.jar",
+            "/home/mauroc/.m2/repository/com/fasterxml/classmate/1.7.1/classmate-1.7.1.jar",
+            "/home/mauroc/.m2/repository/io/rest-assured/rest-assured/5.3.0/rest-assured-5.3.0.jar",
+            "/home/mauroc/.m2/repository/org/apache/groovy/groovy/4.0.29/groovy-4.0.29.jar",
+            "/home/mauroc/.m2/repository/org/apache/groovy/groovy-xml/4.0.29/groovy-xml-4.0.29.jar",
+            "/home/mauroc/.m2/repository/org/apache/httpcomponents/httpclient/4.5.13/httpclient-4.5.13.jar",
+            "/home/mauroc/.m2/repository/org/apache/httpcomponents/httpcore/4.4.16/httpcore-4.4.16.jar",
+            "/home/mauroc/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2.jar",
+            "/home/mauroc/.m2/repository/commons-codec/commons-codec/1.18.0/commons-codec-1.18.0.jar",
+            "/home/mauroc/.m2/repository/org/apache/httpcomponents/httpmime/4.5.13/httpmime-4.5.13.jar",
+            "/home/mauroc/.m2/repository/org/ccil/cowan/tagsoup/tagsoup/1.2.1/tagsoup-1.2.1.jar",
+            "/home/mauroc/.m2/repository/io/rest-assured/json-path/5.5.6/json-path-5.5.6.jar",
+            "/home/mauroc/.m2/repository/org/apache/groovy/groovy-json/4.0.29/groovy-json-4.0.29.jar",
+            "/home/mauroc/.m2/repository/io/rest-assured/rest-assured-common/5.5.6/rest-assured-common-5.5.6.jar",
+            "/home/mauroc/.m2/repository/io/rest-assured/xml-path/5.5.6/xml-path-5.5.6.jar",
+            "/home/mauroc/.m2/repository/org/apache/commons/commons-lang3/3.17.0/commons-lang3-3.17.0.jar"
         ],
         "out": "/home/mauroc/project/microservice_ecommerce/inventory/target",
         "classesDir": "/home/mauroc/project/microservice_ecommerce/inventory/target/test-classes",
@@ -392,18 +395,18 @@
                     ]
                 },
                 {
-                    "organization": "org.aspectj",
-                    "name": "aspectjweaver",
-                    "version": "1.9.24",
+                    "organization": "org.springframework.boot",
+                    "name": "spring-boot-starter-data-jdbc",
+                    "version": "3.5.7",
                     "artifacts": [
                         {
-                            "name": "aspectjweaver",
-                            "path": "/home/mauroc/.m2/repository/org/aspectj/aspectjweaver/1.9.24/aspectjweaver-1.9.24.jar"
+                            "name": "spring-boot-starter-data-jdbc",
+                            "path": "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-starter-data-jdbc/3.5.7/spring-boot-starter-data-jdbc-3.5.7.jar"
                         },
                         {
-                            "name": "aspectjweaver",
+                            "name": "spring-boot-starter-data-jdbc",
                             "classifier": "sources",
-                            "path": "/home/mauroc/.m2/repository/org/aspectj/aspectjweaver/1.9.24/aspectjweaver-1.9.24-sources.jar"
+                            "path": "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-starter-data-jdbc/3.5.7/spring-boot-starter-data-jdbc-3.5.7-sources.jar"
                         }
                     ]
                 },
@@ -436,6 +439,22 @@
                             "name": "gson",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/com/google/code/gson/gson/2.13.2/gson-2.13.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.apache.httpcomponents",
+                    "name": "httpclient",
+                    "version": "4.5.13",
+                    "artifacts": [
+                        {
+                            "name": "httpclient",
+                            "path": "/home/mauroc/.m2/repository/org/apache/httpcomponents/httpclient/4.5.13/httpclient-4.5.13.jar"
+                        },
+                        {
+                            "name": "httpclient",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/org/apache/httpcomponents/httpclient/4.5.13/httpclient-4.5.13-sources.jar"
                         }
                     ]
                 },
@@ -915,6 +934,22 @@
                     ]
                 },
                 {
+                    "organization": "io.rest-assured",
+                    "name": "rest-assured",
+                    "version": "5.3.0",
+                    "artifacts": [
+                        {
+                            "name": "rest-assured",
+                            "path": "/home/mauroc/.m2/repository/io/rest-assured/rest-assured/5.3.0/rest-assured-5.3.0.jar"
+                        },
+                        {
+                            "name": "rest-assured",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/io/rest-assured/rest-assured/5.3.0/rest-assured-5.3.0-sources.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "joda-time",
                     "name": "joda-time",
                     "version": "2.3",
@@ -1011,6 +1046,22 @@
                     ]
                 },
                 {
+                    "organization": "org.apache.commons",
+                    "name": "commons-lang3",
+                    "version": "3.17.0",
+                    "artifacts": [
+                        {
+                            "name": "commons-lang3",
+                            "path": "/home/mauroc/.m2/repository/org/apache/commons/commons-lang3/3.17.0/commons-lang3-3.17.0.jar"
+                        },
+                        {
+                            "name": "commons-lang3",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/org/apache/commons/commons-lang3/3.17.0/commons-lang3-3.17.0-sources.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "org.glassfish.jaxb",
                     "name": "jaxb-runtime",
                     "version": "4.0.6",
@@ -1071,22 +1122,6 @@
                             "name": "byte-buddy-agent",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/net/bytebuddy/byte-buddy-agent/1.17.8/byte-buddy-agent-1.17.8-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.apache.httpcomponents",
-                    "name": "httpclient",
-                    "version": "4.5.3",
-                    "artifacts": [
-                        {
-                            "name": "httpclient",
-                            "path": "/home/mauroc/.m2/repository/org/apache/httpcomponents/httpclient/4.5.3/httpclient-4.5.3.jar"
-                        },
-                        {
-                            "name": "httpclient",
-                            "classifier": "sources",
-                            "path": "/home/mauroc/.m2/repository/org/apache/httpcomponents/httpclient/4.5.3/httpclient-4.5.3-sources.jar"
                         }
                     ]
                 },
@@ -1395,22 +1430,6 @@
                     ]
                 },
                 {
-                    "organization": "org.springframework.data",
-                    "name": "spring-data-jpa",
-                    "version": "3.5.5",
-                    "artifacts": [
-                        {
-                            "name": "spring-data-jpa",
-                            "path": "/home/mauroc/.m2/repository/org/springframework/data/spring-data-jpa/3.5.5/spring-data-jpa-3.5.5.jar"
-                        },
-                        {
-                            "name": "spring-data-jpa",
-                            "classifier": "sources",
-                            "path": "/home/mauroc/.m2/repository/org/springframework/data/spring-data-jpa/3.5.5/spring-data-jpa-3.5.5-sources.jar"
-                        }
-                    ]
-                },
-                {
                     "organization": "org.springframework.security",
                     "name": "spring-security-config",
                     "version": "6.5.6",
@@ -1471,6 +1490,22 @@
                             "name": "istack-commons-tools",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/com/sun/istack/istack-commons-tools/4.1.2/istack-commons-tools-4.1.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.apache.groovy",
+                    "name": "groovy-xml",
+                    "version": "4.0.29",
+                    "artifacts": [
+                        {
+                            "name": "groovy-xml",
+                            "path": "/home/mauroc/.m2/repository/org/apache/groovy/groovy-xml/4.0.29/groovy-xml-4.0.29.jar"
+                        },
+                        {
+                            "name": "groovy-xml",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/org/apache/groovy/groovy-xml/4.0.29/groovy-xml-4.0.29-sources.jar"
                         }
                     ]
                 },
@@ -1571,22 +1606,6 @@
                     ]
                 },
                 {
-                    "organization": "org.hibernate.orm",
-                    "name": "hibernate-core",
-                    "version": "6.6.33.Final",
-                    "artifacts": [
-                        {
-                            "name": "hibernate-core",
-                            "path": "/home/mauroc/.m2/repository/org/hibernate/orm/hibernate-core/6.6.33.Final/hibernate-core-6.6.33.Final.jar"
-                        },
-                        {
-                            "name": "hibernate-core",
-                            "classifier": "sources",
-                            "path": "/home/mauroc/.m2/repository/org/hibernate/orm/hibernate-core/6.6.33.Final/hibernate-core-6.6.33.Final-sources.jar"
-                        }
-                    ]
-                },
-                {
                     "organization": "org.springframework",
                     "name": "spring-expression",
                     "version": "6.2.12",
@@ -1647,6 +1666,22 @@
                             "name": "resteasy-core-spi",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/org/jboss/resteasy/resteasy-core-spi/6.2.9.Final/resteasy-core-spi-6.2.9.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.ccil.cowan.tagsoup",
+                    "name": "tagsoup",
+                    "version": "1.2.1",
+                    "artifacts": [
+                        {
+                            "name": "tagsoup",
+                            "path": "/home/mauroc/.m2/repository/org/ccil/cowan/tagsoup/tagsoup/1.2.1/tagsoup-1.2.1.jar"
+                        },
+                        {
+                            "name": "tagsoup",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/org/ccil/cowan/tagsoup/tagsoup/1.2.1/tagsoup-1.2.1-sources.jar"
                         }
                     ]
                 },
@@ -1887,6 +1922,22 @@
                             "name": "accessors-smart",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/net/minidev/accessors-smart/2.5.2/accessors-smart-2.5.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "io.rest-assured",
+                    "name": "xml-path",
+                    "version": "5.5.6",
+                    "artifacts": [
+                        {
+                            "name": "xml-path",
+                            "path": "/home/mauroc/.m2/repository/io/rest-assured/xml-path/5.5.6/xml-path-5.5.6.jar"
+                        },
+                        {
+                            "name": "xml-path",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/io/rest-assured/xml-path/5.5.6/xml-path-5.5.6-sources.jar"
                         }
                     ]
                 },
@@ -2142,6 +2193,22 @@
                     ]
                 },
                 {
+                    "organization": "org.apache.httpcomponents",
+                    "name": "httpmime",
+                    "version": "4.5.13",
+                    "artifacts": [
+                        {
+                            "name": "httpmime",
+                            "path": "/home/mauroc/.m2/repository/org/apache/httpcomponents/httpmime/4.5.13/httpmime-4.5.13.jar"
+                        },
+                        {
+                            "name": "httpmime",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/org/apache/httpcomponents/httpmime/4.5.13/httpmime-4.5.13-sources.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "org.ow2.asm",
                     "name": "asm",
                     "version": "9.7.1",
@@ -2261,22 +2328,6 @@
                         {
                             "name": "spring-cloud-starter-loadbalancer",
                             "path": "/home/mauroc/.m2/repository/org/springframework/cloud/spring-cloud-starter-loadbalancer/4.3.0/spring-cloud-starter-loadbalancer-4.3.0.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "jakarta.transaction",
-                    "name": "jakarta.transaction-api",
-                    "version": "2.0.1",
-                    "artifacts": [
-                        {
-                            "name": "jakarta.transaction-api",
-                            "path": "/home/mauroc/.m2/repository/jakarta/transaction/jakarta.transaction-api/2.0.1/jakarta.transaction-api-2.0.1.jar"
-                        },
-                        {
-                            "name": "jakarta.transaction-api",
-                            "classifier": "sources",
-                            "path": "/home/mauroc/.m2/repository/jakarta/transaction/jakarta.transaction-api/2.0.1/jakarta.transaction-api-2.0.1-sources.jar"
                         }
                     ]
                 },
@@ -2405,22 +2456,6 @@
                             "name": "xsom",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/org/glassfish/jaxb/xsom/4.0.6/xsom-4.0.6-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.hibernate.common",
-                    "name": "hibernate-commons-annotations",
-                    "version": "7.0.3.Final",
-                    "artifacts": [
-                        {
-                            "name": "hibernate-commons-annotations",
-                            "path": "/home/mauroc/.m2/repository/org/hibernate/common/hibernate-commons-annotations/7.0.3.Final/hibernate-commons-annotations-7.0.3.Final.jar"
-                        },
-                        {
-                            "name": "hibernate-commons-annotations",
-                            "classifier": "sources",
-                            "path": "/home/mauroc/.m2/repository/org/hibernate/common/hibernate-commons-annotations/7.0.3.Final/hibernate-commons-annotations-7.0.3.Final-sources.jar"
                         }
                     ]
                 },
@@ -2708,6 +2743,22 @@
                     ]
                 },
                 {
+                    "organization": "org.apache.groovy",
+                    "name": "groovy-json",
+                    "version": "4.0.29",
+                    "artifacts": [
+                        {
+                            "name": "groovy-json",
+                            "path": "/home/mauroc/.m2/repository/org/apache/groovy/groovy-json/4.0.29/groovy-json-4.0.29.jar"
+                        },
+                        {
+                            "name": "groovy-json",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/org/apache/groovy/groovy-json/4.0.29/groovy-json-4.0.29-sources.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "org.springframework.boot",
                     "name": "spring-boot-test",
                     "version": "3.5.7",
@@ -2720,22 +2771,6 @@
                             "name": "spring-boot-test",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-test/3.5.7/spring-boot-test-3.5.7-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.springframework.boot",
-                    "name": "spring-boot-starter-data-jpa",
-                    "version": "3.5.7",
-                    "artifacts": [
-                        {
-                            "name": "spring-boot-starter-data-jpa",
-                            "path": "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-starter-data-jpa/3.5.7/spring-boot-starter-data-jpa-3.5.7.jar"
-                        },
-                        {
-                            "name": "spring-boot-starter-data-jpa",
-                            "classifier": "sources",
-                            "path": "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-starter-data-jpa/3.5.7/spring-boot-starter-data-jpa-3.5.7-sources.jar"
                         }
                     ]
                 },
@@ -2783,6 +2818,22 @@
                     ]
                 },
                 {
+                    "organization": "org.springframework.data",
+                    "name": "spring-data-relational",
+                    "version": "3.5.5",
+                    "artifacts": [
+                        {
+                            "name": "spring-data-relational",
+                            "path": "/home/mauroc/.m2/repository/org/springframework/data/spring-data-relational/3.5.5/spring-data-relational-3.5.5.jar"
+                        },
+                        {
+                            "name": "spring-data-relational",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/org/springframework/data/spring-data-relational/3.5.5/spring-data-relational-3.5.5-sources.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "org.springframework.boot",
                     "name": "spring-boot-autoconfigure",
                     "version": "3.5.7",
@@ -2811,22 +2862,6 @@
                             "name": "mockito-junit-jupiter",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/org/mockito/mockito-junit-jupiter/5.17.0/mockito-junit-jupiter-5.17.0-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.antlr",
-                    "name": "antlr4-runtime",
-                    "version": "4.13.0",
-                    "artifacts": [
-                        {
-                            "name": "antlr4-runtime",
-                            "path": "/home/mauroc/.m2/repository/org/antlr/antlr4-runtime/4.13.0/antlr4-runtime-4.13.0.jar"
-                        },
-                        {
-                            "name": "antlr4-runtime",
-                            "classifier": "sources",
-                            "path": "/home/mauroc/.m2/repository/org/antlr/antlr4-runtime/4.13.0/antlr4-runtime-4.13.0-sources.jar"
                         }
                     ]
                 },
@@ -2891,22 +2926,6 @@
                             "name": "codemodel",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/org/glassfish/jaxb/codemodel/4.0.6/codemodel-4.0.6-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "jakarta.persistence",
-                    "name": "jakarta.persistence-api",
-                    "version": "3.1.0",
-                    "artifacts": [
-                        {
-                            "name": "jakarta.persistence-api",
-                            "path": "/home/mauroc/.m2/repository/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0.jar"
-                        },
-                        {
-                            "name": "jakarta.persistence-api",
-                            "classifier": "sources",
-                            "path": "/home/mauroc/.m2/repository/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0-sources.jar"
                         }
                     ]
                 },
@@ -3087,6 +3106,22 @@
                     ]
                 },
                 {
+                    "organization": "commons-logging",
+                    "name": "commons-logging",
+                    "version": "1.2",
+                    "artifacts": [
+                        {
+                            "name": "commons-logging",
+                            "path": "/home/mauroc/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"
+                        },
+                        {
+                            "name": "commons-logging",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2-sources.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "org.apiguardian",
                     "name": "apiguardian-api",
                     "version": "1.1.2",
@@ -3199,6 +3234,22 @@
                     ]
                 },
                 {
+                    "organization": "io.rest-assured",
+                    "name": "json-path",
+                    "version": "5.5.6",
+                    "artifacts": [
+                        {
+                            "name": "json-path",
+                            "path": "/home/mauroc/.m2/repository/io/rest-assured/json-path/5.5.6/json-path-5.5.6.jar"
+                        },
+                        {
+                            "name": "json-path",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/io/rest-assured/json-path/5.5.6/json-path-5.5.6-sources.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "org.springframework.security",
                     "name": "spring-security-oauth2-core",
                     "version": "6.5.6",
@@ -3211,22 +3262,6 @@
                             "name": "spring-security-oauth2-core",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/org/springframework/security/spring-security-oauth2-core/6.5.6/spring-security-oauth2-core-6.5.6-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.springframework",
-                    "name": "spring-aspects",
-                    "version": "6.2.12",
-                    "artifacts": [
-                        {
-                            "name": "spring-aspects",
-                            "path": "/home/mauroc/.m2/repository/org/springframework/spring-aspects/6.2.12/spring-aspects-6.2.12.jar"
-                        },
-                        {
-                            "name": "spring-aspects",
-                            "classifier": "sources",
-                            "path": "/home/mauroc/.m2/repository/org/springframework/spring-aspects/6.2.12/spring-aspects-6.2.12-sources.jar"
                         }
                     ]
                 },
@@ -3418,18 +3453,18 @@
                     ]
                 },
                 {
-                    "organization": "org.springframework",
-                    "name": "spring-orm",
-                    "version": "6.2.12",
+                    "organization": "org.springframework.data",
+                    "name": "spring-data-jdbc",
+                    "version": "3.5.5",
                     "artifacts": [
                         {
-                            "name": "spring-orm",
-                            "path": "/home/mauroc/.m2/repository/org/springframework/spring-orm/6.2.12/spring-orm-6.2.12.jar"
+                            "name": "spring-data-jdbc",
+                            "path": "/home/mauroc/.m2/repository/org/springframework/data/spring-data-jdbc/3.5.5/spring-data-jdbc-3.5.5.jar"
                         },
                         {
-                            "name": "spring-orm",
+                            "name": "spring-data-jdbc",
                             "classifier": "sources",
-                            "path": "/home/mauroc/.m2/repository/org/springframework/spring-orm/6.2.12/spring-orm-6.2.12-sources.jar"
+                            "path": "/home/mauroc/.m2/repository/org/springframework/data/spring-data-jdbc/3.5.5/spring-data-jdbc-3.5.5-sources.jar"
                         }
                     ]
                 },
@@ -3514,6 +3549,38 @@
                     ]
                 },
                 {
+                    "organization": "org.apache.groovy",
+                    "name": "groovy",
+                    "version": "4.0.29",
+                    "artifacts": [
+                        {
+                            "name": "groovy",
+                            "path": "/home/mauroc/.m2/repository/org/apache/groovy/groovy/4.0.29/groovy-4.0.29.jar"
+                        },
+                        {
+                            "name": "groovy",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/org/apache/groovy/groovy/4.0.29/groovy-4.0.29-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "io.rest-assured",
+                    "name": "rest-assured-common",
+                    "version": "5.5.6",
+                    "artifacts": [
+                        {
+                            "name": "rest-assured-common",
+                            "path": "/home/mauroc/.m2/repository/io/rest-assured/rest-assured-common/5.5.6/rest-assured-common-5.5.6.jar"
+                        },
+                        {
+                            "name": "rest-assured-common",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/io/rest-assured/rest-assured-common/5.5.6/rest-assured-common-5.5.6-sources.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "org.testcontainers",
                     "name": "database-commons",
                     "version": "1.21.3",
@@ -3526,22 +3593,6 @@
                             "name": "database-commons",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/org/testcontainers/database-commons/1.21.3/database-commons-1.21.3-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "io.smallrye",
-                    "name": "jandex",
-                    "version": "3.2.0",
-                    "artifacts": [
-                        {
-                            "name": "jandex",
-                            "path": "/home/mauroc/.m2/repository/io/smallrye/jandex/3.2.0/jandex-3.2.0.jar"
-                        },
-                        {
-                            "name": "jandex",
-                            "classifier": "sources",
-                            "path": "/home/mauroc/.m2/repository/io/smallrye/jandex/3.2.0/jandex-3.2.0-sources.jar"
                         }
                     ]
                 },

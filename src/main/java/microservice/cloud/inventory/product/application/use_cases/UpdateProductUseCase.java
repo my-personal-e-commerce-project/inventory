@@ -1,7 +1,6 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
 import java.util.List;
-import java.security.InvalidParameterException;
 import java.util.Set;
 
 import microservice.cloud.inventory.discount.domain.entity.Discount;
@@ -20,16 +19,13 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 public class UpdateProductUseCase implements UpdateProductUseCasePort {
 
     private final ProductRepository productRepository;
-    private final DiscountRepository discountRepository;
     private final GetMePort getMePort;
 
     public UpdateProductUseCase(
         ProductRepository productRepository,
-        DiscountRepository discountRepository,
         GetMePort getMePort
     ) {
         this.productRepository = productRepository;
-        this.discountRepository = discountRepository;
         this.getMePort = getMePort;
     }
 
@@ -44,7 +40,6 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
         Quantity stock,
         Set<String> images,
         Set<ProductAttributeValue> attributes,
-        Set<String> discounts,
         Set<String> tags
     ) {
         Me me = getMePort.execute();
@@ -56,10 +51,6 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
 
         Product p = productRepository.findBySlug(find_slug);
     
-        List<Discount> objectDiscounts = null;
-        if (discounts != null && !discounts.isEmpty())
-           objectDiscounts = discountRepository.getDiscountsByIds(discounts); 
-
         p.update(
             title, 
             slug, 
@@ -69,7 +60,6 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
             stock, 
             images, 
             attributes, 
-            objectDiscounts, 
             tags
         );
 

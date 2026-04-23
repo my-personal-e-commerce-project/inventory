@@ -11,8 +11,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.attribute.infrastructure.persistence.repository.AttributeDefinitionJdbcRepository;
 import microservice.cloud.inventory.category.infrastructure.persistence.repository.CategoryJdbcRepository;
-import microservice.cloud.inventory.discount.domain.entity.Discount;
 import microservice.cloud.inventory.discount.infrastrcture.persistence.repository.DiscountJdbcRepository;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
@@ -30,7 +27,6 @@ import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 import microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductAttributeValueEntity;
 import static microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductEntity.ProductCategoryReference;
 import microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductEntity;
-import microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductEntity.ProductDiscountReference;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
@@ -41,7 +37,6 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
 
     private final JdbcAggregateTemplate aggregateTemplate;
     private final JdbcTemplate jdbcTemplate;
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final ProductAttributeValueJdbcRepository productAttributeValueJdbcRepository;
     private final AttributeDefinitionJdbcRepository attributeDefinitionJdbcRepository;
     private final ProductJdbcRepository productJdbcRepository;
@@ -59,52 +54,6 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
         return toMap(
             attr
         );
-    }
-    
-    @Transactional
-    @Override
-    public void applyThisAutomaticDiscountToTheCorrespondingProducts(Discount discount) {
-        Set<String> categories = discount.allowedCategories();
-        boolean hasCategories = categories != null && !categories.isEmpty();
-        int categoryCount = hasCategories ? categories.size() : 0;
-
-        StringBuilder sql = new StringBuilder("""
-            INSERT INTO product_discounts (product_id, discount_id)
-            SELECT p.id, :discountId
-            FROM products p
-            """);
-
-        if (!discount.globalCategories() && hasCategories) {
-            sql.append(" JOIN product_categories pc ON p.id = pc.product_id ");
-        }
-
-        sql.append("""
-            WHERE (:minPrice IS NULL OR p.price >= :minPrice)
-              AND (:maxPrice IS NULL OR p.price <= :maxPrice)
-              AND (:minStock IS NULL OR p.stock >= :minStock)
-              AND (:maxStock IS NULL OR p.stock <= :maxStock)
-            """);
-
-        if (!discount.globalCategories() && hasCategories) {
-            sql.append("""
-                AND pc.category_id IN (:allowedCategories)
-            """);
-        }
-
-        sql.append(" GROUP BY p.id ");
-
-        sql.append("\n ON CONFLICT (product_id, discount_id) DO NOTHING;");
-
-        MapSqlParameterSource params = new MapSqlParameterSource()
-            .addValue("discountId", discount.id().value())
-            .addValue("minPrice", discount.minPrice() == null? null: discount.minPrice().value())
-            .addValue("maxPrice", discount.maxPrice() == null? null: discount.maxPrice().value())
-            .addValue("minStock", discount.minStock() == null? null: discount.minStock().value())
-            .addValue("maxStock", discount.maxStock() == null? null: discount.maxStock().value())
-            .addValue("allowedCategories", categories)
-            .addValue("catCount", categoryCount);
-
-        namedParameterJdbcTemplate.update(sql.toString(), params);
     }
 
     @Transactional
@@ -206,9 +155,6 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
         if(product.categories() != null && categoryJdbcRepository.countByIdIn(product.categories()) == 0)
             throw new RuntimeException("Not all provided category ids are valid");
 
-        if(product.discounts() != null && discountJdbcRepository.countByIdIn(product.discounts()) == 0)
-            throw new RuntimeException("Not all provided coupon ids are valid");
-        
         try {
             aggregateTemplate.insert(toMap(product));
         } catch(DataIntegrityViolationException e) {
@@ -227,9 +173,6 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
             && categoryJdbcRepository.countByIdIn(product.categories()) != product.categories().size()
         )
             throw new RuntimeException("Not all provided category ids are valid");
-
-        if(product.discounts() != null && discountJdbcRepository.countByIdIn(product.discounts()) != product.discounts().size())
-            throw new RuntimeException("Not all provided coupon ids are valid");
 
         try {
             aggregateTemplate.update(toMap(product));
@@ -265,20 +208,12 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
                 .map(cat -> new ProductCategoryReference(cat))
                 .collect(Collectors.toSet());
 
-        Set<ProductDiscountReference> discounts = product.discounts() == null
-            ? null
-            : product.discounts()
-                .stream()
-                .map(dis -> new ProductDiscountReference(dis))
-                .collect(Collectors.toSet());
-
         return new ProductEntity(
             product.id().value(),
             product.title(),
             product.slug().value(),
             product.description(),
             categories,
-            discounts,
             product.price().value(),
             product.stock().value(),
             product.images() == null? null: new HashSet<>(product.images()),
@@ -324,9 +259,6 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
                         attr.getBoolean_value()
                     )
                 ).collect(Collectors.toSet()),
-            product.getDiscounts() == null
-                ? null
-                : product.getDiscounts().stream().map(d -> d.discountId()).collect(Collectors.toSet()),
             new Quantity(product.getStock()),
             product.getImages(),
             product.getTags()

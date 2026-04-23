@@ -21,20 +21,17 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
     private AttributeDefinitionRepository attributeDefinitionRepository;
-    private DiscountRepository discountRepository;
     private GetMePort getMePort;
 
     public CreateProductUseCase(
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        DiscountRepository discountRepository,
         GetMePort getMePort
     ) {
         this.attributeDefinitionRepository = attributeDefinitionRepository;
         this.getMePort = getMePort;
         this.productRepository = productRepository;
-        this.discountRepository = discountRepository;
         this.categoryRepository = categoryRepository;
     }
    
@@ -49,13 +46,6 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
 
         me.IHavePermission(Permission.createProduct());
         
-        List<Discount> foundDiscounts = null;
-
-        if(product.discounts() != null) {
-            foundDiscounts = discountRepository.getDiscountsByIds(new HashSet<>(product.discounts()));
-            product.applyAndValidateDiscounts(foundDiscounts);
-        }
-
         List<AttributeDefinition> defaultAttributes = attributeDefinitionRepository
             .getGlobalAttributes();
 
@@ -68,7 +58,5 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
         product.validGlobalAttributesAndCategoryAttributes(new HashSet<>(defaultAttributes), new HashSet<>(catAttrs));
       
         productRepository.save(product);
-
-        discountRepository.applyDiscountsToThisProduct(product);
     }
 }

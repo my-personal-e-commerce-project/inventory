@@ -19,7 +19,6 @@ public interface UpdateProductUseCasePort {
         Quantity stock,
         Set<String> images,
         Set<ProductAttributeValue> attributes,
-        Set<String> discounts,
         Set<String> tags
     );
 }

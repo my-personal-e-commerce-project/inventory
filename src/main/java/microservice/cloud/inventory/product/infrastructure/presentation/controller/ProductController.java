@@ -56,7 +56,7 @@ public class ProductController {
         Pagination<ProductReadDTO> products = listProductsUseCasePort.execute(page, size);
 
         return ResponseEntity.ok(
-                products
+            products
         );
     }
     
@@ -94,7 +94,6 @@ public class ProductController {
                         attr.getBoolean_value()
                     )
                 ).collect(Collectors.toSet()),
-                productDTO.getDiscounts(),
                 new Quantity(productDTO.getStock()),
                 null,
                 productDTO.getTags()
@@ -132,7 +131,6 @@ public class ProductController {
                     attr.boolean_value()
                 )
             ).collect(Collectors.toSet()),
-            null,
             productDTO.tags()
         );
 

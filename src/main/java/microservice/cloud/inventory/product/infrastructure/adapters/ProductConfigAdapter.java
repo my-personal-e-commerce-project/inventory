@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
-import microservice.cloud.inventory.discount.domain.repository.DiscountRepository;
 import microservice.cloud.inventory.product.application.ports.in.AddProductAttributeUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
 import microservice.cloud.inventory.product.application.ports.in.DeleteProductAttributeUseCasePort;
@@ -39,14 +38,12 @@ public class ProductConfigAdapter {
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        DiscountRepository discountRepository,
         GetMePort getMePort
     ) {
         return new CreateProductUseCase(
             productRepository,
             categoryRepository,
             attributeDefinitionRepository,
-            discountRepository,
             getMePort
         );
     }
@@ -54,12 +51,10 @@ public class ProductConfigAdapter {
     @Bean
     public UpdateProductUseCasePort updateProductUseCasePort(
         ProductRepository productRepository,
-        DiscountRepository discountRepository,
         GetMePort getMePort
     ) {
         return new UpdateProductUseCase(
             productRepository,
-            discountRepository,
             getMePort
         );
     }

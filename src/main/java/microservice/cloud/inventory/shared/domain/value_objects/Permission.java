@@ -48,16 +48,4 @@ public record Permission (
     public static Permission deleteAttributeDefinition() {
         return new Permission("delete_attribute_definition");
     }
-
-    public static Permission createDiscount() {
-        return new Permission("create_discount");
-    }
-
-    public static Permission updateDiscount() {
-        return new Permission("update_discount");
-    }
-
-    public static Permission deleteDiscount() {
-        return new Permission("delete_discount");
-    }
 }

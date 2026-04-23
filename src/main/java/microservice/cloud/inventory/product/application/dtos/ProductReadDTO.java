@@ -1,7 +1,6 @@
 package microservice.cloud.inventory.product.application.dtos;
 
 import java.util.List;
-import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +18,6 @@ public class ProductReadDTO {
     private String description;
     private List<String> categories;
     private List<ProductAttributeValueReadDTO> attributes;
-    private Set<String> discounts;
     private Double price;
     private int stock;
     private List<String> images;

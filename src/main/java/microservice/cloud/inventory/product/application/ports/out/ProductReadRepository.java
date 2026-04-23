@@ -1,4 +1,4 @@
-package microservice.cloud.inventory.product.application.ports.put;
+package microservice.cloud.inventory.product.application.ports.out;
 
 import microservice.cloud.inventory.product.application.dtos.ProductReadDTO;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
