@@ -15,6 +15,7 @@ import microservice.cloud.inventory.category.application.use_cases.CreateCategor
 import microservice.cloud.inventory.category.application.use_cases.CreateCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.DeleteCategoryAttributeUseCase;
 import microservice.cloud.inventory.category.application.use_cases.DeleteCategoryUseCase;
+import microservice.cloud.inventory.category.application.use_cases.ListCategoriesByIdsUseCase;
 import microservice.cloud.inventory.category.application.use_cases.ListCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.UpdateCategoryUseCase;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
@@ -29,6 +30,13 @@ public class CategoryConfigAdapter {
         CategoryReadRepository categoryReadRepository
     ) {
         return new ListCategoryUseCase(categoryReadRepository);
+    }
+
+    @Bean
+    public ListCategoriesByIdsUseCase listCategoriesByIdsUseCase(
+        CategoryReadRepository categoryReadRepository 
+    ) {
+        return new ListCategoriesByIdsUseCase(categoryReadRepository);
     }
 
     @Bean

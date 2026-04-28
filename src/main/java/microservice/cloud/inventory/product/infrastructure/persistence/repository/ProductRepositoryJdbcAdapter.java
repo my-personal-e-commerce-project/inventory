@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.attribute.infrastructure.persistence.repository.AttributeDefinitionJdbcRepository;
 import microservice.cloud.inventory.category.infrastructure.persistence.repository.CategoryJdbcRepository;
-import microservice.cloud.inventory.discount.infrastrcture.persistence.repository.DiscountJdbcRepository;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
@@ -40,7 +39,6 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     private final ProductAttributeValueJdbcRepository productAttributeValueJdbcRepository;
     private final AttributeDefinitionJdbcRepository attributeDefinitionJdbcRepository;
     private final ProductJdbcRepository productJdbcRepository;
-    private final DiscountJdbcRepository discountJdbcRepository;
     private final CategoryJdbcRepository categoryJdbcRepository;
 
     @Override

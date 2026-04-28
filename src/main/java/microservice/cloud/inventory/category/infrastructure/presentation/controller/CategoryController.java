@@ -24,6 +24,7 @@ import microservice.cloud.inventory.category.application.ports.in.DeleteCategory
 import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.ListCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryUseCasePort;
+import microservice.cloud.inventory.category.application.use_cases.ListCategoriesByIdsUseCase;
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.shared.infrastructure.dto.ResponsePayload;
@@ -41,6 +42,7 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 public class CategoryController {
 
     private final ListCategoryUseCasePort listCategoryUseCasePort;
+    private final ListCategoriesByIdsUseCase listCategoriesByIdsUseCase;
     private final CreateCategoryUseCasePort createCategoryUseCasePort;
     private final UpdateCategoryUseCasePort updateCategoryUseCasePort;
     private final DeleteCategoryUseCasePort deleteCategoryUseCasePort;
@@ -51,17 +53,25 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<?> getCategories(
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) Set<String> categoryIds
     ) {
-        if(page < 1 || size < 0) {
-            page = 0;
-            size = 10;
+        if(categoryIds == null) {
+            if(page < 1 || size < 0) {
+                page = 0;
+                size = 10;
+            }
+
+            Pagination<CategoryReadDTO> categories = listCategoryUseCasePort.execute(page, size);
+            
+            return new ResponseEntity<>(
+                categories,
+                HttpStatus.OK
+            );
         }
 
-        Pagination<CategoryReadDTO> categories = listCategoryUseCasePort.execute(page, size);
-        
-        return new ResponseEntity<>(
-            categories,
+         return new ResponseEntity<>(
+            listCategoriesByIdsUseCase.execute(categoryIds),
             HttpStatus.OK
         );
     }

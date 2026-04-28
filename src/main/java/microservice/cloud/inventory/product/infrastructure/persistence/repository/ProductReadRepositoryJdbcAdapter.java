@@ -45,7 +45,6 @@ public class ProductReadRepositoryJdbcAdapter implements ProductReadRepository {
                 pav.boolean_value,
                 ad.slug AS attr_slug,
                 ad.id AS attr_id,
-                pd.discount_id AS discount_id,
                 (SELECT string_agg(category_id, ',') FROM product_categories WHERE product_id = p.id) AS all_categories
             FROM (
                 SELECT * FROM products 
