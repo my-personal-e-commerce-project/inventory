@@ -7,8 +7,6 @@ import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
-import microservice.cloud.inventory.discount.domain.entity.Discount;
-import microservice.cloud.inventory.discount.domain.repository.DiscountRepository;
 import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
