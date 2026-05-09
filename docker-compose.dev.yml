@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: debezium/postgres:16
     ports:
       - 5432:5432
     environment:
@@ -9,8 +9,45 @@ services:
       - POSTGRES_DB=inventory
     networks:
       - e-commerce-network
+    command: ["postgres", "-c", "wal_level=logical"]
     volumes:
       - pgsql:/var/lib/postgresql/data
+# =========================================================================
+# Para registrar el conector manualmente, ejecutá este comando en tu terminal:
+# 
+# curl -i -X PUT -H "Accept:application/json" -H "Content-Type:application/json" \
+#  localhost:8083/connectors/inventory-connector/config -d '{
+#    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+#    "database.hostname": "inventory-postgres-1",
+#    "database.port": "5432",
+#    "database.user": "root",
+#    "database.password": "root",
+#    "database.dbname": "inventory",
+#    "topic.prefix": "inventory",
+#    "table.include.list": "public.outbox",
+#    "plugin.name": "pgoutput",
+#    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+#    "value.converter.schemas.enable": "false",
+#    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+#    "key.converter.schemas.enable": "false"
+#  }'
+# Para verificar el estado del conector:
+# curl -s localhost:8083/connectors/mi-conector-postgres/status | jq
+# =========================================================================
+  connect:
+    image: quay.io/debezium/connect:2.5
+    depends_on:
+      - postgres
+    ports:
+      - "8083:8083"
+    networks:
+      - e-commerce-network
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:29092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
   service:
         build:
           context: .

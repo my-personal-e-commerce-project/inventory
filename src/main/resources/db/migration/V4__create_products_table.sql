@@ -103,6 +103,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+
+
+
 CREATE TRIGGER trg_product_changes
 AFTER INSERT OR UPDATE OR DELETE ON products
 FOR EACH ROW EXECUTE FUNCTION fn_build_product_outbox();
@@ -119,12 +122,4 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_refresh_from_pav AFTER INSERT OR UPDATE OR DELETE ON product_attribute_values FOR EACH ROW EXECUTE FUNCTION fn_trigger_product_refresh();
 
-CREATE OR REPLACE FUNCTION fn_trigger_product_refresh_from_cat()
-RETURNS TRIGGER AS $$
-BEGIN
-    UPDATE products SET id = id WHERE id = COALESCE(NEW.product_id, OLD.product_id);
-    RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_refresh_from_prod_cat AFTER INSERT OR UPDATE OR DELETE ON product_categories FOR EACH ROW EXECUTE FUNCTION fn_trigger_product_refresh_from_cat();
+CREATE TRIGGER trg_refresh_from_prod_cat AFTER INSERT OR UPDATE OR DELETE ON product_categories FOR EACH ROW EXECUTE FUNCTION fn_trigger_product_refresh();

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import microservice.cloud.inventory.category.domain.event.CreatedCategoryAttribute;
-import microservice.cloud.inventory.category.domain.event.DeletedCategoryAttribute;
 import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;

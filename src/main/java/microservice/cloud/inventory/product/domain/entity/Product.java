@@ -131,11 +131,9 @@ public class Product {
                 );
             }
 
-            if (productAttr != null) {
-                productAttr.validTypes(attr);
-            }
-
+            productAttr.validTypes(attr);
             validatedIds.add(def);
+
         }
   
         for (CategoryAttribute categoryAttr : catAttrs) {
@@ -154,16 +152,16 @@ public class Product {
 
             if (productAttr != null) {
                 productAttr.validTypes(categoryAttr.attribute_definition());
+                validatedIds.add(def);
             }
             
-            validatedIds.add(def);
         }
         
         Set<String> result = productAttributeByAttributeDefinitionId.keySet();
         result.removeAll(validatedIds);
 
         if(result.size() != 0)
-            throw new RuntimeException("The next ids: %s, do not defined by the categories or attribute definition".formatted(validatedIds));
+            throw new RuntimeException("The next ids: %s, do not defined by the categories or attribute definition".formatted(result));
     }
 
     public void addProductAttribute(Me me, ProductAttributeValue attr) {
