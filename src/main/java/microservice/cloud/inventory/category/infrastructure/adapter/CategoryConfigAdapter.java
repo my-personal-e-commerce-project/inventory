@@ -63,18 +63,16 @@ public class CategoryConfigAdapter {
     @Bean
     public UpdateCategoryUseCasePort updateCategoryUseCasePort(
         CategoryRepository categoryRepository,
-        CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously,
         EventPublisher eventPublisher,
         GetMePort getMePort
     ) {
-        return new UpdateCategoryUseCase(categoryRepository, createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously, eventPublisher, getMePort);
+        return new UpdateCategoryUseCase(categoryRepository, eventPublisher, getMePort);
     }
 
     @Bean
     public CreateCategoryAttributeUseCasePort createCategoryAttributeUseCasePort(
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously,
         EventPublisher eventPublisher,        
         GetMePort getMePort
     ) {
@@ -82,7 +80,6 @@ public class CategoryConfigAdapter {
         return new CreateCategoryAttributeUseCase(
             categoryRepository, 
             attributeDefinitionRepository,
-            createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously,
             eventPublisher,
             getMePort
         );

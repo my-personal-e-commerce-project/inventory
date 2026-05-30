@@ -30,14 +30,12 @@ public class Category extends AggregateRoot {
             this.categoryAttributes = new HashSet<>(categoryAttributes);
     }
 
-    public List<CategoryAttribute> updateAndReturnNewRequiredCategoryAttributes(
+    public void updateAndReturnNewRequiredCategoryAttributes(
         String name, 
         Slug slug, 
         Id parent_id, 
         Set<CategoryAttribute> categoryAttributes
     ) {
-        List<CategoryAttribute> newRequiredCategoryAttributes = new ArrayList<>();
-
         this.categoryAttributes.stream().forEach(attr -> {
             if(
                 categoryAttributes
@@ -65,18 +63,12 @@ public class Category extends AggregateRoot {
                     + newAttr.id().value() 
                     + "' not found in the current list of category attributes.");
             }
-
-            if(!oldAttr.is_required() && newAttr.is_required()) {
-                newRequiredCategoryAttributes.add(newAttr);
-            }
         });
 
         this.categoryAttributes = categoryAttributes;
         this.name = name;
         this.slug = slug;
         this.parent_id = parent_id;
-
-        return newRequiredCategoryAttributes;
     }
 
     public void validAddCategoryAttribute(CategoryAttribute attr) {

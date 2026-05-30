@@ -17,20 +17,17 @@ public class CreateCategoryAttributeUseCase implements CreateCategoryAttributeUs
 
     private CategoryRepository categoryRepository;
     private AttributeDefinitionRepository attributeDefinitionRepository;
-    private CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously;
     private EventPublisher eventPublisher;
     private GetMePort getMePort;
 
     public CreateCategoryAttributeUseCase(
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously,
         EventPublisher eventPublisher,
         GetMePort getMePort
     ) {
         this.categoryRepository = categoryRepository;
         this.attributeDefinitionRepository = attributeDefinitionRepository;
-        this.createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously = createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously;
         this.eventPublisher = eventPublisher;
         this.getMePort = getMePort;
     }
@@ -45,10 +42,6 @@ public class CreateCategoryAttributeUseCase implements CreateCategoryAttributeUs
         category.addCategoryAttribute(getMePort.execute(), categoryAttribute);
 
         categoryRepository.update(category);
-
-        if(categoryAttribute.is_required())
-            createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously
-                .execute(category.id(), List.of(categoryAttribute));
 
         eventPublisher.publish(category.getEvents());
     }

@@ -49,20 +49,19 @@ services:
       - OFFSET_STORAGE_TOPIC=my_connect_offsets
       - STATUS_STORAGE_TOPIC=my_connect_statuses
   service:
-        build:
-          context: .
-          dockerfile: Dockerfile.dev
-        ports:
-          - 8001:80
-        environment:
-          SERVER_PORT: 80
-        networks:
-          - e-commerce-network
-        volumes:
-          - ./src:/app/src
-          - .env:/app/.env
-          - ./pom.xml:/app/pom.xml
-          - ./target:/app/target
+      build:
+        context: .
+      depends_on:
+        - postgres
+      ports:
+        - 8001:80
+      #environment:
+        # SERVER_PORT: 80
+      networks:
+        - e-commerce-network
+      volumes:
+        - ./src:/app/src
+        - ./pom.xml:/app/pom.xml
 networks:
     e-commerce-network:
         external: true

@@ -18,18 +18,15 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
 
     private CategoryRepository categoryRepository;
-    private CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously;
     private EventPublisher eventPublisher;
     private GetMePort getMePort;
 
     public UpdateCategoryUseCase(
         CategoryRepository categoryRepository,
-        CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously,
         EventPublisher eventPublisher,
         GetMePort getMePort
     ) {
         this.categoryRepository = categoryRepository;
-        this.createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously = createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously;
         this.eventPublisher = eventPublisher;
         this.getMePort = getMePort;
     }
@@ -53,15 +50,9 @@ public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
 
         Category category = categoryRepository.findBySlug(find_slug);
 
-        List<CategoryAttribute> newRequiredCategoryAttributes = 
-            category.updateAndReturnNewRequiredCategoryAttributes(name, slug, parent_id, categoryAttributes);
+        category.updateAndReturnNewRequiredCategoryAttributes(name, slug, parent_id, categoryAttributes);
 
         categoryRepository.update(category);
-
-        if (!newRequiredCategoryAttributes.isEmpty()) {
-            createProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously
-                .execute(category.id(), newRequiredCategoryAttributes);
-        }
 
         eventPublisher.publish(category.getEvents());
     }

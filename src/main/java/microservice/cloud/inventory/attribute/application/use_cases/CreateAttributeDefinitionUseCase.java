@@ -16,18 +16,15 @@ import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 public class CreateAttributeDefinitionUseCase implements CreateAttributeDefinitionUseCasePort {
 
     private AttributeDefinitionRepository attributeDefinitionRepository;
-    private AsynchronousBulkCreationOfDefaultValuesForProductAttributes asynchronousBulkCreationOfDefaultValuesForProductAttributes;
     private EventPublisher eventPublisher;
     private GetMePort getMePort;
 
     public CreateAttributeDefinitionUseCase(
         AttributeDefinitionRepository attributeDefinitionRepository,
-        AsynchronousBulkCreationOfDefaultValuesForProductAttributes asynchronousBulkCreationOfDefaultValuesForProductAttributes,
         EventPublisher eventPublisher,
         GetMePort getMePort
     ) {
         this.attributeDefinitionRepository = attributeDefinitionRepository;
-        this.asynchronousBulkCreationOfDefaultValuesForProductAttributes = asynchronousBulkCreationOfDefaultValuesForProductAttributes;
         this.eventPublisher = eventPublisher;
         this.getMePort = getMePort;
     }
@@ -58,9 +55,6 @@ public class CreateAttributeDefinitionUseCase implements CreateAttributeDefiniti
         attributeDefinitionRepository.save(
             attrDef
         );
-
-        if(attrDef.is_global())
-            asynchronousBulkCreationOfDefaultValuesForProductAttributes.execute(attrDef);
         
         eventPublisher.publish(attrDef.getEvents());
     }
