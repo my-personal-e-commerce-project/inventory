@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.Set;
 
 import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryUseCasePort;
-import microservice.cloud.inventory.category.application.ports.out.CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously;
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
+import microservice.cloud.inventory.category.domain.value_objects.Status;
 import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
+import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
@@ -50,7 +51,10 @@ public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
 
         Category category = categoryRepository.findBySlug(find_slug);
 
-        category.updateAndReturnNewRequiredCategoryAttributes(name, slug, parent_id, categoryAttributes);
+        if(category.status() == Status.DISABLED)
+            throw new DataNotFound("Category not found");
+
+        category.update(name, slug, parent_id, categoryAttributes);
 
         categoryRepository.update(category);
 

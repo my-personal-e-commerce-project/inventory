@@ -8,6 +8,8 @@ target/
 
 src/main/resources/.env
 
+src/main/resources/.certs/**
+
 shell.nix
 
 ### STS ###

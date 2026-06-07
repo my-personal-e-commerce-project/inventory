@@ -7,7 +7,6 @@ import microservice.cloud.inventory.attribute.application.ports.in.CreateAttribu
 import microservice.cloud.inventory.attribute.application.ports.in.DeleteAttributeDefinitionUseCasePort;
 import microservice.cloud.inventory.attribute.application.ports.in.ListAttributeDefinitionUseCasePort;
 import microservice.cloud.inventory.attribute.application.ports.in.UpdateAttributeDefinitionUseCasePort;
-import microservice.cloud.inventory.attribute.application.ports.out.AsynchronousBulkCreationOfDefaultValuesForProductAttributes;
 import microservice.cloud.inventory.attribute.application.ports.out.AttributeDefinitionReadRepository;
 import microservice.cloud.inventory.attribute.application.use_cases.CreateAttributeDefinitionUseCase;
 import microservice.cloud.inventory.attribute.application.use_cases.DeleteAttributeDefinitionUseCase;
@@ -30,13 +29,11 @@ public class AttributeDefinitionConfig {
     @Bean
     public CreateAttributeDefinitionUseCasePort createAttributeDefinitionUseCasePort(
         AttributeDefinitionRepository attributeDefinitionRepository,
-        AsynchronousBulkCreationOfDefaultValuesForProductAttributes asynchronousBulkCreationOfDefaultValuesForProductAttributes,
         EventPublisher eventPublisher,
         GetMePort getMePort
     ) {
         return new CreateAttributeDefinitionUseCase(
             attributeDefinitionRepository, 
-            asynchronousBulkCreationOfDefaultValuesForProductAttributes, 
             eventPublisher, 
             getMePort
         );

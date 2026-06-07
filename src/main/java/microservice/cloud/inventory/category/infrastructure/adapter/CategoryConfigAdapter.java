@@ -10,13 +10,14 @@ import microservice.cloud.inventory.category.application.ports.in.DeleteCategory
 import microservice.cloud.inventory.category.application.ports.in.ListCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryUseCasePort;
 import microservice.cloud.inventory.category.application.ports.out.CategoryReadRepository;
-import microservice.cloud.inventory.category.application.ports.out.CreateProductAttributeValuesInBulkForNewRequiredCategoryAttributesAsynchronously;
 import microservice.cloud.inventory.category.application.use_cases.CreateCategoryAttributeUseCase;
 import microservice.cloud.inventory.category.application.use_cases.CreateCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.DeleteCategoryAttributeUseCase;
 import microservice.cloud.inventory.category.application.use_cases.DeleteCategoryUseCase;
+import microservice.cloud.inventory.category.application.use_cases.EnabledCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.ListCategoriesByIdsUseCase;
 import microservice.cloud.inventory.category.application.use_cases.ListCategoryUseCase;
+import microservice.cloud.inventory.category.application.use_cases.RealDeleteCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.UpdateCategoryUseCase;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
@@ -53,11 +54,26 @@ public class CategoryConfigAdapter {
     }
 
     @Bean
+    public EnabledCategoryUseCase EnabledCategoryUseCase(
+        CategoryRepository categoryRepository
+    ) {
+        return new EnabledCategoryUseCase(categoryRepository);
+    }
+
+    @Bean
+    public RealDeleteCategoryUseCase realDeleteCategoryUseCasePort(
+        CategoryRepository categoryRepository
+    ) {
+        return new RealDeleteCategoryUseCase(categoryRepository);
+    }
+
+    @Bean
     public DeleteCategoryUseCasePort deleteCategoryUseCasePort(
         CategoryRepository categoryRepository,
+        EventPublisher eventPublisher,
         GetMePort getMePort
     ) {
-        return new DeleteCategoryUseCase(categoryRepository, getMePort);
+        return new DeleteCategoryUseCase(categoryRepository, eventPublisher, getMePort);
     }
 
     @Bean

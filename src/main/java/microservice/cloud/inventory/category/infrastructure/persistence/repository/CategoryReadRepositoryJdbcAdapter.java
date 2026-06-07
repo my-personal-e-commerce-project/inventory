@@ -46,6 +46,7 @@ public class CategoryReadRepositoryJdbcAdapter implements CategoryReadRepository
             FROM (
                 SELECT * FROM category
                 WHERE id IN (:ids)
+                AND status = 'ENABLED'
             ) c
             LEFT JOIN category p ON c.parent_id = p.id 
             LEFT JOIN categoryattribute ca ON c.id = ca.category_id
@@ -86,6 +87,7 @@ public class CategoryReadRepositoryJdbcAdapter implements CategoryReadRepository
                 ad.is_global AS def_is_global
             FROM (
                 SELECT * FROM category 
+                WHERE status = 'ENABLED'
                 LIMIT :limit OFFSET :offset
             ) c
             LEFT JOIN category p ON c.parent_id = p.id 

@@ -21,6 +21,7 @@ import microservice.cloud.inventory.attribute.infrastructure.persistence.reposit
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
+import microservice.cloud.inventory.category.domain.value_objects.Status;
 import microservice.cloud.inventory.category.infrastructure.persistence.model.*;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
@@ -146,8 +147,16 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
                 .orElseThrow(() -> new DataNotFound("Category not found")));
     }
 
+    @Override
+    public Category findById(Id id) {
+        return toMap(
+            categoryJdbcRepository
+                .findById(
+                    id.value()
+                )
+                .orElseThrow(() -> new DataNotFound("Category not found")));
+    }
     
-
     @Transactional
     @Override
     public void save(Category category) {
@@ -191,8 +200,8 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
         if(categoryJdbcRepository.existsByNameAndIdNot(category.name(), category.id().value()))
             throw new RuntimeException("This name already exists");
 
-        if(!categoryJdbcRepository.existsById(category.parent_id().value()))
-            throw new RuntimeException("The category %s does not exists".formatted(category.parent_id().value()));
+        if(category.parent_id() != null && !categoryJdbcRepository.existsById(category.parent_id().value()))
+            throw new RuntimeException("The parent category %s does not exists".formatted(category.parent_id().value()));
         
         aggregateTemplate.update(toMap(category));
     }
@@ -211,6 +220,7 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
             entity.getParent_id() != null
             ? Id.fromString(entity.getParent_id())
             : null,
+            Status.valueOf(entity.getStatus()),
             entity.getCategoryAttributes()
                     .stream()
                     .map(attr -> {
@@ -237,6 +247,7 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
             entity.name(), 
             entity.slug().value(), 
             entity.parent_id() != null? entity.parent_id().value(): null,
+            entity.status().name(),
             entity.categoryAttributes()
                 .stream()
                 .map(attr -> toMap(entity.id(), attr)

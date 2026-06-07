@@ -27,6 +27,7 @@ import microservice.cloud.inventory.category.application.ports.in.UpdateCategory
 import microservice.cloud.inventory.category.application.use_cases.ListCategoriesByIdsUseCase;
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
+import microservice.cloud.inventory.category.domain.value_objects.Status;
 import microservice.cloud.inventory.shared.infrastructure.dto.ResponsePayload;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryAttributeDTO;
 import microservice.cloud.inventory.category.infrastructure.presentation.validate.CategoryDTO;
@@ -89,6 +90,7 @@ public class CategoryController {
                 category.getName(),
                 slug,
                 category.getParent_id() == null? null: Id.fromString(category.getParent_id()),
+                Status.ENABLED,
                 category.getCategoryAttributes() == null
                     ? null
                     : category.getCategoryAttributes().stream().map(attr -> {

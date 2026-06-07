@@ -15,6 +15,7 @@ public interface CategoryRepository {
     void delete(Category category);
 
     Category findBySlug(Slug slug);
+    Category findById(Id id);
     List<CategoryAttribute> getCategoryAttributesWithAttributeDefinitionsByCategoryIds(Set<String> ids);
     CategoryAttribute getCategoryAttributeByAttributeDefinitionId(Id id);
     CategoryAttribute getCategoryAttributeById(Id id);

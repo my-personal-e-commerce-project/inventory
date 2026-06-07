@@ -26,16 +26,16 @@ INSERT INTO AttributeDefinition (id, name, slug, type, is_global) VALUES
 (gen_random_uuid(), 'Capacidad Carga (kg)', 'capacidad-carga-kg', 'DOUBLE', FALSE);
 
 -- 3. CATEGORÍAS
-INSERT INTO Category (id, name, slug, parent_id) VALUES
-('cat-herr', 'Herramientas', 'herramientas', NULL),
-('cat-elec', 'Electrónica', 'electronica', NULL),
-('cat-hogar', 'Hogar y Electrodomésticos', 'hogar', NULL);
+INSERT INTO Category (id, name, slug, status, parent_id) VALUES
+('cat-herr', 'Herramientas', 'herramientas', 'ENABLED', NULL),
+('cat-elec', 'Electrónica', 'electronica', 'ENABLED', NULL),
+('cat-hogar', 'Hogar y Electrodomésticos', 'hogar', 'ENABLED', NULL);
 
-INSERT INTO Category (id, name, slug, parent_id) VALUES
-('cat-herr-elec', 'Herramientas Eléctricas', 'herramientas-electricas', 'cat-herr'),
-('cat-smartphones', 'Celulares', 'smartphones', 'cat-elec'),
-('cat-laptops', 'Laptops Gamer', 'laptops-gamer', 'cat-elec'),
-('cat-lavado', 'Lavarropas', 'lavarropas', 'cat-hogar');
+INSERT INTO Category (id, name, slug, status, parent_id) VALUES
+('cat-herr-elec', 'Herramientas Eléctricas', 'herramientas-electricas', 'ENABLED', 'cat-herr'),
+('cat-smartphones', 'Celulares', 'smartphones', 'ENABLED', 'cat-elec'),
+('cat-laptops', 'Laptops Gamer', 'laptops-gamer', 'ENABLED', 'cat-elec'),
+('cat-lavado', 'Lavarropas', 'lavarropas', 'ENABLED', 'cat-hogar');
 
 -- 4. RELACIÓN CATEGORÍA-ATRIBUTO
 INSERT INTO CategoryAttribute (id, category_id, attribute_definition_id, is_required, is_filterable, is_sortable)

@@ -55,4 +55,6 @@ public interface ProductJdbcRepository extends CrudRepository<ProductEntity, Str
         @Param("double_value") Double double_value,
         @Param("boolean_value") Boolean boolean_value
     );
+
+    boolean existsBySlug(String slug);
 }

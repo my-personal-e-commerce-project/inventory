@@ -27,6 +27,8 @@ public class CategoryEntity {
 
     private String parent_id;
 
+    private String status;
+
     @MappedCollection(idColumn = "category_id")
     private Set<CategoryAttributeEntity> categoryAttributes = new HashSet<>();
 }

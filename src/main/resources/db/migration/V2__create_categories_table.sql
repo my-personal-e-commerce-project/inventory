@@ -2,6 +2,7 @@ CREATE TABLE Category (
     id VARCHAR(255) PRIMARY KEY UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL UNIQUE,
     slug VARCHAR(255) NOT NULL UNIQUE,
+    status VARCHAR(255) NOT NULL,
     parent_id VARCHAR(255),
     
     CONSTRAINT fk_category_parent 

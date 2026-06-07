@@ -4,20 +4,17 @@ import java.time.LocalDateTime;
 
 import microservice.cloud.inventory.shared.domain.event.DomainEvent;
 
-public record DeletedCategoryAttribute(
+public record DeletedCategory(
     LocalDateTime occurredOn,
-    String aggregateId,
-    String attribute_definition_id
+    String aggregateId
 ) implements DomainEvent {
 
-    public DeletedCategoryAttribute(
-        String aggregateId,
-        String attribute_definition_id
+    public DeletedCategory(
+        String aggregateId
     ) {
         this(
             LocalDateTime.now(),
-            aggregateId,
-            attribute_definition_id
+            aggregateId
         );
     }
 }

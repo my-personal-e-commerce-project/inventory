@@ -150,6 +150,9 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     @Transactional
     @Override
     public void save(Product product) {
+        if(productJdbcRepository.existsBySlug(product.slug().value()))
+            throw new RuntimeException("This slug already exists");
+
         if(product.categories() != null && categoryJdbcRepository.countByIdIn(product.categories()) == 0)
             throw new RuntimeException("Not all provided category ids are valid");
 
@@ -166,6 +169,9 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     @Transactional
     @Override
     public void update(Product product) {
+        if(productJdbcRepository.existsBySlug(product.slug().value()))
+            throw new RuntimeException("This slug already exists");
+
         if(
             product.categories() != null 
             && categoryJdbcRepository.countByIdIn(product.categories()) != product.categories().size()

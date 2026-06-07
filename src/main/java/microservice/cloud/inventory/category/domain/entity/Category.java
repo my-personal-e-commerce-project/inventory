@@ -1,16 +1,14 @@
 package microservice.cloud.inventory.category.domain.entity;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import microservice.cloud.inventory.category.domain.event.CreatedCategoryAttribute;
+import microservice.cloud.inventory.category.domain.event.DeletedCategory;
+import microservice.cloud.inventory.category.domain.value_objects.Status;
 import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
-import microservice.cloud.inventory.shared.domain.value_objects.Me;
-import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class Category extends AggregateRoot {
@@ -18,19 +16,21 @@ public class Category extends AggregateRoot {
     private String name;
     private Slug slug;
     private Id parent_id;
+    private Status status;
     private Set<CategoryAttribute> categoryAttributes = new HashSet<>();
 
-    public Category(Id id, String name, Slug slug, Id parent_id, Set<CategoryAttribute> categoryAttributes) {
+    public Category(Id id, String name, Slug slug, Id parent_id, Status status, Set<CategoryAttribute> categoryAttributes) {
         this.id = id;
         this.name = name;
         this.slug = slug;
         this.parent_id = parent_id;
+        this.status = status;
 
         if(categoryAttributes != null)
             this.categoryAttributes = new HashSet<>(categoryAttributes);
     }
 
-    public void updateAndReturnNewRequiredCategoryAttributes(
+    public void update(
         String name, 
         Slug slug, 
         Id parent_id, 
@@ -77,14 +77,9 @@ public class Category extends AggregateRoot {
     }
 
     public void addCategoryAttribute(
-        Me me,
         CategoryAttribute attr
     ) {
-        if(me == null)
-            throw new RuntimeException("You do not have permission to perform this action.");
-
-        me.IHavePermission(Permission.updateCategory());
-    
+            
         validAddCategoryAttribute(attr);
 
         if (!this.categoryAttributes.add(attr))
@@ -107,12 +102,7 @@ public class Category extends AggregateRoot {
         }
     }
     
-    public void removeCategoryAttribute(Me me, Id id) {
-        if(me == null)
-            throw new RuntimeException("You do not have permission to perform this action.");
-
-        me.IHavePermission(Permission.updateCategory());
-
+    public void removeCategoryAttribute(Id id) {
         if(id == null)
             throw new RuntimeException("Id can not be null.");
 
@@ -127,6 +117,20 @@ public class Category extends AggregateRoot {
             .removeIf(attr -> attr.id().equals(id));
     }
 
+    public void enabledCategory() {
+        this.status = Status.ENABLED;
+    }
+
+    public void deleteCategory() {
+        this.status = Status.DISABLED;
+
+        this.publishEvent(
+            new DeletedCategory(
+                this.id.value()
+            )
+        );
+    }
+
     public Id id() {
         return id;
     }
@@ -137,6 +141,10 @@ public class Category extends AggregateRoot {
 
     public Slug slug() {
         return slug;
+    }
+
+    public Status status() {
+        return status;
     }
 
     public Id parent_id() {

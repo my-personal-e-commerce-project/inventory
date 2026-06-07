@@ -1,10 +1,7 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
-import java.util.List;
 import java.util.Set;
 
-import microservice.cloud.inventory.discount.domain.entity.Discount;
-import microservice.cloud.inventory.discount.domain.repository.DiscountRepository;
 import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.product.domain.entity.Product;

@@ -1,7 +1,6 @@
 package microservice.cloud.inventory.attribute.application.use_cases;
 
 import microservice.cloud.inventory.attribute.application.ports.in.CreateAttributeDefinitionUseCasePort;
-import microservice.cloud.inventory.attribute.application.ports.out.AsynchronousBulkCreationOfDefaultValuesForProductAttributes;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
