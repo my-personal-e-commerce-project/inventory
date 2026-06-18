@@ -4,14 +4,7 @@ import java.time.LocalDateTime;
 
 public record CategoryDiscountRemoved (
     String categoryId,
+    boolean success,
+    String errorMessage,
     LocalDateTime occurredOn
-) {
-    public CategoryDiscountRemoved(String categoryId) {
-        this(categoryId, LocalDateTime.now());
-    }
-
-    @Override
-    public LocalDateTime occurredOn() {
-        return occurredOn;
-    }
-}
+) {}

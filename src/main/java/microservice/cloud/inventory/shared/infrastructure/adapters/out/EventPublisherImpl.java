@@ -2,12 +2,12 @@ package microservice.cloud.inventory.shared.infrastructure.adapters.out;
 
 import java.util.List;
 
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import microservice.cloud.inventory.category.domain.event.DeletedCategory;
+import microservice.cloud.inventory.category.infrastructure.adapter.CategoryEventProducerConfig;
 import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 import microservice.cloud.inventory.shared.domain.event.DomainEvent;
 
@@ -16,7 +16,7 @@ import microservice.cloud.inventory.shared.domain.event.DomainEvent;
 @Component
 public class EventPublisherImpl implements EventPublisher {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final CategoryEventProducerConfig categoryEventProducerConfig;
 
     @Override
     public void publish(List<? extends DomainEvent> events) {
@@ -31,9 +31,7 @@ public class EventPublisherImpl implements EventPublisher {
 
     public void handleDeletedCategory(DeletedCategory event) throws RuntimeException {
         try {
-            String messageKey = String.valueOf(event.aggregateId()); 
-            
-            kafkaTemplate.send("inventory.category.saga-events", messageKey, event).get();
+            categoryEventProducerConfig.sendMessage(event);
         } catch (Exception e) {
             log.error(
                 "CRITICAL: DeletedCategory event could not be sent via Kafka: " + e.getMessage()

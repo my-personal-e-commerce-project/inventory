@@ -141,8 +141,9 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
     public Category findBySlug(Slug slug) {
         return toMap(
             categoryJdbcRepository
-                .findBySlug(
-                    slug.value()
+                .findBySlugAndStatus(
+                    slug.value(),
+                    Status.ENABLED.name()
                 )
                 .orElseThrow(() -> new DataNotFound("Category not found")));
     }
@@ -151,8 +152,9 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
     public Category findById(Id id) {
         return toMap(
             categoryJdbcRepository
-                .findById(
-                    id.value()
+                .findByIdAndStatus(
+                    id.value(),
+                    Status.ENABLED.name()
                 )
                 .orElseThrow(() -> new DataNotFound("Category not found")));
     }
@@ -171,12 +173,16 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
             throw new RuntimeException("One or more attribute definitions are do not exist!");
         }
 
-        if(categoryJdbcRepository.existsBySlug(category.slug().value()))
+        if(categoryJdbcRepository.existsBySlug(category.slug().value())) 
             throw new RuntimeException("This slug already exists");
 
-        if(categoryJdbcRepository.existsByName(category.name()))
+        if(categoryJdbcRepository.existsByName(category.name())) 
             throw new RuntimeException("This name already exists");
-        
+       
+ 
+        if(category.parent_id() != null && !categoryJdbcRepository.existsByIdAndStatus(category.parent_id().value(), Status.ENABLED.name()))
+            throw new RuntimeException("The parent category %s does not exists".formatted(category.parent_id().value()));
+
         aggregateTemplate.insert(toMap(category));
     }
 
@@ -194,13 +200,19 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
             throw new RuntimeException("One or more attribute definitions are do not exist!");
         }
 
-        if(categoryJdbcRepository.existsBySlugAndIdNot(category.slug().value(), category.id().value()))
-            throw new RuntimeException("This slug already exists");
+        CategoryEntity entity = aggregateTemplate.findById(category.id().value(), CategoryEntity.class);
 
-        if(categoryJdbcRepository.existsByNameAndIdNot(category.name(), category.id().value()))
-            throw new RuntimeException("This name already exists");
+        if(
+            !entity.getSlug().equals(category.slug().value())
+            && categoryJdbcRepository.existsBySlug(category.slug().value())
+        ) throw new RuntimeException("This slug already exists");
 
-        if(category.parent_id() != null && !categoryJdbcRepository.existsById(category.parent_id().value()))
+        if(
+            !entity.getName().equals(category.name())
+            && categoryJdbcRepository.existsByName(category.name())
+        ) throw new RuntimeException("This name already exists");
+        
+        if(category.parent_id() != null && !categoryJdbcRepository.existsByIdAndStatus(category.parent_id().value(), Status.ENABLED.name()))
             throw new RuntimeException("The parent category %s does not exists".formatted(category.parent_id().value()));
         
         aggregateTemplate.update(toMap(category));

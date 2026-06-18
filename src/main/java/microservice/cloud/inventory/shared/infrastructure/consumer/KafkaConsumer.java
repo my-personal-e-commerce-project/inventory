@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.category.application.use_cases.EnabledCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.RealDeleteCategoryUseCase;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
-import microservice.cloud.inventory.shared.infrastructure.dto.CategoryDiscountRemovalFailed;
 import microservice.cloud.inventory.shared.infrastructure.dto.CategoryDiscountRemoved;
 
 @RequiredArgsConstructor
@@ -21,20 +20,20 @@ public class KafkaConsumer {
     private final EnabledCategoryUseCase enabledCategoryUseCase;
 
     @Bean
-    public Consumer<Message<CategoryDiscountRemovalFailed>> discountSagaHandler() {
+    public Consumer<Message<CategoryDiscountRemoved>> discountSagaHandler() {
         return message -> {
+            System.out.println("debug");
+            System.out.println("debug");
+            System.out.println("debug");
+            System.out.println("debug");
+            
             System.out.println(message.getPayload().categoryId());
-            enabledCategoryUseCase.execute(Id.fromString(message.getPayload().categoryId()));
-        };
-    }
-
-    @Bean
-    public Consumer<Message<CategoryDiscountRemoved>> discountSagaFailedHandler() {
-        return message -> {
-            System.out.println(message.getPayload().categoryId());
-            realDeleteCategoryUseCase.execute(
-                Id.fromString(message.getPayload().categoryId())
-            );
+            
+            if(message.getPayload().success()) {
+                realDeleteCategoryUseCase.execute(Id.fromString(message.getPayload().categoryId()));
+            } else {
+                enabledCategoryUseCase.execute(Id.fromString(message.getPayload().categoryId()));
+            }
         };
     }
 }
