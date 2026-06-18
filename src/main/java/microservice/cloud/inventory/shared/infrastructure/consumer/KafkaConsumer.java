@@ -22,13 +22,7 @@ public class KafkaConsumer {
     @Bean
     public Consumer<Message<CategoryDiscountRemoved>> discountSagaHandler() {
         return message -> {
-            System.out.println("debug");
-            System.out.println("debug");
-            System.out.println("debug");
-            System.out.println("debug");
-            
-            System.out.println(message.getPayload().categoryId());
-            
+           
             if(message.getPayload().success()) {
                 realDeleteCategoryUseCase.execute(Id.fromString(message.getPayload().categoryId()));
             } else {
