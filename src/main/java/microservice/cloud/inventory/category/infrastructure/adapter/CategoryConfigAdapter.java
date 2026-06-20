@@ -14,7 +14,7 @@ import microservice.cloud.inventory.category.application.use_cases.CreateCategor
 import microservice.cloud.inventory.category.application.use_cases.CreateCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.DeleteCategoryAttributeUseCase;
 import microservice.cloud.inventory.category.application.use_cases.DeleteCategoryUseCase;
-import microservice.cloud.inventory.category.application.use_cases.EnabledCategoryUseCase;
+import microservice.cloud.inventory.category.application.use_cases.RollbackCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.ListCategoriesByIdsUseCase;
 import microservice.cloud.inventory.category.application.use_cases.ListCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.RealDeleteCategoryUseCase;
@@ -54,10 +54,10 @@ public class CategoryConfigAdapter {
     }
 
     @Bean
-    public EnabledCategoryUseCase EnabledCategoryUseCase(
+    public RollbackCategoryUseCase rollbackCategoryUseCase(
         CategoryRepository categoryRepository
     ) {
-        return new EnabledCategoryUseCase(categoryRepository);
+        return new RollbackCategoryUseCase(categoryRepository);
     }
 
     @Bean

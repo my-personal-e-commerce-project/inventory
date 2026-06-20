@@ -65,7 +65,7 @@ BEGIN
             'tags', NEW.tags,
             'categories', (
                 SELECT coalesce(
-                    jsonb_agg(jsonb_build_object('slug', c.slug, 'name', c.name)), 
+                    jsonb_agg(jsonb_build_object('slug', c.slug, 'name', c.name, 'id', c.id)), 
                     '[]'::jsonb
                 )
                 FROM product_categories pc

@@ -152,9 +152,8 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
     public Category findById(Id id) {
         return toMap(
             categoryJdbcRepository
-                .findByIdAndStatus(
-                    id.value(),
-                    Status.ENABLED.name()
+                .findById(
+                    id.value()
                 )
                 .orElseThrow(() -> new DataNotFound("Category not found")));
     }

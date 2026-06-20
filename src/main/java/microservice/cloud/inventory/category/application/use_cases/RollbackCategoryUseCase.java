@@ -4,11 +4,11 @@ import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 
-public class EnabledCategoryUseCase {
+public class RollbackCategoryUseCase {
    
     private CategoryRepository categoryRepository;
 
-    public EnabledCategoryUseCase(
+    public RollbackCategoryUseCase(
         CategoryRepository categoryRepository
     ) {
         this.categoryRepository = categoryRepository;
