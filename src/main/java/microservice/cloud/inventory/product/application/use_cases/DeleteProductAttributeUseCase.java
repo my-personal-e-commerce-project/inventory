@@ -1,7 +1,6 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
-import microservice.cloud.inventory.product.application.ports.in.DeleteProductAttributeUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
@@ -9,7 +8,7 @@ import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
-public class DeleteProductAttributeUseCase implements DeleteProductAttributeUseCasePort {
+public class DeleteProductAttributeUseCase {
 
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
@@ -25,7 +24,6 @@ public class DeleteProductAttributeUseCase implements DeleteProductAttributeUseC
         this.getMePort = getMePort;
     }
 
-    @Override
     public Product execute(Slug find_slug, Id productAttributeId) {
         Product product = productRepository.findBySlug(find_slug);
 

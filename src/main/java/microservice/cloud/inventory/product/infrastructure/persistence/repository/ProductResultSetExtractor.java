@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +37,7 @@ public class ProductResultSetExtractor implements ResultSetExtractor<List<Produc
                     rs.getString("slug"),
                     rs.getString("description"),
                     new ArrayList<>(),
+                    rs.getBoolean("isActive"),
                     new ArrayList<>(),
                     rs.getDouble("price"),
                     rs.getInt("stock"),
@@ -63,18 +63,19 @@ public class ProductResultSetExtractor implements ResultSetExtractor<List<Produc
             valId = rs.getString("val_id");
             if (valId != null) {
                 product.getAttributes().add(
-                        new ProductAttributeValueReadDTO(
-                            valId,
-                            rs.getString("attr_slug"),
-                            rs.getString("attr_id"),
-                            rs.getString("string_value"),
-                            rs.getObject("integer_value", Integer.class),
-                            rs.getObject("double_value", Double.class),
-                            rs.getObject("boolean_value", Boolean.class)
-                        )
-                    );
+                    new ProductAttributeValueReadDTO(
+                        valId,
+                        rs.getString("attr_slug"),
+                        rs.getString("attr_id"),
+                        rs.getString("string_value"),
+                        rs.getObject("integer_value", Integer.class),
+                        rs.getObject("double_value", Double.class),
+                        rs.getObject("boolean_value", Boolean.class)
+                    )
+                );
             }
         }
+
         return new ArrayList<>(productsMap.values());
     }
 }

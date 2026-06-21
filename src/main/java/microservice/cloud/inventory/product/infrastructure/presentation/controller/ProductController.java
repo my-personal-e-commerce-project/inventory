@@ -19,12 +19,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.shared.infrastructure.dto.ResponsePayload;
 import microservice.cloud.inventory.product.application.dtos.ProductReadDTO;
-import microservice.cloud.inventory.product.application.ports.in.AddProductAttributeUseCasePort;
-import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
-import microservice.cloud.inventory.product.application.ports.in.DeleteProductAttributeUseCasePort;
-import microservice.cloud.inventory.product.application.ports.in.DeleteProductUseCasePort;
-import microservice.cloud.inventory.product.application.ports.in.ListProductsUseCasePort;
-import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
+import microservice.cloud.inventory.product.application.use_cases.AddProductAttributeUseCase;
+import microservice.cloud.inventory.product.application.use_cases.CreateProductUseCase;
+import microservice.cloud.inventory.product.application.use_cases.DeleteProductAttributeUseCase;
+import microservice.cloud.inventory.product.application.use_cases.DeleteProductUseCase;
+import microservice.cloud.inventory.product.application.use_cases.ListProductsUseCase;
+import microservice.cloud.inventory.product.application.use_cases.UpdateProductUseCase;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
@@ -41,19 +41,19 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 @RequiredArgsConstructor
 public class ProductController {
     
-    private final CreateProductUseCasePort createProductUseCasePort;
-    private final UpdateProductUseCasePort updateProductUseCasePort;
-    private final ListProductsUseCasePort listProductsUseCasePort;
-    private final DeleteProductUseCasePort deleteProductUseCasePort;
-    private final AddProductAttributeUseCasePort addProductAttributeUseCasePort;
-    private final DeleteProductAttributeUseCasePort deleteProductAttributeUseCasePort;
+    private final CreateProductUseCase createProductUseCase;
+    private final UpdateProductUseCase updateProductUseCase;
+    private final ListProductsUseCase listProductsUseCase;
+    private final DeleteProductUseCase deleteProductUseCase;
+    private final AddProductAttributeUseCase addProductAttributeUseCase;
+    private final DeleteProductAttributeUseCase deleteProductAttributeUseCase;
 
     @GetMapping
     public ResponseEntity<?> listProducts(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
-        Pagination<ProductReadDTO> products = listProductsUseCasePort.execute(page, size);
+        Pagination<ProductReadDTO> products = listProductsUseCase.execute(page, size);
 
         return ResponseEntity.ok(
             products
@@ -76,13 +76,14 @@ public class ProductController {
 
         productDTO.setId(Id.generate().value());
 
-        createProductUseCasePort.execute(
+        createProductUseCase.execute(
             new Product(
                 Id.fromString(productDTO.getId()),
                 productDTO.getTitle(),
                 Slug.fromString(productDTO.getSlug()),
                 productDTO.getDescription(),
                 productDTO.getCategories(),
+                productDTO.isActive(),
                 new Price(productDTO.getPrice()),
                 productDTO.getAttributes().stream().map(attr -> 
                     new ProductAttributeValue(
@@ -112,12 +113,13 @@ public class ProductController {
         @PathVariable String find_slug,
         @Valid @RequestBody UpdateProductDTO productDTO
     ) {
-        updateProductUseCasePort.execute(
+        updateProductUseCase.execute(
             Slug.fromString(find_slug),
             productDTO.title(),
             Slug.fromString(productDTO.slug()),
             productDTO.description(),
             productDTO.categories(),
+            productDTO.isActive(),
             new Price(productDTO.price()),
             new Quantity(productDTO.stock()),
             null,
@@ -144,7 +146,7 @@ public class ProductController {
     public ResponseEntity<?> deleteProduct(
         @PathVariable String find_slug
     ) {
-        deleteProductUseCasePort.execute(Slug.fromString(find_slug));
+        deleteProductUseCase.execute(Slug.fromString(find_slug));
         return ResponseEntity.noContent().build();
     }
 
@@ -163,7 +165,7 @@ public class ProductController {
             attr.getBoolean_value()
         );
 
-        addProductAttributeUseCasePort.execute(Slug.fromString(find_slug), productAttributeValue);
+        addProductAttributeUseCase.execute(Slug.fromString(find_slug), productAttributeValue);
 
         return new ResponseEntity<>(
             ResponsePayload.<ProductAttributeValueDTO>builder().payload(attr).build(),
@@ -176,7 +178,7 @@ public class ProductController {
         @PathVariable String find_slug,
         @PathVariable String attr_id
     ) {
-        deleteProductAttributeUseCasePort.execute(Slug.fromString(find_slug), Id.fromString(attr_id));
+        deleteProductAttributeUseCase.execute(Slug.fromString(find_slug), Id.fromString(attr_id));
 
         return ResponseEntity.noContent().build();
     }

@@ -33,6 +33,8 @@ public class ProductEntity {
     @MappedCollection(idColumn = "product_id")
     private Set<ProductCategoryReference> categories = new HashSet<>();
 
+    private boolean isActive;
+
     private Double price;
     
     private int stock;

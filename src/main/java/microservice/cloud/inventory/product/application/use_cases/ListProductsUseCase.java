@@ -1,11 +1,10 @@
 package microservice.cloud.inventory.product.application.use_cases;
 
 import microservice.cloud.inventory.product.application.dtos.ProductReadDTO;
-import microservice.cloud.inventory.product.application.ports.in.ListProductsUseCasePort;
 import microservice.cloud.inventory.product.application.ports.out.ProductReadRepository;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
 
-public class ListProductsUseCase implements ListProductsUseCasePort {
+public class ListProductsUseCase {
 
     private ProductReadRepository productReadRepository;
 
@@ -15,7 +14,6 @@ public class ListProductsUseCase implements ListProductsUseCasePort {
         this.productReadRepository = productReadRepository;
     }
 
-    @Override
     public Pagination<ProductReadDTO> execute(int page, int limit) {
         return productReadRepository.findAll(page, limit);
     }

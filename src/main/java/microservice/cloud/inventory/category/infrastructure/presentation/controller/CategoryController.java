@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.category.application.dtos.CategoryReadDTO;
-import microservice.cloud.inventory.category.application.ports.in.CreateCategoryAttributeUseCasePort;
-import microservice.cloud.inventory.category.application.ports.in.CreateCategoryUseCasePort;
-import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryAttributeUseCasePort;
-import microservice.cloud.inventory.category.application.ports.in.DeleteCategoryUseCasePort;
-import microservice.cloud.inventory.category.application.ports.in.ListCategoryUseCasePort;
-import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryUseCasePort;
+import microservice.cloud.inventory.category.application.use_cases.CreateCategoryAttributeUseCase;
+import microservice.cloud.inventory.category.application.use_cases.CreateCategoryUseCase;
+import microservice.cloud.inventory.category.application.use_cases.DeleteCategoryAttributeUseCase;
+import microservice.cloud.inventory.category.application.use_cases.DeleteCategoryUseCase;
+import microservice.cloud.inventory.category.application.use_cases.ListCategoryUseCase;
+import microservice.cloud.inventory.category.application.use_cases.UpdateCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.ListCategoriesByIdsUseCase;
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
@@ -42,14 +42,14 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 @RequiredArgsConstructor
 public class CategoryController {
 
-    private final ListCategoryUseCasePort listCategoryUseCasePort;
+    private final ListCategoryUseCase listCategoryUseCase;
     private final ListCategoriesByIdsUseCase listCategoriesByIdsUseCase;
-    private final CreateCategoryUseCasePort createCategoryUseCasePort;
-    private final UpdateCategoryUseCasePort updateCategoryUseCasePort;
-    private final DeleteCategoryUseCasePort deleteCategoryUseCasePort;
+    private final CreateCategoryUseCase createCategoryUseCase;
+    private final UpdateCategoryUseCase updateCategoryUseCase;
+    private final DeleteCategoryUseCase deleteCategoryUseCase;
 
-    private final CreateCategoryAttributeUseCasePort createCategoryAttributeUseCasePort; 
-    private final DeleteCategoryAttributeUseCasePort deleteCategoryAttributeUseCasePort; 
+    private final CreateCategoryAttributeUseCase createCategoryAttributeUseCase; 
+    private final DeleteCategoryAttributeUseCase deleteCategoryAttributeUseCase; 
 
     @GetMapping
     public ResponseEntity<?> getCategories(
@@ -63,7 +63,7 @@ public class CategoryController {
                 size = 10;
             }
 
-            Pagination<CategoryReadDTO> categories = listCategoryUseCasePort.execute(page, size);
+            Pagination<CategoryReadDTO> categories = listCategoryUseCase.execute(page, size);
             
             return new ResponseEntity<>(
                 categories,
@@ -84,7 +84,7 @@ public class CategoryController {
         category.setId(Id.generate().value());
         Slug slug = Slug.fromString(category.getSlug());
 
-        createCategoryUseCasePort.execute(
+        createCategoryUseCase.execute(
             new Category(
                 Id.fromString(category.getId()),
                 category.getName(),
@@ -121,7 +121,7 @@ public class CategoryController {
             })
             .collect(Collectors.toSet());
 
-        updateCategoryUseCasePort.execute(
+        updateCategoryUseCase.execute(
             Slug.fromString(find_slug),
             category.name(), 
             Slug.fromString(category.slug()), 
@@ -144,7 +144,7 @@ public class CategoryController {
     public ResponseEntity<?> deleteCategory(
         @PathVariable String find_slug
     ) {
-        deleteCategoryUseCasePort.execute(
+        deleteCategoryUseCase.execute(
             Slug.fromString(find_slug)
         );
 
@@ -158,7 +158,7 @@ public class CategoryController {
     ) {
         categoryAttribute.setId(Id.generate().value());
 
-        createCategoryAttributeUseCasePort.execute(
+        createCategoryAttributeUseCase.execute(
             Slug.fromString(find_slug), 
             toMap(categoryAttribute)
         );
@@ -177,7 +177,7 @@ public class CategoryController {
         @PathVariable String find_slug,
         @PathVariable String attr_id
     ) {
-        deleteCategoryAttributeUseCasePort.execute(Slug.fromString(find_slug), Id.fromString(attr_id));
+        deleteCategoryAttributeUseCase.execute(Slug.fromString(find_slug), Id.fromString(attr_id));
 
         return ResponseEntity.noContent().build();
     }

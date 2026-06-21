@@ -1,6 +1,5 @@
 package microservice.cloud.inventory.attribute.application.use_cases;
 
-import microservice.cloud.inventory.attribute.application.ports.in.CreateAttributeDefinitionUseCasePort;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
@@ -12,7 +11,7 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 
-public class CreateAttributeDefinitionUseCase implements CreateAttributeDefinitionUseCasePort {
+public class CreateAttributeDefinitionUseCase {
 
     private AttributeDefinitionRepository attributeDefinitionRepository;
     private EventPublisher eventPublisher;
@@ -28,7 +27,6 @@ public class CreateAttributeDefinitionUseCase implements CreateAttributeDefiniti
         this.getMePort = getMePort;
     }
 
-    @Override
     public void execute(
         Id id, 
         String name, 

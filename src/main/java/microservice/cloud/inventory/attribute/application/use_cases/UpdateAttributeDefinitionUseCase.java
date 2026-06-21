@@ -1,6 +1,5 @@
 package microservice.cloud.inventory.attribute.application.use_cases;
 
-import microservice.cloud.inventory.attribute.application.ports.in.UpdateAttributeDefinitionUseCasePort;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
@@ -9,7 +8,7 @@ import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
-public class UpdateAttributeDefinitionUseCase implements UpdateAttributeDefinitionUseCasePort {
+public class UpdateAttributeDefinitionUseCase {
 
     private final AttributeDefinitionRepository attributeDefinitionRepository;
     private final GetMePort getMePort;
@@ -22,7 +21,6 @@ public class UpdateAttributeDefinitionUseCase implements UpdateAttributeDefiniti
         this.getMePort = getMePort;
     }
 
-    @Override
     public AttributeDefinition execute(
         Slug find_slug,
         String name,

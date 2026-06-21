@@ -17,6 +17,7 @@ public class ProductReadDTO {
     private String slug;
     private String description;
     private List<String> categories;
+    private boolean isActive;
     private List<ProductAttributeValueReadDTO> attributes;
     private Double price;
     private int stock;

@@ -34,6 +34,8 @@ public class ProductDTO {
     @NotEmpty
     private Set<String> categories;
 
+    private boolean isActive = true;
+
     @Valid
     private List<ProductAttributeValueDTO> attributes;
 

@@ -3,14 +3,10 @@ package microservice.cloud.inventory.attribute.infrastructure.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import microservice.cloud.inventory.attribute.application.ports.in.CreateAttributeDefinitionUseCasePort;
-import microservice.cloud.inventory.attribute.application.ports.in.DeleteAttributeDefinitionUseCasePort;
-import microservice.cloud.inventory.attribute.application.ports.in.ListAttributeDefinitionUseCasePort;
-import microservice.cloud.inventory.attribute.application.ports.in.UpdateAttributeDefinitionUseCasePort;
-import microservice.cloud.inventory.attribute.application.ports.out.AttributeDefinitionReadRepository;
 import microservice.cloud.inventory.attribute.application.use_cases.CreateAttributeDefinitionUseCase;
 import microservice.cloud.inventory.attribute.application.use_cases.DeleteAttributeDefinitionUseCase;
 import microservice.cloud.inventory.attribute.application.use_cases.ListAttributeDefinitionUseCase;
+import microservice.cloud.inventory.attribute.application.ports.out.AttributeDefinitionReadRepository;
 import microservice.cloud.inventory.attribute.application.use_cases.UpdateAttributeDefinitionUseCase;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
@@ -20,38 +16,38 @@ import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 public class AttributeDefinitionConfig {
 
     @Bean
-    public ListAttributeDefinitionUseCasePort listAttributeDefinitionUseCasePort(
+    public ListAttributeDefinitionUseCase listAttributeDefinitionUseCase(
         AttributeDefinitionReadRepository attributeDefinitionReadRepository
     ) {
         return new ListAttributeDefinitionUseCase(attributeDefinitionReadRepository);
     }
 
     @Bean
-    public CreateAttributeDefinitionUseCasePort createAttributeDefinitionUseCasePort(
+    public CreateAttributeDefinitionUseCase createAttributeDefinitionUseCase(
         AttributeDefinitionRepository attributeDefinitionRepository,
         EventPublisher eventPublisher,
-        GetMePort getMePort
+        GetMePort getMe
     ) {
         return new CreateAttributeDefinitionUseCase(
             attributeDefinitionRepository, 
             eventPublisher, 
-            getMePort
+            getMe
         );
     }
 
     @Bean
-    public UpdateAttributeDefinitionUseCasePort UpdateAttributeDefinitionUseCase(
+    public UpdateAttributeDefinitionUseCase UpdateAttributeDefinitionUseCase(
         AttributeDefinitionRepository attributeDefinitionRepository,
-        GetMePort getMePort
+        GetMePort getMe
     ) {
-        return new UpdateAttributeDefinitionUseCase(attributeDefinitionRepository, getMePort);
+        return new UpdateAttributeDefinitionUseCase(attributeDefinitionRepository, getMe);
     }
     
     @Bean
-    public DeleteAttributeDefinitionUseCasePort deleteAttributeDefinitionUseCasePort(
+    public DeleteAttributeDefinitionUseCase deleteAttributeDefinitionUseCase(
         AttributeDefinitionRepository attributeDefinitionRepository,
-        GetMePort getMePort
+        GetMePort getMe
     ) {
-        return new DeleteAttributeDefinitionUseCase(attributeDefinitionRepository, getMePort);
+        return new DeleteAttributeDefinitionUseCase(attributeDefinitionRepository, getMe);
     }
 }

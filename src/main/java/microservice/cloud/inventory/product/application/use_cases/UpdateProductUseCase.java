@@ -2,7 +2,6 @@ package microservice.cloud.inventory.product.application.use_cases;
 
 import java.util.Set;
 
-import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
@@ -13,7 +12,7 @@ import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
-public class UpdateProductUseCase implements UpdateProductUseCasePort {
+public class UpdateProductUseCase {
 
     private final ProductRepository productRepository;
     private final GetMePort getMePort;
@@ -26,13 +25,13 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
         this.getMePort = getMePort;
     }
 
-    @Override
     public void execute(
         Slug find_slug,
         String title, 
         Slug slug, 
         String description,
         Set<String> categories,
+        boolean isActive,
         Price price,
         Quantity stock,
         Set<String> images,
@@ -52,8 +51,9 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
             title, 
             slug, 
             description, 
-            categories, 
-            price, 
+            categories,
+            isActive,
+            price,
             stock, 
             images, 
             attributes, 
@@ -63,3 +63,4 @@ public class UpdateProductUseCase implements UpdateProductUseCasePort {
         productRepository.update(p);
     }
 }
+

@@ -3,6 +3,7 @@ CREATE TABLE products (
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
+    is_active BOOLEAN NOT NULL DEFAULT true,
     images varchar[],
     tags varchar[],
     price DOUBLE PRECISION NOT NULL,
@@ -61,6 +62,7 @@ BEGIN
             'description', NEW.description,
             'price', NEW.price,
             'stock', NEW.stock,
+            'isActive', NEW.is_active,
             'images', NEW.images,
             'tags', NEW.tags,
             'categories', (

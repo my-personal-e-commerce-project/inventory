@@ -26,6 +26,7 @@ public class Product {
     private Slug slug;
     private String description;
     private Set<String> categories;
+    private boolean isActive;
     private Price price;
     private Map<String, ProductAttributeValue> attributeValues = new HashMap<>();
     private Quantity stock;
@@ -37,7 +38,8 @@ public class Product {
         String title,
         Slug slug,
         String description,
-        Set<String> categories, 
+        Set<String> categories,
+        boolean isActive,
         Price price, 
         Set<ProductAttributeValue> attributeValues,
         Quantity stock,
@@ -52,6 +54,7 @@ public class Product {
         this.slug = slug;
         this.description = description;
         this.categories = categories;
+        this.isActive = isActive;
         attributeValues.stream().forEach(attr -> this.attributeValues.put(attr.id().value(), attr));
         this.price = price;
         this.stock = stock;
@@ -64,6 +67,7 @@ public class Product {
         Slug slug, 
         String description,
         Set<String> categories,
+        boolean isActive,
         Price price,
         Quantity stock,
         Set<String> images,
@@ -100,6 +104,7 @@ public class Product {
         this.slug = slug;
         this.description = description;
         this.categories = categories;
+        this.isActive = isActive;
         this.price = price;
         this.stock = stock;
         this.images = images;
@@ -126,7 +131,7 @@ public class Product {
                 throw new IllegalStateException(
                     "The product attribute is missing for: " 
                     + attr.slug().value() 
-                    + ", this is a global attribute definition. Go create a new attribute in the appropriate endpoint, the id is: " 
+                    + ", this is a global attribute definition. Go create a new attribute, the id is: " 
                     + attr.id().value()
                 );
             }
@@ -214,6 +219,10 @@ public class Product {
 
     public Set<String> categories() {
         return new HashSet<>(categories);
+    }
+
+    public boolean isActive() {
+        return isActive;
     }
 
     public Price price() {

@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import microservice.cloud.inventory.attribute.application.ports.in.CreateAttributeDefinitionUseCasePort;
-import microservice.cloud.inventory.attribute.application.ports.in.DeleteAttributeDefinitionUseCasePort;
-import microservice.cloud.inventory.attribute.application.ports.in.ListAttributeDefinitionUseCasePort;
-import microservice.cloud.inventory.attribute.application.ports.in.UpdateAttributeDefinitionUseCasePort;
+import microservice.cloud.inventory.attribute.application.use_cases.CreateAttributeDefinitionUseCase;
+import microservice.cloud.inventory.attribute.application.use_cases.DeleteAttributeDefinitionUseCase;
+import microservice.cloud.inventory.attribute.application.use_cases.ListAttributeDefinitionUseCase;
+import microservice.cloud.inventory.attribute.application.use_cases.UpdateAttributeDefinitionUseCase;
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.infrastructure.presentation.validate.AttributeDefinitionDTO;
 import microservice.cloud.inventory.attribute.infrastructure.presentation.validate.UpdateAttributeDefinitionDTO;
@@ -33,10 +33,10 @@ import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 @RequiredArgsConstructor
 public class AttributeDefinitionController {
 
-    private final CreateAttributeDefinitionUseCasePort createAttributeDefinitionUseCasePort;
-    private final UpdateAttributeDefinitionUseCasePort updateAttributeDefinitionUseCasePort;
-    private final DeleteAttributeDefinitionUseCasePort deleteAttributeDefinitionUseCasePort;
-    private final ListAttributeDefinitionUseCasePort listAttributeDefinitionUseCasePort;
+    private final CreateAttributeDefinitionUseCase createAttributeDefinitionUseCase;
+    private final UpdateAttributeDefinitionUseCase updateAttributeDefinitionUseCase;
+    private final DeleteAttributeDefinitionUseCase deleteAttributeDefinitionUseCase;
+    private final ListAttributeDefinitionUseCase listAttributeDefinitionUseCase;
 
     @GetMapping
     public ResponseEntity<?> listDefaultAttributes(
@@ -44,7 +44,7 @@ public class AttributeDefinitionController {
         @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(
-            listAttributeDefinitionUseCasePort.execute(page, size)
+            listAttributeDefinitionUseCase.execute(page, size)
         );
     }
 
@@ -56,7 +56,7 @@ public class AttributeDefinitionController {
 
         Slug slug = Slug.create(attribute.slug());
 
-        createAttributeDefinitionUseCasePort.execute(
+        createAttributeDefinitionUseCase.execute(
             Id.fromString(id), 
             attribute.name(),
             slug,
@@ -84,7 +84,7 @@ public class AttributeDefinitionController {
         @RequestParam String find_slug,
         @Valid @RequestBody UpdateAttributeDefinitionDTO attribute
     ) {
-        AttributeDefinition attrDef = updateAttributeDefinitionUseCasePort.execute(
+        AttributeDefinition attrDef = updateAttributeDefinitionUseCase.execute(
             Slug.fromString(find_slug),
             attribute.name(), 
             Slug.fromString(attribute.slug()), 
@@ -110,7 +110,7 @@ public class AttributeDefinitionController {
     public ResponseEntity<?> deleteAttributeDefinition(
         @PathVariable String find_slug
     ) {
-        deleteAttributeDefinitionUseCasePort.execute(
+        deleteAttributeDefinitionUseCase.execute(
             Slug.fromString(find_slug)
         );
 

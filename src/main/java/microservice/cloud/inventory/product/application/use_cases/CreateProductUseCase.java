@@ -7,14 +7,13 @@ import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
-import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 
-public class CreateProductUseCase implements CreateProductUseCasePort {
+public class CreateProductUseCase {
 
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
@@ -33,7 +32,6 @@ public class CreateProductUseCase implements CreateProductUseCasePort {
         this.categoryRepository = categoryRepository;
     }
    
-    @Override
     public void execute(
         Product product
     ) {

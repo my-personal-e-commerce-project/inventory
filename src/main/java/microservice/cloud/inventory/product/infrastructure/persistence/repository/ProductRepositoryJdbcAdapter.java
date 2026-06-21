@@ -218,6 +218,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
             product.slug().value(),
             product.description(),
             categories,
+            product.isActive(),
             product.price().value(),
             product.stock().value(),
             product.images() == null? null: new HashSet<>(product.images()),
@@ -249,6 +250,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
             Slug.fromString(product.getSlug()),
             product.getDescription(),
             categories,
+            product.isActive(),
             new Price(product.getPrice()),
             product.getAttributeValues()
                 .stream()

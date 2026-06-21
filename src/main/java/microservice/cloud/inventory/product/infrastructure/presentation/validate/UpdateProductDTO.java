@@ -18,6 +18,9 @@ public record UpdateProductDTO (
     String description,
     @NotNull
     Set<String> categories,
+    @NotNull
+    @NotEmpty
+    Boolean isActive,
     @Valid
     @NotNull
     Set<UpdateProductAttributeValueDTO> attributes,

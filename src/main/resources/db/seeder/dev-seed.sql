@@ -47,31 +47,30 @@ SELECT gen_random_uuid(), 'cat-lavado', id, TRUE, TRUE, TRUE
 FROM AttributeDefinition WHERE slug IN ('capacidad-carga-kg');
 
 -- 5. PRODUCTOS (20+ Productos para Testing de SEO y Relevancia)
-INSERT INTO products (id, title, slug, description, images, tags, price, stock) VALUES
+INSERT INTO products (id, title, slug, description, is_active, images, tags, price, stock) VALUES
 -- HERRAMIENTAS (10+)
-('h-1', 'Taladro DeWalt DCD771', 'dewalt-dcd771', 'Taladro atornillador inalámbrico 20V.', '{"d1.jpg"}', '{"herramienta", "pro", "bateria"}', 150.00, 10),
-('h-2', 'Amoladora Bosch GWS 700', 'bosch-gws-700', 'Amoladora angular 710W profesional.', '{"b1.jpg"}', '{"herramienta", "corte", "taller"}', 85.00, 15),
-('h-3', 'Rotomartillo Makita HR2470', 'makita-hr2470', 'Rotomartillo potente para hormigón.', '{"m1.jpg"}', '{"herramienta", "construccion", "heavy"}', 210.00, 8),
-('h-4', 'Sierra Circular Skil 5402', 'skil-5402', 'Sierra circular 1400W para madera.', '{"s1.jpg"}', '{"herramienta", "madera", "carpinteria"}', 120.00, 12),
-('h-5', 'Lijadora Orbital Black+Decker', 'bd-orbital', 'Lijadora compacta para terminaciones.', '{"bd1.jpg"}', '{"herramienta", "barato", "hogar"}', 45.00, 25),
-('h-6', 'Soldadora Inverter Lusqtoff', 'lusqtoff-200', 'Soldadora compacta 200A turbo ventilada.', '{"l1.jpg"}', '{"herramienta", "soldadura", "pro"}', 180.00, 5),
-('h-7', 'Compresor de Aire Schulz', 'schulz-2hp', 'Compresor 2HP 25 litros profesional.', '{"sch1.jpg"}', '{"herramienta", "aire", "taller"}', 250.00, 4),
-('h-8', 'Atornillador de Impacto Milwaukee', 'milwaukee-m18', 'Torque extremo para mecanica profesional.', '{"mil1.jpg"}', '{"herramienta", "mecanica", "bateria", "pro"}', 299.00, 6),
-('h-9', 'Hidrolavadora Karcher K2', 'karcher-k2', 'Limpieza a presión para el auto y hogar.', '{"k2.jpg"}', '{"herramienta", "limpieza", "barato"}', 130.00, 20),
-('h-10', 'Cepillo Eléctrico Stanley', 'stanley-750w', 'Cepillo para madera 750W con rebaje.', '{"st1.jpg"}', '{"herramienta", "madera", "stanley"}', 95.00, 9),
+('h-1', 'Taladro DeWalt DCD771', 'dewalt-dcd771', 'Taladro atornillador inalámbrico 20V.', true, '{"d1.jpg"}', '{"herramienta", "pro", "bateria"}', 150.00, 10),
+('h-2', 'Amoladora Bosch GWS 700', 'bosch-gws-700', 'Amoladora angular 710W profesional.', true, '{"b1.jpg"}', '{"herramienta", "corte", "taller"}', 85.00, 15),
+('h-3', 'Rotomartillo Makita HR2470', 'makita-hr2470', 'Rotomartillo potente para hormigón.', true, '{"m1.jpg"}', '{"herramienta", "construccion", "heavy"}', 210.00, 8),
+('h-4', 'Sierra Circular Skil 5402', 'skil-5402', 'Sierra circular 1400W para madera.', true, '{"s1.jpg"}', '{"herramienta", "madera", "carpinteria"}', 120.00, 12),
+('h-5', 'Lijadora Orbital Black+Decker', 'bd-orbital', 'Lijadora compacta para terminaciones.', true, '{"bd1.jpg"}', '{"herramienta", "barato", "hogar"}', 45.00, 25),
+('h-6', 'Soldadora Inverter Lusqtoff', 'lusqtoff-200', 'Soldadora compacta 200A turbo ventilada.', true, '{"l1.jpg"}', '{"herramienta", "soldadura", "pro"}', 180.00, 5),
+('h-7', 'Compresor de Aire Schulz', 'schulz-2hp', 'Compresor 2HP 25 litros profesional.', true, '{"sch1.jpg"}', '{"herramienta", "aire", "taller"}', 250.00, 4),
+('h-8', 'Atornillador de Impacto Milwaukee', 'milwaukee-m18', 'Torque extremo para mecanica profesional.', true, '{"mil1.jpg"}', '{"herramienta", "mecanica", "bateria", "pro"}', 299.00, 6),
+('h-9', 'Hidrolavadora Karcher K2', 'karcher-k2', 'Limpieza a presión para el auto y hogar.', true, '{"k2.jpg"}', '{"herramienta", "limpieza", "barato"}', 130.00, 20),
+('h-10', 'Cepillo Eléctrico Stanley', 'stanley-750w', 'Cepillo para madera 750W con rebaje.', true, '{"st1.jpg"}', '{"herramienta", "madera", "stanley"}', 95.00, 9),
 
 -- LAPTOPS GAMER (5+)
-('l-1', 'Razer Blade 16 Stealth', 'razer-blade-16', 'Laptop gamer con RTX 4090 y pantalla OLED.', '{"rz1.jpg"}', '{"laptop", "gamer", "razer", "premium", "alta gama"}', 3500.00, 3),
-('l-2', 'HP Victus 15', 'hp-victus-15', 'Laptop gamer económica con RTX 3050.', '{"hpv1.jpg"}', '{"laptop", "gamer", "hp", "barato", "estudiante"}', 850.00, 15),
-('l-3', 'Lenovo Legion Slim 5', 'lenovo-legion-5', 'Equilibrio perfecto entre potencia y peso.', '{"len1.jpg"}', '{"laptop", "gamer", "lenovo", "calidad precio"}', 1400.00, 7),
-('l-4', 'HP Omen 17', 'hp-omen-17', 'Pantalla gigante de 17 pulgadas y i9.', '{"hpo1.jpg"}', '{"laptop", "gamer", "hp", "pro"}', 2200.00, 5),
-('l-5', 'Lenovo LOQ 15', 'lenovo-loq-15', 'Entrada al mundo gaming con Lenovo.', '{"loq.jpg"}', '{"laptop", "gamer", "lenovo", "economico"}', 900.00, 10),
+('l-1', 'Razer Blade 16 Stealth', 'razer-blade-16', 'Laptop gamer con RTX 4090 y pantalla OLED.', true, '{"rz1.jpg"}', '{"laptop", "gamer", "razer", "premium", "alta gama"}', 3500.00, 3),
+('l-2', 'HP Victus 15', 'hp-victus-15', 'Laptop gamer económica con RTX 3050.', true, '{"hpv1.jpg"}', '{"laptop", "gamer", "hp", "barato", "estudiante"}', 850.00, 15),
+('l-3', 'Lenovo Legion Slim 5', 'lenovo-legion-5', 'Equilibrio perfecto entre potencia y peso.', true, '{"len1.jpg"}', '{"laptop", "gamer", "lenovo", "calidad precio"}', 1400.00, 7),
+('l-4', 'HP Omen 17', 'hp-omen-17', 'Pantalla gigante de 17 pulgadas y i9.', true, '{"hpo1.jpg"}', '{"laptop", "gamer", "hp", "pro"}', 2200.00, 5),
+('l-5', 'Lenovo LOQ 15', 'lenovo-loq-15', 'Entrada al mundo gaming con Lenovo.', true, '{"loq.jpg"}', '{"laptop", "gamer", "lenovo", "economico"}', 900.00, 10),
 
 -- LAVARROPAS (3)
-('lav-1', 'Lavarropas Samsung EcoBubble', 'samsung-eco-10kg', 'Carga frontal 10kg tecnología inverter.', '{"lav1.jpg"}', '{"lavarropas", "hogar", "samsung", "inverter"}', 800.00, 6),
-('lav-2', 'Lavarropas LG Vivace', 'lg-vivace-8kg', 'Inteligencia artificial para el lavado.', '{"lav2.jpg"}', '{"lavarropas", "lg", "tecnologia"}', 750.00, 8),
-('lav-3', 'Lavarropas James Carga Superior', 'james-superior', 'Económico y confiable para Uruguay.', '{"lav3.jpg"}', '{"lavarropas", "barato", "hogar", "james"}', 400.00, 20);
-
+('lav-1', 'Lavarropas Samsung EcoBubble', 'samsung-eco-10kg', 'Carga frontal 10kg tecnología inverter.', true, '{"lav1.jpg"}', '{"lavarropas", "hogar", "samsung", "inverter"}', 800.00, 6),
+('lav-2', 'Lavarropas LG Vivace', 'lg-vivace-8kg', 'Inteligencia artificial para el lavado.', true, '{"lav2.jpg"}', '{"lavarropas", "lg", "tecnologia"}', 750.00, 8),
+('lav-3', 'Lavarropas James Carga Superior', 'james-superior', 'Económico y confiable para Uruguay.', true, '{"lav3.jpg"}', '{"lavarropas", "barato", "hogar", "james"}', 400.00, 20);
 -- 6. RELACIÓN PRODUCTO-CATEGORÍA
 INSERT INTO product_categories (product_id, category_id) VALUES
 ('h-1', 'cat-herr-elec'), ('h-2', 'cat-herr-elec'), ('h-3', 'cat-herr-elec'), ('h-4', 'cat-herr-elec'), ('h-5', 'cat-herr-elec'),

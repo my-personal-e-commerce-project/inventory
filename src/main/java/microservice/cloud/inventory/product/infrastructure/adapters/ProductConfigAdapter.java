@@ -5,90 +5,81 @@ import org.springframework.context.annotation.Configuration;
 
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
-import microservice.cloud.inventory.category.application.use_cases.ListCategoriesByIdsUseCase;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
-import microservice.cloud.inventory.product.application.ports.in.AddProductAttributeUseCasePort;
-import microservice.cloud.inventory.product.application.ports.in.CreateProductUseCasePort;
-import microservice.cloud.inventory.product.application.ports.in.DeleteProductAttributeUseCasePort;
-import microservice.cloud.inventory.product.application.ports.in.DeleteProductUseCasePort;
-import microservice.cloud.inventory.product.application.ports.in.ListProductsUseCasePort;
-import microservice.cloud.inventory.product.application.ports.in.UpdateProductUseCasePort;
-import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
-import microservice.cloud.inventory.product.application.ports.out.ProductReadRepository;
-
 import microservice.cloud.inventory.product.application.use_cases.AddProductAttributeUseCase;
 import microservice.cloud.inventory.product.application.use_cases.CreateProductUseCase;
 import microservice.cloud.inventory.product.application.use_cases.DeleteProductAttributeUseCase;
 import microservice.cloud.inventory.product.application.use_cases.DeleteProductUseCase;
 import microservice.cloud.inventory.product.application.use_cases.ListProductsUseCase;
 import microservice.cloud.inventory.product.application.use_cases.UpdateProductUseCase;
-
+import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
+import microservice.cloud.inventory.product.application.ports.out.ProductReadRepository;
 
 @Configuration
 public class ProductConfigAdapter {
 
     @Bean
-    public ListProductsUseCasePort listProductsUseCasePort(
+    public ListProductsUseCase listProductsUseCase(
         ProductReadRepository productReadRepository
     ) {
         return new ListProductsUseCase(productReadRepository);
     }
 
     @Bean
-    public CreateProductUseCasePort createProductUseCasePort(
+    public CreateProductUseCase createProductUseCase(
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        GetMePort getMePort
+        GetMePort getMe
     ) {
         return new CreateProductUseCase(
             productRepository,
             categoryRepository,
             attributeDefinitionRepository,
-            getMePort
+            getMe
         );
     }
 
     @Bean
-    public UpdateProductUseCasePort updateProductUseCasePort(
+    public UpdateProductUseCase updateProductUseCase(
         ProductRepository productRepository,
-        GetMePort getMePort
+        GetMePort getMe
     ) {
         return new UpdateProductUseCase(
             productRepository,
-            getMePort
+            getMe
         );
     }
 
     @Bean
-    public DeleteProductUseCasePort deleteProductUseCasePort(
+    public DeleteProductUseCase deleteProductUseCase(
         ProductRepository productRepository,
-        GetMePort getMePort
+        GetMePort getMe
     ) {
-        return new DeleteProductUseCase(productRepository, getMePort);
+        return new DeleteProductUseCase(productRepository, getMe);
     }
     
     @Bean
-    public AddProductAttributeUseCasePort addProductAttributeUseCasePort(
+    public AddProductAttributeUseCase addProductAttributeUseCase(
         ProductRepository productRepository,
-        GetMePort getMePort
+        GetMePort getMe
     ) {
         return new AddProductAttributeUseCase(
             productRepository,
-            getMePort
+            getMe
         );
     }
 
     @Bean
-    public DeleteProductAttributeUseCasePort deleteProductAttributeUseCasePort(
+    public DeleteProductAttributeUseCase deleteProductAttributeUseCase(
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
-        GetMePort getMePort
+        GetMePort getMe
     ) {
         return new DeleteProductAttributeUseCase(
             productRepository,
             categoryRepository,
-            getMePort
+            getMe
         );
     }
 }
