@@ -62,7 +62,7 @@ BEGIN
             'description', NEW.description,
             'price', NEW.price,
             'stock', NEW.stock,
-            'isActive', NEW.is_active,
+            'active', NEW.is_active,
             'images', NEW.images,
             'tags', NEW.tags,
             'categories', (
