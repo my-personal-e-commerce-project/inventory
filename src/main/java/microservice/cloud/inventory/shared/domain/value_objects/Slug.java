@@ -27,6 +27,7 @@ public class Slug {
     }
 
     public boolean equals(Slug slug){
+        if (slug == null) return false;
         return value.equals(slug.value());
     }
 }

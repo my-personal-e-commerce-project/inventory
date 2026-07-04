@@ -27,7 +27,7 @@ public class Id {
     }
 
     public boolean equals(Id id) {
-
+        if (id == null) return false;
         return id.value().equals(this.value);
     }
 

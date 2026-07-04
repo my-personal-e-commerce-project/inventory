@@ -16,6 +16,10 @@ public class ProductAttributeValue {
 
         this.id = id;
         this.attribute_definition_id = attribute_definition_id;
+
+        if(string_value == null && integer_value == null && double_value == null && boolean_value == null)
+            throw new RuntimeException("At least one value must be not null");
+
         this.string_value = string_value;
         this.integer_value = integer_value;
         this.double_value = double_value;
