@@ -69,7 +69,7 @@ class CategoryRepositoryJdbcAdapterTest {
             "attr-123", "cat-123", "def-123", null, true, true, true
         );
 
-        when(jdbcTemplate.query(anyString(), any(CategoryAttributeResultSetExtractor.class), "def-123"))
+        when(jdbcTemplate.query(anyString(), any(CategoryAttributeResultSetExtractor.class), eq("def-123")))
             .thenReturn(entity);
 
         // WHEN

@@ -85,7 +85,7 @@ class CategoryAttributeTest {
             RuntimeException.class,
             () -> categoryAttribute.load_attribute_definition(globalDef)
         );
-        assertEquals("The attribute definition cannot be global attribute", exception.getMessage());
+        assertEquals("The attribute definition cannot be global attribute.", exception.getMessage());
     }
 
     @Test

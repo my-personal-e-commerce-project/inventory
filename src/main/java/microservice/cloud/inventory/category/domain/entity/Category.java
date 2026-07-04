@@ -86,20 +86,6 @@ public class Category extends AggregateRoot {
             throw new RuntimeException("The 'category attribute' with 'attribute definition id': '" 
                     + attr.attribute_definition_id().value() 
                     + "' already exists.");
-
-
-        if(attr.is_required()) {
-            this.publishEvent(
-                new CreatedCategoryAttribute(
-                    this.id().value(),
-                    attr.id().value(), 
-                    attr.attribute_definition_id().value(), 
-                    attr.is_required(), 
-                    attr.is_filterable(), 
-                    attr.is_sortable()
-                )
-            );
-        }
     }
     
     public void removeCategoryAttribute(Id id) {

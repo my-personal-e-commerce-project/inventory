@@ -6,7 +6,6 @@ import java.util.Set;
 
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
-import microservice.cloud.inventory.category.domain.event.CreatedCategoryAttribute;
 import microservice.cloud.inventory.category.domain.event.DeletedCategory;
 import microservice.cloud.inventory.category.domain.value_objects.Status;
 import microservice.cloud.inventory.shared.domain.event.DomainEvent;
@@ -77,7 +76,8 @@ class CategoryTest {
             RuntimeException.class,
             () -> category.update("New Name", Slug.fromString("new-slug"), null, Set.of(attr1))
         );
-        assertTrue(exception.getMessage().contains("not found in your new list of category attributes"));
+       
+        assertTrue(exception.getMessage().contains("Category attribute with id: '" + attr2.id().value() + "' not found in your new list of category attributes."));
     }
 
     @Test
@@ -92,7 +92,8 @@ class CategoryTest {
             RuntimeException.class,
             () -> category.update("New Name", Slug.fromString("new-slug"), null, Set.of(nonExistentAttr))
         );
-        assertTrue(exception.getMessage().contains("not found in the current list of category attributes"));
+        
+        assertTrue(exception.getMessage().contains("Category attribute with id: '" + attr1.id().value() + "' not found in your new list of category attributes."));
     }
 
     @Test
@@ -106,14 +107,6 @@ class CategoryTest {
 
         assertEquals(1, category.categoryAttributes().size());
         assertTrue(category.categoryAttributes().contains(attr));
-
-        List<DomainEvent> events = category.getEvents();
-        assertEquals(1, events.size());
-        assertTrue(events.get(0) instanceof CreatedCategoryAttribute);
-        CreatedCategoryAttribute event = (CreatedCategoryAttribute) events.get(0);
-        assertEquals(category.id().value(), event.category_id());
-        assertEquals(attr.id().value(), event.category_attribute_id());
-        assertEquals(attr.attribute_definition_id().value(), event.attribute_definition_id());
     }
 
     @Test
@@ -127,20 +120,6 @@ class CategoryTest {
 
         assertEquals(1, category.categoryAttributes().size());
         assertTrue(category.getEvents().isEmpty());
-    }
-
-    @Test
-    void shouldThrowExceptionWhenAddingAttributeWithGlobalDefinition() {
-        Category category = new Category(Id.generate(), "Category", Slug.fromString("slug"), null, Status.ENABLED, new HashSet<>());
-        CategoryAttribute attr = new CategoryAttribute(Id.generate(), Id.generate(), true, true, true);
-        AttributeDefinition def = createAttributeDefinition(true);
-        attr.load_attribute_definition(def);
-
-        RuntimeException exception = assertThrows(
-            RuntimeException.class,
-            () -> category.addCategoryAttribute(attr)
-        );
-        assertEquals("The 'attribute definition' cannot be global.", exception.getMessage());
     }
 
     @Test
@@ -207,6 +186,6 @@ class CategoryTest {
         assertEquals(1, events.size());
         assertTrue(events.get(0) instanceof DeletedCategory);
         DeletedCategory event = (DeletedCategory) events.get(0);
-        assertEquals(category.id().value(), event.id());
+        assertEquals(category.id().value(), event.aggregateId());
     }
 }

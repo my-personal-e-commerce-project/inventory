@@ -33,7 +33,7 @@ public class CategoryAttribute {
 
     public void load_attribute_definition(AttributeDefinition attributeDefinition) {
         if(attributeDefinition.is_global()) {
-            throw new RuntimeException("The attribute definition cannot be global attribute");
+            throw new RuntimeException("The attribute definition cannot be global attribute.");
         }
 
         this.attribute_definition = attributeDefinition;
