@@ -1,5 +1,8 @@
 package microservice.cloud.inventory.product.infrastructure.presentation.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -19,6 +22,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.shared.infrastructure.dto.ResponsePayload;
 import microservice.cloud.inventory.product.application.dtos.ProductReadDTO;
+import microservice.cloud.inventory.product.application.dtos.QueryProducts;
 import microservice.cloud.inventory.product.application.use_cases.AddProductAttributeUseCase;
 import microservice.cloud.inventory.product.application.use_cases.CreateProductUseCase;
 import microservice.cloud.inventory.product.application.use_cases.DeleteProductAttributeUseCase;
@@ -51,9 +55,26 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<?> listProducts(
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) String search,
+        @RequestParam(required = false) Set<String> categories,
+        @RequestParam(required = false) Double minPrice,
+        @RequestParam(required = false) Double maxPrice,
+        @RequestParam(required = false) Integer minStock,
+        @RequestParam(required = false) Integer maxStock,
+        @RequestParam(required = false) Boolean isActive
     ) {
-        Pagination<ProductReadDTO> products = listProductsUseCase.execute(page, size);
+        Pagination<ProductReadDTO> products = listProductsUseCase.execute(page, size, 
+            new QueryProducts(
+                search,
+                (categories == null || categories.isEmpty()) ? null : new ArrayList<>(categories),
+                minPrice,
+                maxPrice,
+                minStock,
+                maxStock,
+                isActive
+            )
+        );
 
         return ResponseEntity.ok(
             products

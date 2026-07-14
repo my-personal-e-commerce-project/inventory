@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import microservice.cloud.inventory.product.application.dtos.ProductReadDTO;
+import microservice.cloud.inventory.product.application.dtos.QueryProducts;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,7 +51,7 @@ public class ProductReadRepositoryJdbcAdapterTest {
 
 
         // WHEN
-        Pagination<ProductReadDTO> result = productReadRepositoryJdbcAdapter.findAll(0, 10);
+        Pagination<ProductReadDTO> result = productReadRepositoryJdbcAdapter.findAll(0, 10, new QueryProducts());
 
         // THEN
         assertNotNull(result);
@@ -81,7 +82,7 @@ public class ProductReadRepositoryJdbcAdapterTest {
         )).thenReturn(2L);
 
         // WHEN
-        Pagination<ProductReadDTO> result = productReadRepositoryJdbcAdapter.findAll(0, 1);
+        Pagination<ProductReadDTO> result = productReadRepositoryJdbcAdapter.findAll(0, 1, new QueryProducts());
 
         // THEN
         assertNotNull(result);
