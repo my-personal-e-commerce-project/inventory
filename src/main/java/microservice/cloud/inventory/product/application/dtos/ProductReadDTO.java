@@ -21,6 +21,7 @@ public class ProductReadDTO {
     private List<ProductAttributeValueReadDTO> attributes;
     private Double price;
     private int stock;
+    private Integer minStock;
     private List<String> images;
     private List<String> tags;
 }

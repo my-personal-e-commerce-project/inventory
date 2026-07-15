@@ -11,16 +11,18 @@ import java.util.stream.Collectors;
 
 import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
+import microservice.cloud.inventory.product.domain.event.MinStockAlertEvent;
 import microservice.cloud.inventory.product.domain.exception.InvalidProductException;
 import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
+import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
-public class Product {
+public class Product extends AggregateRoot {
     private Id id;
     private String title;
     private Slug slug;
@@ -30,6 +32,7 @@ public class Product {
     private Price price;
     private Map<String, ProductAttributeValue> attributeValues = new HashMap<>();
     private Quantity stock;
+    private Quantity minStock;
     private Set<String> images;
     private Set<String> tags;
 
@@ -43,12 +46,22 @@ public class Product {
         Price price, 
         Set<ProductAttributeValue> attributeValues,
         Quantity stock,
+        Quantity minStock,
         Set<String> images,
         Set<String> tags
     ) {
         if(title == null)
             throw new InvalidProductException("The title cannot be null");
 
+        this.minStock = minStock;
+
+        if(minStock == null)
+            this.minStock = new Quantity(5);
+
+        if(stock.isLessThan(this.minStock)) {
+            publishEvent(new MinStockAlertEvent(id.value(), stock.value()));
+        }
+        
         this.id = id;
         this.title = title;
         this.slug = slug;
@@ -70,6 +83,7 @@ public class Product {
         boolean isActive,
         Price price,
         Quantity stock,
+        Quantity minStock,
         Set<String> images,
         Set<ProductAttributeValue> attributes,
         Set<String> tags
@@ -99,6 +113,15 @@ public class Product {
         });
 
         this.attributeValues = mapNewAttrs;
+
+        this.minStock = minStock;
+
+        if(minStock == null)
+            this.minStock = new Quantity(5);
+
+        if(stock.isLessThan(this.minStock)) {
+            publishEvent(new MinStockAlertEvent(id.value(), stock.value()));
+        }
 
         this.title = title;
         this.slug = slug;
@@ -183,7 +206,7 @@ public class Product {
         attributeValues.put(attr.id().value(), attr);
     }
 
-    public void removeAttribute(Me me, Id productAttributeId, CategoryAttribute categoryAttribute) {
+    public void removeProductAttribute(Me me, Id productAttributeId, CategoryAttribute categoryAttribute) {
         if(me == null)
             throw new RuntimeException("You do not have permission to perform this action");
 
@@ -235,6 +258,10 @@ public class Product {
 
     public Quantity stock() {
         return stock;
+    }
+
+    public Quantity minStock() {
+        return minStock;
     }
 
     public Set<String> images() {

@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import microservice.cloud.inventory.category.domain.event.DeletedCategory;
 import microservice.cloud.inventory.category.infrastructure.adapter.CategoryEventProducerConfig;
+import microservice.cloud.inventory.product.domain.event.MinStockAlertEvent;
+import microservice.cloud.inventory.product.infrastructure.adapters.MinStockAlertProducerConfig;
 import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 import microservice.cloud.inventory.shared.domain.event.DomainEvent;
 
@@ -17,6 +19,7 @@ import microservice.cloud.inventory.shared.domain.event.DomainEvent;
 public class EventPublisherImpl implements EventPublisher {
 
     private final CategoryEventProducerConfig categoryEventProducerConfig;
+    private final MinStockAlertProducerConfig minStockAlertProducerConfig;
 
     @Override
     public void publish(List<? extends DomainEvent> events) {
@@ -29,7 +32,17 @@ public class EventPublisherImpl implements EventPublisher {
         });
     }
 
-    public void handleDeletedCategory(DeletedCategory event) throws RuntimeException {
+    public void handleMinStockAlert(MinStockAlertEvent event) {
+        try {
+            minStockAlertProducerConfig.sendMessage(event);
+        } catch (Exception e) {
+            log.error(
+                "CRITICAL: MinStockAlertEvent event could not be sent via Kafka: " + e.getMessage()
+            );
+        }
+    } 
+
+    public void handleDeletedCategory(DeletedCategory event) {
         try {
             categoryEventProducerConfig.sendMessage(event);
         } catch (Exception e) {

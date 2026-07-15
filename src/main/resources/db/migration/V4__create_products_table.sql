@@ -7,7 +7,8 @@ CREATE TABLE products (
     images varchar[],
     tags varchar[],
     price DOUBLE PRECISION NOT NULL,
-    stock INTEGER NOT NULL
+    stock INTEGER NOT NULL,
+    min_stock INTEGER DEFAULT 5
 );
 
 CREATE TABLE product_categories (

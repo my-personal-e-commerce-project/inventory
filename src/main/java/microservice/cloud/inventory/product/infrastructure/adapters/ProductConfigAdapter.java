@@ -12,6 +12,7 @@ import microservice.cloud.inventory.product.application.use_cases.DeleteProductA
 import microservice.cloud.inventory.product.application.use_cases.DeleteProductUseCase;
 import microservice.cloud.inventory.product.application.use_cases.ListProductsUseCase;
 import microservice.cloud.inventory.product.application.use_cases.UpdateProductUseCase;
+import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.product.application.ports.out.ProductReadRepository;
 
@@ -30,12 +31,14 @@ public class ProductConfigAdapter {
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
+        EventPublisher eventPublisher,
         GetMePort getMe
     ) {
         return new CreateProductUseCase(
             productRepository,
             categoryRepository,
             attributeDefinitionRepository,
+            eventPublisher,
             getMe
         );
     }
@@ -43,10 +46,12 @@ public class ProductConfigAdapter {
     @Bean
     public UpdateProductUseCase updateProductUseCase(
         ProductRepository productRepository,
+        EventPublisher eventPublisher,
         GetMePort getMe
     ) {
         return new UpdateProductUseCase(
             productRepository,
+            eventPublisher,
             getMe
         );
     }

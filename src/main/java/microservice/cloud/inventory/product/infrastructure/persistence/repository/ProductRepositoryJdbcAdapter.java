@@ -221,6 +221,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
             product.isActive(),
             product.price().value(),
             product.stock().value(),
+            product.minStock().value(),
             product.images() == null? null: new HashSet<>(product.images()),
             product.attributeValues()
                 .stream()
@@ -266,6 +267,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
                     )
                 ).collect(Collectors.toSet()),
             new Quantity(product.getStock()),
+            product.getMinStock() == null? null: new Quantity(product.getMinStock()),
             product.getImages(),
             product.getTags()
         );

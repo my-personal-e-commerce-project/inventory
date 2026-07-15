@@ -33,6 +33,7 @@ class ProductTest {
             new Price(100.0),
             new HashSet<>(),
             new Quantity(10),
+            null,
             Set.of("image1.png"),
             Set.of("tag1")
         );
@@ -51,6 +52,7 @@ class ProductTest {
             new Price(100.0),
             new HashSet<>(),
             new Quantity(10),
+            null,
             Set.of("image1.png"),
             Set.of("tag1")
         );
@@ -79,9 +81,17 @@ class ProductTest {
             new Price(100.0),
             new HashSet<>(),
             new Quantity(10),
+            null,
             Set.of("image1.png"),
             Set.of("tag1")
         ));
+    }
+
+    @Test
+    void shouldCreateAMinStockWithDefaultValueOfFive() {
+        Product product = createDefaultProduct();
+
+        assertEquals(new Quantity(5), product.minStock());
     }
 
     @Test
@@ -100,6 +110,7 @@ class ProductTest {
             new Price(100.0),
             Set.of(pav),
             new Quantity(10),
+            null,
             Set.of("image1.png"),
             Set.of("tag1")
         );
@@ -114,6 +125,7 @@ class ProductTest {
             false,
             new Price(150.0),
             new Quantity(5),
+            null,
             Set.of("image2.png"),
             Set.of(updatedPav),
             Set.of("tag2")
@@ -148,6 +160,7 @@ class ProductTest {
             new Price(100.0),
             Set.of(pav),
             new Quantity(10),
+            null,
             Set.of("image1.png"),
             Set.of("tag1")
         );
@@ -163,6 +176,7 @@ class ProductTest {
             true,
             new Price(150.0),
             new Quantity(5),
+            null,
             Set.of("image2.png"),
             Set.of(differentPav),
             Set.of("tag2")
@@ -191,6 +205,7 @@ class ProductTest {
             new Price(10.0),
             Set.of(globalPav, catPav),
             new Quantity(5),
+            null,
             new HashSet<>(),
             new HashSet<>()
         );
@@ -251,6 +266,7 @@ class ProductTest {
             new Price(10.0),
             Set.of(extraPav),
             new Quantity(5),
+            null,
             new HashSet<>(),
             new HashSet<>()
         );
@@ -291,7 +307,7 @@ class ProductTest {
         
         Product product = new Product(
             Id.generate(), "Title", Slug.fromString("slug"), "Desc", Set.of("cat-1"), true,
-            new Price(10.0), Set.of(pav1), new Quantity(5), new HashSet<>(), new HashSet<>()
+            new Price(10.0), Set.of(pav1), new Quantity(5), null, new HashSet<>(), new HashSet<>()
         );
 
         Me me = new Me(Id.generate(), Set.of(Permission.updateProduct()));
@@ -309,12 +325,12 @@ class ProductTest {
         
         Product product = new Product(
             Id.generate(), "Title", Slug.fromString("slug"), "Desc", Set.of("cat-1"), true,
-            new Price(10.0), Set.of(pav), new Quantity(5), new HashSet<>(), new HashSet<>()
+            new Price(10.0), Set.of(pav), new Quantity(5), null, new HashSet<>(), new HashSet<>()
         );
 
         Me me = new Me(Id.generate(), Set.of(Permission.updateProduct()));
 
-        assertDoesNotThrow(() -> product.removeAttribute(me, attrId, null));
+        assertDoesNotThrow(() -> product.removeProductAttribute(me, attrId, null));
         assertTrue(product.attributeValues().isEmpty());
     }
 
@@ -323,7 +339,7 @@ class ProductTest {
         Product product = createDefaultProduct();
         Me me = new Me(Id.generate(), Set.of(Permission.updateProduct()));
 
-        assertThrows(DataNotFound.class, () -> product.removeAttribute(me, Id.generate(), null));
+        assertThrows(DataNotFound.class, () -> product.removeProductAttribute(me, Id.generate(), null));
     }
 
     @Test
@@ -334,13 +350,13 @@ class ProductTest {
         
         Product product = new Product(
             Id.generate(), "Title", Slug.fromString("slug"), "Desc", Set.of("cat-1"), true,
-            new Price(10.0), Set.of(pav), new Quantity(5), new HashSet<>(), new HashSet<>()
+            new Price(10.0), Set.of(pav), new Quantity(5), null, new HashSet<>(), new HashSet<>()
         );
 
         Me me = new Me(Id.generate(), Set.of(Permission.updateProduct()));
         CategoryAttribute categoryAttribute = new CategoryAttribute(Id.generate(), defId, true, true, true);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> product.removeAttribute(me, attrId, categoryAttribute));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> product.removeProductAttribute(me, attrId, categoryAttribute));
         assertTrue(exception.getMessage().contains("cannot be removed"));
     }
 }

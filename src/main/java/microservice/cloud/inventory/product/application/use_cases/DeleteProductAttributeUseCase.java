@@ -30,7 +30,7 @@ public class DeleteProductAttributeUseCase {
         ProductAttributeValue productAttributeValue = productRepository 
             .findProductAttributeValueById(productAttributeId);
 
-        product.removeAttribute(
+        product.removeProductAttribute(
             getMePort.execute(), 
             productAttributeId, 
             categoryRepository.getCategoryAttributeByAttributeDefinitionId(

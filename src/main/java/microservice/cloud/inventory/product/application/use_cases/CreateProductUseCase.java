@@ -7,6 +7,7 @@ import microservice.cloud.inventory.attribute.domain.entity.AttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.repository.AttributeDefinitionRepository;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
+import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
@@ -18,17 +19,20 @@ public class CreateProductUseCase {
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
     private AttributeDefinitionRepository attributeDefinitionRepository;
+    private EventPublisher eventPublisher;
     private GetMePort getMePort;
 
     public CreateProductUseCase(
         ProductRepository productRepository,
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
+        EventPublisher eventPublisher,
         GetMePort getMePort
     ) {
         this.attributeDefinitionRepository = attributeDefinitionRepository;
         this.getMePort = getMePort;
         this.productRepository = productRepository;
+        this.eventPublisher = eventPublisher;
         this.categoryRepository = categoryRepository;
     }
    
@@ -54,5 +58,9 @@ public class CreateProductUseCase {
         product.validGlobalAttributesAndCategoryAttributes(new HashSet<>(defaultAttributes), new HashSet<>(catAttrs));
       
         productRepository.save(product);
+
+        if(product.getEvents() != null && !product.getEvents().isEmpty()) {
+            eventPublisher.publish(product.getEvents());
+        }
     }
 }

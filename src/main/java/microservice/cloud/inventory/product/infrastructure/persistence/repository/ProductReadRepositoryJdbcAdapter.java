@@ -49,6 +49,7 @@ public class ProductReadRepositoryJdbcAdapter implements ProductReadRepository {
                 p.tags, 
                 p.price, 
                 p.stock,
+                p.min_stock,
                 p.is_active AS isActive,
                 pav.id AS val_id,
                 pav.string_value, 

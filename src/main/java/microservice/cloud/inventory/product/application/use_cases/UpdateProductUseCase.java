@@ -2,6 +2,7 @@ package microservice.cloud.inventory.product.application.use_cases;
 
 import java.util.Set;
 
+import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
@@ -15,13 +16,16 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 public class UpdateProductUseCase {
 
     private final ProductRepository productRepository;
+    private final EventPublisher eventPublisher;
     private final GetMePort getMePort;
 
     public UpdateProductUseCase(
         ProductRepository productRepository,
+        EventPublisher eventPublisher,
         GetMePort getMePort
     ) {
         this.productRepository = productRepository;
+        this.eventPublisher = eventPublisher;
         this.getMePort = getMePort;
     }
 
@@ -34,6 +38,7 @@ public class UpdateProductUseCase {
         boolean isActive,
         Price price,
         Quantity stock,
+        Quantity min_stock,
         Set<String> images,
         Set<ProductAttributeValue> attributes,
         Set<String> tags
@@ -55,12 +60,17 @@ public class UpdateProductUseCase {
             isActive,
             price,
             stock, 
+            min_stock,
             images, 
             attributes, 
             tags
         );
 
         productRepository.update(p);
+
+        if(p.getEvents() != null && !p.getEvents().isEmpty()) {
+            eventPublisher.publish(p.getEvents());
+        }
     }
 }
 

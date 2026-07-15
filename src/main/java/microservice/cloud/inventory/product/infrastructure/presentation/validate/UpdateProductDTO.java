@@ -29,5 +29,6 @@ public record UpdateProductDTO (
     Double price,
     @NotNull
     int stock,
+    Integer minStock,
     Set<String> tags
 ) {}

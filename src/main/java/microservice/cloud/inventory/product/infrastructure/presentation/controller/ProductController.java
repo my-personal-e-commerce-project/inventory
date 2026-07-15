@@ -117,6 +117,7 @@ public class ProductController {
                     )
                 ).collect(Collectors.toSet()),
                 new Quantity(productDTO.getStock()),
+                productDTO.getMinStock() == null? null: new Quantity(productDTO.getMinStock()),
                 null,
                 productDTO.getTags()
             )
@@ -143,6 +144,7 @@ public class ProductController {
             productDTO.isActive(),
             new Price(productDTO.price()),
             new Quantity(productDTO.stock()),
+            new Quantity(productDTO.minStock()),
             null,
             productDTO.attributes().stream().map(attr -> 
                 new ProductAttributeValue(

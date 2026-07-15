@@ -41,6 +41,7 @@ public class ProductResultSetExtractor implements ResultSetExtractor<List<Produc
                     new ArrayList<>(),
                     rs.getDouble("price"),
                     rs.getInt("stock"),
+                    rs.getInt("min_stock"),
                     null,
                     null
                 );

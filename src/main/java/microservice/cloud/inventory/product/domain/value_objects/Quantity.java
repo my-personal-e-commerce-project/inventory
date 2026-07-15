@@ -10,4 +10,8 @@ public record Quantity (
 
         this.value = value;
     }
+
+    public boolean isLessThan(Quantity other) {
+        return this.value < other.value();
+    }
 }
