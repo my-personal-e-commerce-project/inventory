@@ -192,12 +192,7 @@ public class Product extends AggregateRoot {
             throw new RuntimeException("The next ids: %s, do not defined by the categories or attribute definition".formatted(result));
     }
 
-    public void addProductAttribute(Me me, ProductAttributeValue attr) {
-        if(me == null)
-            throw new RuntimeException("You do not have permission to perform this action");
-
-        me.IHavePermission(Permission.updateProduct());
-
+    public void addProductAttribute(ProductAttributeValue attr) { 
         attributeValues.values().stream().forEach(a -> {
             if(a.attribute_definition_id().equals(attr.attribute_definition_id()))
                 throw new RuntimeException("An product attribute with the same 'attribute definition id' already exists.");
@@ -206,12 +201,7 @@ public class Product extends AggregateRoot {
         attributeValues.put(attr.id().value(), attr);
     }
 
-    public void removeProductAttribute(Me me, Id productAttributeId, CategoryAttribute categoryAttribute) {
-        if(me == null)
-            throw new RuntimeException("You do not have permission to perform this action");
-
-        me.IHavePermission(Permission.updateProduct());
-
+    public void removeProductAttribute(Id productAttributeId, CategoryAttribute categoryAttribute) {
         ProductAttributeValue attr = attributeValues.get(productAttributeId.value());
 
         if(attr == null)

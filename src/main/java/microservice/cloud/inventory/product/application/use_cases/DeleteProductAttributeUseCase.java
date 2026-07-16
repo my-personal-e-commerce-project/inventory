@@ -6,6 +6,8 @@ import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
+import microservice.cloud.inventory.shared.domain.value_objects.Me;
+import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class DeleteProductAttributeUseCase {
@@ -25,13 +27,19 @@ public class DeleteProductAttributeUseCase {
     }
 
     public Product execute(Slug find_slug, Id productAttributeId) {
+        Me me = getMePort.execute();
+
+        if(me == null)
+            throw new RuntimeException("You do not have permission to perform this action");
+
+        me.IHavePermission(Permission.updateProduct());
+
         Product product = productRepository.findBySlug(find_slug);
 
         ProductAttributeValue productAttributeValue = productRepository 
             .findProductAttributeValueById(productAttributeId);
 
         product.removeProductAttribute(
-            getMePort.execute(), 
             productAttributeId, 
             categoryRepository.getCategoryAttributeByAttributeDefinitionId(
                 productAttributeValue.attribute_definition_id()
