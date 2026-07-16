@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import microservice.cloud.inventory.attribute.application.ports.dto.QueryAttributeDefinitions;
 import microservice.cloud.inventory.attribute.application.use_cases.CreateAttributeDefinitionUseCase;
 import microservice.cloud.inventory.attribute.application.use_cases.DeleteAttributeDefinitionUseCase;
 import microservice.cloud.inventory.attribute.application.use_cases.ListAttributeDefinitionUseCase;
@@ -41,10 +42,11 @@ public class AttributeDefinitionController {
     @GetMapping
     public ResponseEntity<?> listDefaultAttributes(
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) String search
     ) {
         return ResponseEntity.ok(
-            listAttributeDefinitionUseCase.execute(page, size)
+            listAttributeDefinitionUseCase.execute(new QueryAttributeDefinitions(search), page, size)
         );
     }
 

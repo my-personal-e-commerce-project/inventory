@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.category.application.dtos.CategoryReadDTO;
+import microservice.cloud.inventory.category.application.dtos.QueryCategories;
 import microservice.cloud.inventory.category.application.use_cases.CreateCategoryAttributeUseCase;
 import microservice.cloud.inventory.category.application.use_cases.CreateCategoryUseCase;
 import microservice.cloud.inventory.category.application.use_cases.DeleteCategoryAttributeUseCase;
@@ -55,6 +56,7 @@ public class CategoryController {
     public ResponseEntity<?> getCategories(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) String search,
         @RequestParam(required = false) Set<String> categoryIds
     ) {
         if(categoryIds == null) {
@@ -63,7 +65,7 @@ public class CategoryController {
                 size = 10;
             }
 
-            Pagination<CategoryReadDTO> categories = listCategoryUseCase.execute(page, size);
+            Pagination<CategoryReadDTO> categories = listCategoryUseCase.execute(new QueryCategories(search), page, size);
             
             return new ResponseEntity<>(
                 categories,

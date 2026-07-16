@@ -1,22 +1,15 @@
 package microservice.cloud.inventory.product.infrastructure.persistence.repository;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
-import microservice.cloud.inventory.attribute.infrastructure.persistence.repository.AttributeDefinitionJdbcRepository;
 import microservice.cloud.inventory.category.infrastructure.persistence.repository.CategoryJdbcRepository;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
@@ -35,9 +28,7 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 public class ProductRepositoryJdbcAdapter implements ProductRepository {
 
     private final JdbcAggregateTemplate aggregateTemplate;
-    private final JdbcTemplate jdbcTemplate;
     private final ProductAttributeValueJdbcRepository productAttributeValueJdbcRepository;
-    private final AttributeDefinitionJdbcRepository attributeDefinitionJdbcRepository;
     private final ProductJdbcRepository productJdbcRepository;
     private final CategoryJdbcRepository categoryJdbcRepository;
 
@@ -52,90 +43,6 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
         return toMap(
             attr
         );
-    }
-
-    @Transactional
-    @Override
-    public void massCreateDefaultProductAttributeValues(Id id, DataType type) {
-        String defId = id.value();
-
-        switch(type.toString()){
-            case "STRING" -> 
-                productJdbcRepository.massCreateDefaultProductAttributeValues(defId, "", null, null, null);
-            case "INTEGER" -> 
-                productJdbcRepository.massCreateDefaultProductAttributeValues(defId, null, 0, null, null);
-            case "DOUBLE" -> 
-                productJdbcRepository.massCreateDefaultProductAttributeValues(defId, null, null, 0.0, null);
-            case "BOOLEAN" -> 
-                productJdbcRepository.massCreateDefaultProductAttributeValues(defId, null, null, null, false);
-        }
-    }
-
-    @Transactional
-    @Override
-    public void massCreateProductAttributeValuesByNewRequiredCategoryAttributes(Id categoryId, List<Id> attributeDefinitionIds) {
-        String sql = """
-            INSERT INTO product_attribute_values (
-                id, product_id, attribute_definition_id, 
-                string_value, integer_value, double_value, boolean_value
-            )
-            SELECT 
-                gen_random_uuid()::text, pc.product_id, ?, ?, ?, ?, ? 
-            FROM product_categories pc
-            WHERE pc.category_id = ?
-            ON CONFLICT (product_id, attribute_definition_id) 
-            DO NOTHING;
-            """;
-
-        var definitions = attributeDefinitionJdbcRepository.findAllByIdIn(
-            attributeDefinitionIds.stream().map(Id::value).toList()
-        );
-
-        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                var ad = definitions.get(i);
-                ps.setString(1, ad.getId());
-                
-                ps.setString(2, "STRING".equals(ad.getType()) ? "" : null);
-                ps.setObject(3, "INTEGER".equals(ad.getType()) ? 0 : null, java.sql.Types.INTEGER);
-                ps.setObject(4, "DOUBLE".equals(ad.getType()) ? 0.0 : null, java.sql.Types.DOUBLE);
-                ps.setObject(5, "BOOLEAN".equals(ad.getType()) ? false : null, java.sql.Types.BOOLEAN);
-                
-                ps.setString(6, categoryId.value());
-            }
-
-            @Override
-            public int getBatchSize() {
-                return definitions.size();
-            }
-        });
-    }
-
-    @Transactional
-    @Override
-    public void updateTheValueTypeOfProductAttributesByAttributeDefinition(Id attributeDefinitionId, DataType type) {
-        String sql = """
-            UPDATE product_attribute_values 
-            SET string_value = ?, 
-                integer_value = ?, 
-                double_value = ?, 
-                boolean_value = ?
-            WHERE attribute_definition_id = ?;
-            """;
-
-        String defId = attributeDefinitionId.value();
-
-        switch(type.toString()) {
-            case "STRING" -> 
-                jdbcTemplate.update(sql, "", null, null, null, defId);
-            case "INTEGER" -> 
-                jdbcTemplate.update(sql, null, 0, null, null, defId);
-            case "DOUBLE" -> 
-                jdbcTemplate.update(sql, null, null, 0.0, null, defId);
-            case "BOOLEAN" -> 
-                jdbcTemplate.update(sql, null, null, null, false, defId);
-        }
     }
 
     @Override

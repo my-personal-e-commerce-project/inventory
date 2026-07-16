@@ -3,7 +3,6 @@ package microservice.cloud.inventory.category.domain.entity;
 import java.util.HashSet;
 import java.util.Set;
 
-import microservice.cloud.inventory.category.domain.event.CreatedCategoryAttribute;
 import microservice.cloud.inventory.category.domain.event.DeletedCategory;
 import microservice.cloud.inventory.category.domain.value_objects.Status;
 import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;

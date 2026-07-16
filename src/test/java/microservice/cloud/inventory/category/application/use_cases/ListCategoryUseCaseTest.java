@@ -3,6 +3,7 @@ package microservice.cloud.inventory.category.application.use_cases;
 import java.util.List;
 
 import microservice.cloud.inventory.category.application.dtos.CategoryReadDTO;
+import microservice.cloud.inventory.category.application.dtos.QueryCategories;
 import microservice.cloud.inventory.category.application.ports.out.CategoryReadRepository;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
 import org.junit.jupiter.api.Test;
@@ -26,12 +27,12 @@ class ListCategoryUseCaseTest {
     @Test
     void shouldListCategoriesSuccessfully() {
         Pagination<CategoryReadDTO> expectedPagination = new Pagination<>(List.of(), 1, 1);
-        when(categoryReadRepository.findAll(1, 10)).thenReturn(expectedPagination);
+        when(categoryReadRepository.findAll(new QueryCategories(), 1, 10)).thenReturn(expectedPagination);
 
-        Pagination<CategoryReadDTO> result = listUseCase.execute(1, 10);
+        Pagination<CategoryReadDTO> result = listUseCase.execute(new QueryCategories(), 1, 10);
 
         assertNotNull(result);
         assertEquals(expectedPagination, result);
-        verify(categoryReadRepository, times(1)).findAll(1, 10);
+        verify(categoryReadRepository, times(1)).findAll(new QueryCategories(), 1, 10);
     }
 }

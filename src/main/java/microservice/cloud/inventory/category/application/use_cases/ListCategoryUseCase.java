@@ -1,11 +1,11 @@
 package microservice.cloud.inventory.category.application.use_cases;
 
 import microservice.cloud.inventory.category.application.dtos.CategoryReadDTO;
-import microservice.cloud.inventory.category.application.ports.in.ListCategoryUseCasePort;
+import microservice.cloud.inventory.category.application.dtos.QueryCategories;
 import microservice.cloud.inventory.category.application.ports.out.CategoryReadRepository;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
 
-public class ListCategoryUseCase implements ListCategoryUseCasePort {
+public class ListCategoryUseCase {
     
     private final CategoryReadRepository categoryRepository;
 
@@ -15,7 +15,7 @@ public class ListCategoryUseCase implements ListCategoryUseCasePort {
         this.categoryRepository = categoryRepository;
     }
 
-    public Pagination<CategoryReadDTO> execute(int page, int limit) {
-        return categoryRepository.findAll(page, limit);
+    public Pagination<CategoryReadDTO> execute(QueryCategories query, int page, int limit) {
+        return categoryRepository.findAll(query, page, limit);
     }
 }

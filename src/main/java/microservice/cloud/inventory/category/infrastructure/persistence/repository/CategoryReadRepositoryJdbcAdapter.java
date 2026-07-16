@@ -1,5 +1,6 @@
 package microservice.cloud.inventory.category.infrastructure.persistence.repository;
 
+import java.sql.Types;
 import java.util.List;
 import java.util.Set;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.category.application.dtos.CategoryReadDTO;
+import microservice.cloud.inventory.category.application.dtos.QueryCategories;
 import microservice.cloud.inventory.category.application.ports.out.CategoryReadRepository;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
 
@@ -61,12 +63,13 @@ public class CategoryReadRepositoryJdbcAdapter implements CategoryReadRepository
     }
 
     @Override
-    public Pagination<CategoryReadDTO> findAll(int page, int limit) {
+    public Pagination<CategoryReadDTO> findAll(QueryCategories query, int page, int limit) {
         int offset = page * limit;
         
         MapSqlParameterSource params = new MapSqlParameterSource()
             .addValue("limit", limit)
-            .addValue("offset", offset);
+            .addValue("offset", offset)
+            .addValue("search", query.search(), Types.VARCHAR);
 
         List<CategoryReadDTO> categories = namedParameterJdbcTemplate.query(
             """
@@ -93,6 +96,12 @@ public class CategoryReadRepositoryJdbcAdapter implements CategoryReadRepository
             LEFT JOIN category p ON c.parent_id = p.id 
             LEFT JOIN categoryattribute ca ON c.id = ca.category_id
             LEFT JOIN attributedefinition ad ON ca.attribute_definition_id = ad.id
+            WHERE ((:search IS NULL OR :search = '')
+                OR (
+                    c.name ILIKE '%' || :search || '%'
+                    OR c.slug ILIKE '%' || :search || '%'
+                )
+            )
             """,
             params,
             new CategoryReadResultSetExtractor()

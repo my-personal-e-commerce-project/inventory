@@ -1,12 +1,13 @@
 package microservice.cloud.inventory.attribute.infrastructure.persistence.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
+
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.application.ports.dto.AttributeDefinitionReadDTO;
+import microservice.cloud.inventory.attribute.application.ports.dto.QueryAttributeDefinitions;
 import microservice.cloud.inventory.attribute.application.ports.out.AttributeDefinitionReadRepository;
 import microservice.cloud.inventory.attribute.infrastructure.persistence.model.AttributeDefinitionEntity;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
@@ -15,23 +16,28 @@ import microservice.cloud.inventory.shared.application.dto.Pagination;
 @RequiredArgsConstructor
 public class AttributeDefinitionReadRepositoryJdbcAdapapter implements AttributeDefinitionReadRepository {
 
+    private final JdbcTemplate jdbcTemplate;
     private final AttributeDefinitionJdbcRepository attributeDefinitionJdbcRepository;
 
     @Override
-    public Pagination<AttributeDefinitionReadDTO> findAll(int page, int limit) {
-        Pageable pageable = PageRequest.of(page, limit);
+    public Pagination<AttributeDefinitionReadDTO> findAll(QueryAttributeDefinitions query, int page, int limit) {
+        List<AttributeDefinitionEntity> result = attributeDefinitionJdbcRepository
+            .findAllAndSearch(query.search(), limit, page);
 
-        Page<AttributeDefinitionEntity> result = attributeDefinitionJdbcRepository
-            .findAll(pageable);
+        long total = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM products;", Long.class);
+
+        int totalPages = (limit == 0) ? 1 : (int) Math.ceil((double) total / limit);
+    
+        int last_page = Math.max(0, totalPages - 1);
 
         return new Pagination<AttributeDefinitionReadDTO>(
-            result.getContent()
+            result
                 .stream()
                 .map(
                     (attr) -> toMap(attr)
                 ).toList(),
             page,
-            result.getTotalPages()
+            last_page
         );
     }
 
