@@ -3,6 +3,7 @@ package microservice.cloud.inventory.product.application.use_cases;
 import java.util.HashSet;
 import java.util.Set;
 
+import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductAttributeValue;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
@@ -25,53 +26,46 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UpdateProductUseCaseTest {
+class DeleteProductAttributeUseCaseTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private CategoryRepository categoryRepository;
+
     @Mock
     private GetMePort getMePort;
 
     @InjectMocks
-    private UpdateProductUseCase updateProductUseCase;
+    private DeleteProductAttributeUseCase deleteProductAttributeUseCase;
 
     @Test
-    void shouldUpdateProductSuccessfullyWhenPermitted() {
+    void shouldRemoveAttributeSuccessfullyWhenPermitted() {
         // GIVEN
         Me me = new Me(Id.generate(), Set.of(Permission.updateProduct()));
         when(getMePort.execute()).thenReturn(me);
 
-        Slug findSlug = Slug.fromString("existing-product");
-        
-        // Creamos un producto existente
+        Slug findSlug = Slug.fromString("product-slug");
         Id attrId = Id.generate();
         Id defId = Id.generate();
         ProductAttributeValue pav = new ProductAttributeValue(attrId, defId, "value", null, null, null);
+
         Product product = new Product(
-            Id.generate(), "Old Title", findSlug, "Old Desc", Set.of("cat-1"), true,
+            Id.generate(), "Product title", findSlug, "Desc", Set.of("cat-1"), true,
             new Price(10.0), Set.of(pav), new Quantity(5), new Quantity(5), new HashSet<>(), new HashSet<>()
         );
         when(productRepository.findBySlug(findSlug)).thenReturn(product);
-
-        // Nuevos datos para actualizar
-        String newTitle = "New Title";
-        Slug newSlug = Slug.fromString("new-title");
-        String newDesc = "New Desc";
-        Set<String> newCats = Set.of("cat-2");
-        Price newPrice = new Price(15.0);
-        Quantity newStock = new Quantity(10);
-        Set<ProductAttributeValue> updatedAttrs = Set.of(new ProductAttributeValue(attrId, defId, "new-value", null, null, null));
+        when(productRepository.findProductAttributeValueById(attrId)).thenReturn(pav);
+        when(categoryRepository.getCategoryAttributeByAttributeDefinitionId(defId)).thenReturn(null);
 
         // WHEN
-        assertDoesNotThrow(() -> updateProductUseCase.execute(
-            findSlug, newTitle, newSlug, newDesc, newCats, false, newPrice, newStock, new Quantity(5), new HashSet<>(), updatedAttrs, new HashSet<>()
-        ));
+        Product result = deleteProductAttributeUseCase.execute(findSlug, attrId);
 
         // THEN
+        assertNotNull(result);
+        assertTrue(result.attributeValues().isEmpty());
         verify(productRepository, times(1)).update(product);
-        assertEquals(newTitle, product.title());
-        assertEquals("new-title", product.slug().value());
-        assertFalse(product.isActive());
     }
 
     @Test
@@ -82,13 +76,10 @@ class UpdateProductUseCaseTest {
         // WHEN & THEN
         RuntimeException exception = assertThrows(
             RuntimeException.class,
-            () -> updateProductUseCase.execute(
-                Slug.fromString("slug"), "Title", Slug.fromString("slug"), "Desc", Set.of("cat"), 
-                true, new Price(1.0), new Quantity(1), new Quantity(5), new HashSet<>(), new HashSet<>(), new HashSet<>()
-            )
+            () -> deleteProductAttributeUseCase.execute(Slug.fromString("slug"), Id.generate())
         );
         assertEquals("You do not have permission to perform this action", exception.getMessage());
-        verifyNoInteractions(productRepository);
+        verifyNoInteractions(productRepository, categoryRepository);
     }
 
     @Test
@@ -100,11 +91,8 @@ class UpdateProductUseCaseTest {
         // WHEN & THEN
         assertThrows(
             UnauthorizedException.class,
-            () -> updateProductUseCase.execute(
-                Slug.fromString("slug"), "Title", Slug.fromString("slug"), "Desc", Set.of("cat"), 
-                true, new Price(1.0), new Quantity(1), new Quantity(5), new HashSet<>(), new HashSet<>(), new HashSet<>()
-            )
+            () -> deleteProductAttributeUseCase.execute(Slug.fromString("slug"), Id.generate())
         );
-        verifyNoInteractions(productRepository);
+        verifyNoInteractions(productRepository, categoryRepository);
     }
 }

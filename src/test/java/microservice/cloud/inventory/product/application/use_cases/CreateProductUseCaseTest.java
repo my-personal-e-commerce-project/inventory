@@ -60,7 +60,7 @@ class CreateProductUseCaseTest {
         ProductAttributeValue pav = new ProductAttributeValue(Id.generate(), globalDefId, "value", null, null, null);
         Product product = new Product(
             Id.generate(), "Product title", Slug.fromString("slug"), "Desc", Set.of("cat-1"), true,
-            new Price(10.0), Set.of(pav), new Quantity(5), new HashSet<>(), new HashSet<>()
+            new Price(10.0), Set.of(pav), new Quantity(5), new Quantity(5), new HashSet<>(), new HashSet<>()
         );
 
         when(categoryRepository.getCategoryAttributesWithAttributeDefinitionsByCategoryIds(product.categories()))
@@ -116,7 +116,7 @@ class CreateProductUseCaseTest {
 
         Product product = new Product(
             Id.generate(), "Product title", Slug.fromString("slug"), "Desc", Set.of("cat-1"), true,
-            new Price(10.0), new HashSet<>(), new Quantity(5), new HashSet<>(), new HashSet<>()
+            new Price(10.0), new HashSet<>(), new Quantity(5), new Quantity(5), new HashSet<>(), new HashSet<>()
         );
 
         when(categoryRepository.getCategoryAttributesWithAttributeDefinitionsByCategoryIds(product.categories()))

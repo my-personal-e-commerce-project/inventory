@@ -27,12 +27,12 @@ class ListAttributeDefinitionUseCaseTest {
     @Test
     void shouldListAttributeDefinitionsSuccessfully() {
         Pagination<AttributeDefinitionReadDTO> expectedPagination = new Pagination<>(List.of(), 1, 1);
-        when(attributeDefinitionReadRepository.findAll(new QueryAttributeDefinitions(), 1, 10)).thenReturn(expectedPagination);
+        when(attributeDefinitionReadRepository.findAll(new QueryAttributeDefinitions(null), 1, 10)).thenReturn(expectedPagination);
 
-        Pagination<AttributeDefinitionReadDTO> result = listUseCase.execute(new QueryAttributeDefinitions(), 1, 10);
+        Pagination<AttributeDefinitionReadDTO> result = listUseCase.execute(new QueryAttributeDefinitions(null), 1, 10);
 
         assertNotNull(result);
         assertEquals(expectedPagination, result);
-        verify(attributeDefinitionReadRepository, times(1)).findAll(new QueryAttributeDefinitions(), 1, 10);
+        verify(attributeDefinitionReadRepository, times(1)).findAll(new QueryAttributeDefinitions(null), 1, 10);
     }
 }

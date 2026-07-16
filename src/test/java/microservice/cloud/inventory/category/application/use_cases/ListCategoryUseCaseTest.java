@@ -27,12 +27,12 @@ class ListCategoryUseCaseTest {
     @Test
     void shouldListCategoriesSuccessfully() {
         Pagination<CategoryReadDTO> expectedPagination = new Pagination<>(List.of(), 1, 1);
-        when(categoryReadRepository.findAll(new QueryCategories(), 1, 10)).thenReturn(expectedPagination);
+        when(categoryReadRepository.findAll(new QueryCategories(null), 1, 10)).thenReturn(expectedPagination);
 
-        Pagination<CategoryReadDTO> result = listUseCase.execute(new QueryCategories(), 1, 10);
+        Pagination<CategoryReadDTO> result = listUseCase.execute(new QueryCategories(null), 1, 10);
 
         assertNotNull(result);
         assertEquals(expectedPagination, result);
-        verify(categoryReadRepository, times(1)).findAll(new QueryCategories(), 1, 10);
+        verify(categoryReadRepository, times(1)).findAll(new QueryCategories(null), 1, 10);
     }
 }

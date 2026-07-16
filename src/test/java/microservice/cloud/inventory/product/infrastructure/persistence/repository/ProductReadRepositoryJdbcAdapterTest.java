@@ -35,7 +35,7 @@ public class ProductReadRepositoryJdbcAdapterTest {
     void shouldGetAllProductsSuccessfullyWhenThereIsOneProductWithCurrentPageOfOneValueAndLastPageOfOneValue() {
         // GIVEN
         List<ProductReadDTO> expectedList = List.of(
-            new ProductReadDTO("prod-123", "Electronics", "electronics", "generic description", List.of(), true, List.of(), 0.22, 12, null, null)
+            new ProductReadDTO("prod-123", "Electronics", "electronics", "generic description", List.of(), true, List.of(), 0.22, 12, null, null, null)
         );
 
         when(namedParameterJdbcTemplate.query(
@@ -51,7 +51,7 @@ public class ProductReadRepositoryJdbcAdapterTest {
 
 
         // WHEN
-        Pagination<ProductReadDTO> result = productReadRepositoryJdbcAdapter.findAll(0, 10, new QueryProducts());
+        Pagination<ProductReadDTO> result = productReadRepositoryJdbcAdapter.findAll(0, 10, new QueryProducts(null, null, null, null, null, null, null));
 
         // THEN
         assertNotNull(result);
@@ -66,8 +66,8 @@ public class ProductReadRepositoryJdbcAdapterTest {
     void shouldGetAllProductsSuccessfullyWhenThereIsOneProductWithCurrentPageOfOneValueAndLastPageOfTwoValue() {
         // GIVEN
         List<ProductReadDTO> expectedList = List.of(
-            new ProductReadDTO("prod-123", "Electronics", "electronics", "generic description", List.of(), true, List.of(), 0.22, 12, null, null),
-            new ProductReadDTO("prod-123", "Nave", "helicopter", "generic description", List.of(), true, List.of(), 0.42, 32, null, null)
+            new ProductReadDTO("prod-123", "Electronics", "electronics", "generic description", List.of(), true, List.of(), 0.22, 12, null, null, null),
+            new ProductReadDTO("prod-123", "Nave", "helicopter", "generic description", List.of(), true, List.of(), 0.42, 32, null, null, null)
         );
 
         when(namedParameterJdbcTemplate.query(
@@ -82,7 +82,7 @@ public class ProductReadRepositoryJdbcAdapterTest {
         )).thenReturn(2L);
 
         // WHEN
-        Pagination<ProductReadDTO> result = productReadRepositoryJdbcAdapter.findAll(0, 1, new QueryProducts());
+        Pagination<ProductReadDTO> result = productReadRepositoryJdbcAdapter.findAll(0, 1, new QueryProducts(null, null, null, null, null, null, null));
 
         // THEN
         assertNotNull(result);

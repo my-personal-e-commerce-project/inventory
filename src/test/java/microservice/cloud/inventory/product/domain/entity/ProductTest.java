@@ -279,25 +279,14 @@ class ProductTest {
     }
 
     @Test
-    void shouldAddProductAttributeSuccessfullyWhenPermitted() {
+    void shouldAddProductAttributeSuccessfully() {
         Product product = createDefaultProduct();
-        Me me = new Me(Id.generate(), Set.of(Permission.updateProduct()));
 
         Id defId = Id.generate();
         ProductAttributeValue pav = new ProductAttributeValue(Id.generate(), defId, "value", null, null, null);
 
-        assertDoesNotThrow(() -> product.addProductAttribute(me, pav));
+        assertDoesNotThrow(() -> product.addProductAttribute(pav));
         assertEquals(1, product.attributeValues().size());
-    }
-
-    @Test
-    void shouldThrowExceptionOnAddAttributeWhenNoPermission() {
-        Product product = createDefaultProduct();
-        Me me = new Me(Id.generate(), Set.of(Permission.createProduct())); // Diferente permiso
-
-        ProductAttributeValue pav = new ProductAttributeValue(Id.generate(), Id.generate(), "value", null, null, null);
-
-        assertThrows(UnauthorizedException.class, () -> product.addProductAttribute(me, pav));
     }
 
     @Test
@@ -310,15 +299,14 @@ class ProductTest {
             new Price(10.0), Set.of(pav1), new Quantity(5), null, new HashSet<>(), new HashSet<>()
         );
 
-        Me me = new Me(Id.generate(), Set.of(Permission.updateProduct()));
         ProductAttributeValue pav2 = new ProductAttributeValue(Id.generate(), defId, "value2", null, null, null);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> product.addProductAttribute(me, pav2));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> product.addProductAttribute(pav2));
         assertEquals("An product attribute with the same 'attribute definition id' already exists.", exception.getMessage());
     }
 
     @Test
-    void shouldRemoveAttributeSuccessfullyWhenPermittedAndNotRequired() {
+    void shouldRemoveAttributeSuccessfullyWhenNotRequired() {
         Id attrId = Id.generate();
         Id defId = Id.generate();
         ProductAttributeValue pav = new ProductAttributeValue(attrId, defId, "value", null, null, null);
@@ -328,18 +316,15 @@ class ProductTest {
             new Price(10.0), Set.of(pav), new Quantity(5), null, new HashSet<>(), new HashSet<>()
         );
 
-        Me me = new Me(Id.generate(), Set.of(Permission.updateProduct()));
-
-        assertDoesNotThrow(() -> product.removeProductAttribute(me, attrId, null));
+        assertDoesNotThrow(() -> product.removeProductAttribute(attrId, null));
         assertTrue(product.attributeValues().isEmpty());
     }
 
     @Test
     void shouldThrowExceptionOnRemoveAttributeWhenNotExists() {
         Product product = createDefaultProduct();
-        Me me = new Me(Id.generate(), Set.of(Permission.updateProduct()));
 
-        assertThrows(DataNotFound.class, () -> product.removeProductAttribute(me, Id.generate(), null));
+        assertThrows(DataNotFound.class, () -> product.removeProductAttribute(Id.generate(), null));
     }
 
     @Test
@@ -353,10 +338,9 @@ class ProductTest {
             new Price(10.0), Set.of(pav), new Quantity(5), null, new HashSet<>(), new HashSet<>()
         );
 
-        Me me = new Me(Id.generate(), Set.of(Permission.updateProduct()));
         CategoryAttribute categoryAttribute = new CategoryAttribute(Id.generate(), defId, true, true, true);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> product.removeProductAttribute(me, attrId, categoryAttribute));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> product.removeProductAttribute(attrId, categoryAttribute));
         assertTrue(exception.getMessage().contains("cannot be removed"));
     }
 }

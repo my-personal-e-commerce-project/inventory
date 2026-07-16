@@ -25,67 +25,51 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UpdateProductUseCaseTest {
+class AddProductAttributeUseCaseTest {
 
     @Mock
     private ProductRepository productRepository;
+
     @Mock
     private GetMePort getMePort;
 
     @InjectMocks
-    private UpdateProductUseCase updateProductUseCase;
+    private AddProductAttributeUseCase addProductAttributeUseCase;
 
     @Test
-    void shouldUpdateProductSuccessfullyWhenPermitted() {
+    void shouldAddProductAttributeSuccessfullyWhenPermitted() {
         // GIVEN
         Me me = new Me(Id.generate(), Set.of(Permission.updateProduct()));
         when(getMePort.execute()).thenReturn(me);
 
-        Slug findSlug = Slug.fromString("existing-product");
-        
-        // Creamos un producto existente
-        Id attrId = Id.generate();
-        Id defId = Id.generate();
-        ProductAttributeValue pav = new ProductAttributeValue(attrId, defId, "value", null, null, null);
+        Slug findSlug = Slug.fromString("product-slug");
         Product product = new Product(
-            Id.generate(), "Old Title", findSlug, "Old Desc", Set.of("cat-1"), true,
-            new Price(10.0), Set.of(pav), new Quantity(5), new Quantity(5), new HashSet<>(), new HashSet<>()
+            Id.generate(), "Product title", findSlug, "Desc", Set.of("cat-1"), true,
+            new Price(10.0), new HashSet<>(), new Quantity(5), new Quantity(5), new HashSet<>(), new HashSet<>()
         );
         when(productRepository.findBySlug(findSlug)).thenReturn(product);
 
-        // Nuevos datos para actualizar
-        String newTitle = "New Title";
-        Slug newSlug = Slug.fromString("new-title");
-        String newDesc = "New Desc";
-        Set<String> newCats = Set.of("cat-2");
-        Price newPrice = new Price(15.0);
-        Quantity newStock = new Quantity(10);
-        Set<ProductAttributeValue> updatedAttrs = Set.of(new ProductAttributeValue(attrId, defId, "new-value", null, null, null));
+        ProductAttributeValue pav = new ProductAttributeValue(Id.generate(), Id.generate(), "value", null, null, null);
 
         // WHEN
-        assertDoesNotThrow(() -> updateProductUseCase.execute(
-            findSlug, newTitle, newSlug, newDesc, newCats, false, newPrice, newStock, new Quantity(5), new HashSet<>(), updatedAttrs, new HashSet<>()
-        ));
+        Product result = addProductAttributeUseCase.execute(findSlug, pav);
 
         // THEN
+        assertNotNull(result);
+        assertEquals(1, result.attributeValues().size());
         verify(productRepository, times(1)).update(product);
-        assertEquals(newTitle, product.title());
-        assertEquals("new-title", product.slug().value());
-        assertFalse(product.isActive());
     }
 
     @Test
     void shouldThrowExceptionWhenUserIsNull() {
         // GIVEN
         when(getMePort.execute()).thenReturn(null);
+        ProductAttributeValue pav = new ProductAttributeValue(Id.generate(), Id.generate(), "value", null, null, null);
 
         // WHEN & THEN
         RuntimeException exception = assertThrows(
             RuntimeException.class,
-            () -> updateProductUseCase.execute(
-                Slug.fromString("slug"), "Title", Slug.fromString("slug"), "Desc", Set.of("cat"), 
-                true, new Price(1.0), new Quantity(1), new Quantity(5), new HashSet<>(), new HashSet<>(), new HashSet<>()
-            )
+            () -> addProductAttributeUseCase.execute(Slug.fromString("slug"), pav)
         );
         assertEquals("You do not have permission to perform this action", exception.getMessage());
         verifyNoInteractions(productRepository);
@@ -96,14 +80,12 @@ class UpdateProductUseCaseTest {
         // GIVEN
         Me me = new Me(Id.generate(), Set.of(Permission.createProduct())); // Diferente permiso
         when(getMePort.execute()).thenReturn(me);
+        ProductAttributeValue pav = new ProductAttributeValue(Id.generate(), Id.generate(), "value", null, null, null);
 
         // WHEN & THEN
         assertThrows(
             UnauthorizedException.class,
-            () -> updateProductUseCase.execute(
-                Slug.fromString("slug"), "Title", Slug.fromString("slug"), "Desc", Set.of("cat"), 
-                true, new Price(1.0), new Quantity(1), new Quantity(5), new HashSet<>(), new HashSet<>(), new HashSet<>()
-            )
+            () -> addProductAttributeUseCase.execute(Slug.fromString("slug"), pav)
         );
         verifyNoInteractions(productRepository);
     }

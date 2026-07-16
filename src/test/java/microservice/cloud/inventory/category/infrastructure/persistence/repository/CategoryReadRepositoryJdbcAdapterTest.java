@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import microservice.cloud.inventory.category.application.dtos.CategoryReadDTO;
+import microservice.cloud.inventory.category.application.dtos.QueryCategories;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,7 +65,7 @@ class CategoryReadRepositoryJdbcAdapterTest {
         when(jdbcTemplate.queryForObject(anyString(), eq(Long.class)))
             .thenReturn(1L);
 
-        Pagination<CategoryReadDTO> result = readRepositoryAdapter.findAll(0, 10);
+        Pagination<CategoryReadDTO> result = readRepositoryAdapter.findAll(new QueryCategories(null), 0, 10);
 
         assertNotNull(result);
         assertEquals(expectedList, result.results());
