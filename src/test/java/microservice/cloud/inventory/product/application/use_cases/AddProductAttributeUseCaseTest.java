@@ -45,7 +45,7 @@ class AddProductAttributeUseCaseTest {
         Slug findSlug = Slug.fromString("product-slug");
         Product product = new Product(
             Id.generate(), "Product title", findSlug, "Desc", Set.of("cat-1"), true,
-            new Price(10.0), new HashSet<>(), new Quantity(5), new Quantity(5), new HashSet<>(), new HashSet<>()
+            new Price(10.0), new HashSet<>(), Id.generate(), new Quantity(5), new HashSet<>(), new HashSet<>()
         );
         when(productRepository.findBySlug(findSlug)).thenReturn(product);
 

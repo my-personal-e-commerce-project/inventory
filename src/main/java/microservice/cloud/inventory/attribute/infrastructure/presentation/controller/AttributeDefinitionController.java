@@ -14,6 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.attribute.application.ports.dto.QueryAttributeDefinitions;
@@ -32,6 +37,7 @@ import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 @RestController
 @RequestMapping("/api/v1/attribute_definitions")
 @RequiredArgsConstructor
+@Tag(name = "Attribute Definitions", description = "Endpoints for managing global and category product attribute definitions")
 public class AttributeDefinitionController {
 
     private final CreateAttributeDefinitionUseCase createAttributeDefinitionUseCase;
@@ -39,17 +45,26 @@ public class AttributeDefinitionController {
     private final DeleteAttributeDefinitionUseCase deleteAttributeDefinitionUseCase;
     private final ListAttributeDefinitionUseCase listAttributeDefinitionUseCase;
 
+    @Operation(summary = "List attribute definitions", description = "Retrieves a paginated list of attribute definitions with search filter.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Attribute definitions retrieved successfully")
+    })
     @GetMapping
     public ResponseEntity<?> listDefaultAttributes(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        @RequestParam(required = false) String search
+        @Parameter(description = "Page number (0-indexed)") @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
+        @Parameter(description = "Search filter by name") @RequestParam(required = false) String search
     ) {
         return ResponseEntity.ok(
             listAttributeDefinitionUseCase.execute(new QueryAttributeDefinitions(search), page, size)
         );
     }
 
+    @Operation(summary = "Create attribute definition", description = "Creates a new global or category-level attribute definition.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Attribute definition created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid payload")
+    })
     @PostMapping
     public ResponseEntity<ResponsePayload<AttributeDefinitionDTO>> createDefaultAttribute(
         @Valid @RequestBody AttributeDefinitionDTO attribute
@@ -81,9 +96,14 @@ public class AttributeDefinitionController {
             );
     }
 
+    @Operation(summary = "Update attribute definition", description = "Updates an existing attribute definition by slug.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Attribute definition updated successfully"),
+        @ApiResponse(responseCode = "404", description = "Attribute definition not found")
+    })
     @PutMapping(name = "/{find_slug}")
     public ResponseEntity<ResponsePayload<UpdateAttributeDefinitionDTO>> updateAttributeDefinition(
-        @RequestParam String find_slug,
+        @Parameter(description = "Attribute definition slug") @RequestParam String find_slug,
         @Valid @RequestBody UpdateAttributeDefinitionDTO attribute
     ) {
         AttributeDefinition attrDef = updateAttributeDefinitionUseCase.execute(
@@ -108,9 +128,14 @@ public class AttributeDefinitionController {
             );
     }
 
+    @Operation(summary = "Delete attribute definition", description = "Deletes an attribute definition by slug.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Attribute definition deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Attribute definition not found")
+    })
     @DeleteMapping("/{find_slug}")
     public ResponseEntity<?> deleteAttributeDefinition(
-        @PathVariable String find_slug
+        @Parameter(description = "Attribute definition slug") @PathVariable String find_slug
     ) {
         deleteAttributeDefinitionUseCase.execute(
             Slug.fromString(find_slug)

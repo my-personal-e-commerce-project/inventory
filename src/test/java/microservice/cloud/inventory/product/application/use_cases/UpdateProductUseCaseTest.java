@@ -49,7 +49,7 @@ class UpdateProductUseCaseTest {
         ProductAttributeValue pav = new ProductAttributeValue(attrId, defId, "value", null, null, null);
         Product product = new Product(
             Id.generate(), "Old Title", findSlug, "Old Desc", Set.of("cat-1"), true,
-            new Price(10.0), Set.of(pav), new Quantity(5), new Quantity(5), new HashSet<>(), new HashSet<>()
+            new Price(10.0), Set.of(pav), Id.generate(), new Quantity(5), new HashSet<>(), new HashSet<>()
         );
         when(productRepository.findBySlug(findSlug)).thenReturn(product);
 
@@ -64,7 +64,7 @@ class UpdateProductUseCaseTest {
 
         // WHEN
         assertDoesNotThrow(() -> updateProductUseCase.execute(
-            findSlug, newTitle, newSlug, newDesc, newCats, false, newPrice, newStock, new Quantity(5), new HashSet<>(), updatedAttrs, new HashSet<>()
+            findSlug, newTitle, newSlug, newDesc, newCats, false, newPrice, newStock, new HashSet<>(), updatedAttrs, new HashSet<>()
         ));
 
         // THEN
@@ -84,7 +84,7 @@ class UpdateProductUseCaseTest {
             RuntimeException.class,
             () -> updateProductUseCase.execute(
                 Slug.fromString("slug"), "Title", Slug.fromString("slug"), "Desc", Set.of("cat"), 
-                true, new Price(1.0), new Quantity(1), new Quantity(5), new HashSet<>(), new HashSet<>(), new HashSet<>()
+                true, new Price(1.0), new Quantity(5), new HashSet<>(), new HashSet<>(), new HashSet<>()
             )
         );
         assertEquals("You do not have permission to perform this action", exception.getMessage());
@@ -102,7 +102,7 @@ class UpdateProductUseCaseTest {
             UnauthorizedException.class,
             () -> updateProductUseCase.execute(
                 Slug.fromString("slug"), "Title", Slug.fromString("slug"), "Desc", Set.of("cat"), 
-                true, new Price(1.0), new Quantity(1), new Quantity(5), new HashSet<>(), new HashSet<>(), new HashSet<>()
+                true, new Price(1.0), new Quantity(5), new HashSet<>(), new HashSet<>(), new HashSet<>()
             )
         );
         verifyNoInteractions(productRepository);

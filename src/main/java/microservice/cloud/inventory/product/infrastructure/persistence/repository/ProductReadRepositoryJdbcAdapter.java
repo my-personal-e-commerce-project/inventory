@@ -48,7 +48,6 @@ public class ProductReadRepositoryJdbcAdapter implements ProductReadRepository {
                 p.images, 
                 p.tags, 
                 p.price, 
-                p.stock,
                 p.min_stock,
                 p.is_active AS isActive,
                 pav.id AS val_id,
@@ -56,6 +55,7 @@ public class ProductReadRepositoryJdbcAdapter implements ProductReadRepository {
                 pav.integer_value, 
                 pav.double_value, 
                 pav.boolean_value,
+                pd.quantity AS stock,
                 ad.slug AS attr_slug,
                 ad.id AS attr_id,
                 (SELECT string_agg(category_id, ',') FROM product_categories WHERE product_id = p.id) AS all_categories
@@ -67,6 +67,7 @@ public class ProductReadRepositoryJdbcAdapter implements ProductReadRepository {
             LEFT JOIN product_attribute_values pav ON p.id = pav.product_id
             LEFT JOIN attributedefinition ad ON pav.attribute_definition_id = ad.id
             LEFT JOIN product_categories pc ON p.id = pc.product_id
+            LEFT JOIN product_stock ps ON p.stock_id = ps.id 
             WHERE ((:search IS NULL OR :search = '')
                 OR (
                      p.title ILIKE '%' || :search || '%'

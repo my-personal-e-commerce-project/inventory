@@ -7,8 +7,13 @@ CREATE TABLE products (
     images varchar[],
     tags varchar[],
     price DOUBLE PRECISION NOT NULL,
-    stock INTEGER NOT NULL,
-    min_stock INTEGER DEFAULT 5
+    stock_id varchar(255) NOT NULL,
+    min_stock INTEGER DEFAULT 5,
+
+    CONSTRAINT fk_stock_id
+    FOREIGN KEY (stock_id)
+    REFERENCES product_stock(id)
+    ON DELETE SET NULL
 );
 
 CREATE TABLE product_categories (

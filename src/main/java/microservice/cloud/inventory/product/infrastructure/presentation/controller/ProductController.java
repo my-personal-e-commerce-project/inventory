@@ -17,6 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import microservice.cloud.inventory.shared.infrastructure.dto.ResponsePayload;
@@ -45,6 +50,7 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
+@Tag(name = "Products & Stock", description = "Endpoints for managing products, attributes, and stock mutations with pessimistic locking")
 public class ProductController {
     
     private final CreateProductUseCase createProductUseCase;
@@ -57,17 +63,21 @@ public class ProductController {
     private final CreateProductStockUseCase createProductStockUseCase;
     private final UpdateProductStockUseCase updateProductStockUseCase;
 
+    @Operation(summary = "List products", description = "Retrieves a paginated list of products with optional filtering parameters.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Products retrieved successfully")
+    })
     @GetMapping
     public ResponseEntity<?> listProducts(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        @RequestParam(required = false) String search,
-        @RequestParam(required = false) Set<String> categories,
-        @RequestParam(required = false) Double minPrice,
-        @RequestParam(required = false) Double maxPrice,
-        @RequestParam(required = false) Integer minStock,
-        @RequestParam(required = false) Integer maxStock,
-        @RequestParam(required = false) Boolean isActive
+        @Parameter(description = "Page number (0-indexed)") @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
+        @Parameter(description = "Search term by title or description") @RequestParam(required = false) String search,
+        @Parameter(description = "Set of category IDs to filter") @RequestParam(required = false) Set<String> categories,
+        @Parameter(description = "Minimum price filter") @RequestParam(required = false) Double minPrice,
+        @Parameter(description = "Maximum price filter") @RequestParam(required = false) Double maxPrice,
+        @Parameter(description = "Minimum stock filter") @RequestParam(required = false) Integer minStock,
+        @Parameter(description = "Maximum stock filter") @RequestParam(required = false) Integer maxStock,
+        @Parameter(description = "Active status filter") @RequestParam(required = false) Boolean isActive
     ) {
         Pagination<ProductReadDTO> products = listProductsUseCase.execute(page, size, 
             new QueryProducts(
@@ -81,11 +91,15 @@ public class ProductController {
             )
         );
 
-        return ResponseEntity.ok(
-            products
-        );
+        return ResponseEntity.ok(products);
     }
     
+    @Operation(summary = "Create product", description = "Creates a new product and initializes its stock record.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Product and stock created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid payload or validation error"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     @PostMapping
     public ResponseEntity<ResponsePayload<ProductDTO>> createProduct(
         @Valid @RequestBody ProductDTO productDTO
@@ -101,7 +115,6 @@ public class ProductController {
         );
 
         productDTO.setId(Id.generate().value());
-
         productDTO.setStockId(Id.generate().value());
 
         createProductStockUseCase.execute(
@@ -143,9 +156,15 @@ public class ProductController {
         );
     }
 
+    @Operation(summary = "Update product", description = "Updates product details by product slug.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Product updated successfully"),
+        @ApiResponse(responseCode = "404", description = "Product not found"),
+        @ApiResponse(responseCode = "400", description = "Invalid payload")
+    })
     @PutMapping("/{find_slug}")
     public ResponseEntity<ResponsePayload<UpdateProductDTO>> updateProduct(
-        @PathVariable String find_slug,
+        @Parameter(description = "Product slug") @PathVariable String find_slug,
         @Valid @RequestBody UpdateProductDTO productDTO
     ) {
         updateProductUseCase.execute(
@@ -177,9 +196,15 @@ public class ProductController {
         );
     }
 
+    @Operation(summary = "Update product stock (Pessimistic Locking)", description = "Mutates product stock quantity using pessimistic locking and triggers min stock alert event if threshold reached.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Stock updated successfully"),
+        @ApiResponse(responseCode = "404", description = "Product not found"),
+        @ApiResponse(responseCode = "400", description = "Invalid stock quantity")
+    })
     @PutMapping("/{find_slug}/stock")
     public ResponseEntity<ResponsePayload<Integer>> updateProductStock(
-        @PathVariable String find_slug,
+        @Parameter(description = "Product slug") @PathVariable String find_slug,
         @Valid @RequestBody Integer stock
     ) {
         updateProductStockUseCase.execute(Slug.fromString(find_slug), new Quantity(stock));
@@ -190,17 +215,27 @@ public class ProductController {
         );
     }
 
+    @Operation(summary = "Delete product", description = "Deletes a product by slug.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Product deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Product not found")
+    })
     @DeleteMapping("/{find_slug}")
     public ResponseEntity<?> deleteProduct(
-        @PathVariable String find_slug
+        @Parameter(description = "Product slug") @PathVariable String find_slug
     ) {
         deleteProductUseCase.execute(Slug.fromString(find_slug));
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Add attribute to product", description = "Adds a new attribute value to an existing product.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Attribute added successfully"),
+        @ApiResponse(responseCode = "404", description = "Product not found")
+    })
     @PostMapping("/{find_slug}/attributes")
     public ResponseEntity<ResponsePayload<ProductAttributeValueDTO>> addAttributeProduct(
-        @PathVariable String find_slug,
+        @Parameter(description = "Product slug") @PathVariable String find_slug,
         @Valid @RequestBody ProductAttributeValueDTO attr
     ) {
         attr.setId(UUID.randomUUID().toString());
@@ -221,10 +256,15 @@ public class ProductController {
         );
     }
 
+    @Operation(summary = "Remove attribute from product", description = "Removes an attribute value from a product by attribute ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Attribute removed successfully"),
+        @ApiResponse(responseCode = "404", description = "Product or attribute not found")
+    })
     @DeleteMapping("/{find_slug}/attributes/{attr_id}")
     public ResponseEntity<ResponsePayload<ProductAttributeValueDTO>> removeAttributeProduct(
-        @PathVariable String find_slug,
-        @PathVariable String attr_id
+        @Parameter(description = "Product slug") @PathVariable String find_slug,
+        @Parameter(description = "Attribute ID") @PathVariable String attr_id
     ) {
         deleteProductAttributeUseCase.execute(Slug.fromString(find_slug), Id.fromString(attr_id));
 

@@ -1,4 +1,4 @@
-CREATE TABLE outbox (
+CREATE TABLE IF NOT EXISTS outbox (
     id SERIAL PRIMARY KEY,
     aggregate_type VARCHAR(255) NOT NULL,
     aggregate_id VARCHAR(255) NOT NULL,

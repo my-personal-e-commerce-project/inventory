@@ -32,7 +32,7 @@ class ProductTest {
             true,
             new Price(100.0),
             new HashSet<>(),
-            new Quantity(10),
+            Id.generate(),
             null,
             Set.of("image1.png"),
             Set.of("tag1")
@@ -51,7 +51,7 @@ class ProductTest {
             true,
             new Price(100.0),
             new HashSet<>(),
-            new Quantity(10),
+            Id.generate(),
             null,
             Set.of("image1.png"),
             Set.of("tag1")
@@ -64,7 +64,7 @@ class ProductTest {
         assertEquals(Set.of("cat-1"), product.categories());
         assertTrue(product.isActive());
         assertEquals(100.0, product.price().value());
-        assertEquals(10, product.stock().value());
+        assertNotNull(product.stockId());
         assertEquals(Set.of("image1.png"), product.images());
         assertEquals(Set.of("tag1"), product.tags());
     }
@@ -80,7 +80,7 @@ class ProductTest {
             true,
             new Price(100.0),
             new HashSet<>(),
-            new Quantity(10),
+            Id.generate(),
             null,
             Set.of("image1.png"),
             Set.of("tag1")
@@ -109,7 +109,7 @@ class ProductTest {
             true,
             new Price(100.0),
             Set.of(pav),
-            new Quantity(10),
+            Id.generate(),
             null,
             Set.of("image1.png"),
             Set.of("tag1")
@@ -124,7 +124,6 @@ class ProductTest {
             Set.of("cat-2"),
             false,
             new Price(150.0),
-            new Quantity(5),
             null,
             Set.of("image2.png"),
             Set.of(updatedPav),
@@ -137,7 +136,7 @@ class ProductTest {
         assertEquals(Set.of("cat-2"), product.categories());
         assertFalse(product.isActive());
         assertEquals(150.0, product.price().value());
-        assertEquals(5, product.stock().value());
+        assertNotNull(product.stockId());
         assertEquals(Set.of("image2.png"), product.images());
         assertEquals(Set.of("tag2"), product.tags());
         assertEquals(1, product.attributeValues().size());
@@ -159,7 +158,7 @@ class ProductTest {
             true,
             new Price(100.0),
             Set.of(pav),
-            new Quantity(10),
+            Id.generate(),
             null,
             Set.of("image1.png"),
             Set.of("tag1")
@@ -175,7 +174,6 @@ class ProductTest {
             Set.of("cat-1"),
             true,
             new Price(150.0),
-            new Quantity(5),
             null,
             Set.of("image2.png"),
             Set.of(differentPav),
@@ -204,7 +202,7 @@ class ProductTest {
             true,
             new Price(10.0),
             Set.of(globalPav, catPav),
-            new Quantity(5),
+            Id.generate(),
             null,
             new HashSet<>(),
             new HashSet<>()
@@ -265,7 +263,7 @@ class ProductTest {
             true,
             new Price(10.0),
             Set.of(extraPav),
-            new Quantity(5),
+            Id.generate(),
             null,
             new HashSet<>(),
             new HashSet<>()
@@ -296,7 +294,7 @@ class ProductTest {
         
         Product product = new Product(
             Id.generate(), "Title", Slug.fromString("slug"), "Desc", Set.of("cat-1"), true,
-            new Price(10.0), Set.of(pav1), new Quantity(5), null, new HashSet<>(), new HashSet<>()
+            new Price(10.0), Set.of(pav1), Id.generate(), null, new HashSet<>(), new HashSet<>()
         );
 
         ProductAttributeValue pav2 = new ProductAttributeValue(Id.generate(), defId, "value2", null, null, null);
@@ -313,7 +311,7 @@ class ProductTest {
         
         Product product = new Product(
             Id.generate(), "Title", Slug.fromString("slug"), "Desc", Set.of("cat-1"), true,
-            new Price(10.0), Set.of(pav), new Quantity(5), null, new HashSet<>(), new HashSet<>()
+            new Price(10.0), Set.of(pav), Id.generate(), null, new HashSet<>(), new HashSet<>()
         );
 
         assertDoesNotThrow(() -> product.removeProductAttribute(attrId, null));
@@ -335,7 +333,7 @@ class ProductTest {
         
         Product product = new Product(
             Id.generate(), "Title", Slug.fromString("slug"), "Desc", Set.of("cat-1"), true,
-            new Price(10.0), Set.of(pav), new Quantity(5), null, new HashSet<>(), new HashSet<>()
+            new Price(10.0), Set.of(pav), Id.generate(), null, new HashSet<>(), new HashSet<>()
         );
 
         CategoryAttribute categoryAttribute = new CategoryAttribute(Id.generate(), defId, true, true, true);

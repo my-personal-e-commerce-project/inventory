@@ -57,7 +57,7 @@ class ProductRepositoryJdbcAdapterTest {
             true,
             new Price(100.0),
             new HashSet<>(),
-            new Quantity(10),
+            Id.generate(),
             null,
             Set.of("image1.png"),
             Set.of("tag1")
@@ -73,7 +73,7 @@ class ProductRepositoryJdbcAdapterTest {
             Set.of(new ProductCategoryReference("cat-1")),
             true,
             100.0,
-            10,
+            "id",
             5,
             Set.of("image1.png"),
             new HashSet<>(),
