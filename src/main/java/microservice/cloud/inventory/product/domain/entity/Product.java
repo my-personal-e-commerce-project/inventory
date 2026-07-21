@@ -123,10 +123,12 @@ public class Product extends AggregateRoot {
         this.tags = tags;
     }
 
-    public void maxStockReached(Quantity stock) {
+    public void minStockReached(Quantity stock) {
         if(stock.isLessThan(this.minStock)) {
             publishEvent(new MinStockAlertEvent(id.value(), stock.value()));
         }
+
+        this.isActive = false;
     }
 
     public void validGlobalAttributesAndCategoryAttributes(Set<AttributeDefinition> globalAttrs, Set<CategoryAttribute> catAttrs) {
