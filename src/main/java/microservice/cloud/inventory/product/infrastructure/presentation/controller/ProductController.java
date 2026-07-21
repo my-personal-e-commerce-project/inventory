@@ -122,7 +122,6 @@ public class ProductController {
             )
         );
 
-
         return new ResponseEntity<>(
             ResponsePayload.<ProductDTO>builder().payload(productDTO).build(),
             HttpStatus.CREATED
