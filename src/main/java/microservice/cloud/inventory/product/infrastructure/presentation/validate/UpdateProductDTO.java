@@ -27,8 +27,6 @@ public record UpdateProductDTO (
     Set<String> discounts,
     @NotNull
     Double price,
-    @NotNull
-    int stock,
     Integer minStock,
     Set<String> tags
 ) {}

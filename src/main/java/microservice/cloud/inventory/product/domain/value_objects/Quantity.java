@@ -14,4 +14,8 @@ public record Quantity (
     public boolean isLessThan(Quantity other) {
         return this.value < other.value();
     }
+
+    public Quantity decrementValue(int value) {
+        return new Quantity(this.value - value);
+    }
 }

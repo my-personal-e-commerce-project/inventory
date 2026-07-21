@@ -127,7 +127,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
             categories,
             product.isActive(),
             product.price().value(),
-            product.stock().value(),
+            product.stockId().value(),
             product.minStock().value(),
             product.images() == null? null: new HashSet<>(product.images()),
             product.attributeValues()
@@ -173,7 +173,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
                         attr.getBoolean_value()
                     )
                 ).collect(Collectors.toSet()),
-            new Quantity(product.getStock()),
+            Id.fromString(product.getStockId()),
             product.getMinStock() == null? null: new Quantity(product.getMinStock()),
             product.getImages(),
             product.getTags()

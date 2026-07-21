@@ -44,6 +44,8 @@ public class ProductDTO {
     @NotNull
     private Double price;
 
+    private String stockId;
+
     @NotNull
     private Integer stock;
 

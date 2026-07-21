@@ -35,6 +35,9 @@ import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 import microservice.cloud.inventory.product.infrastructure.presentation.validate.ProductAttributeValueDTO;
 import microservice.cloud.inventory.product.infrastructure.presentation.validate.ProductDTO;
 import microservice.cloud.inventory.product.infrastructure.presentation.validate.UpdateProductDTO;
+import microservice.cloud.inventory.productStock.application.use_cases.CreateProductStockUseCase;
+import microservice.cloud.inventory.productStock.application.use_cases.UpdateProductStockUseCase;
+import microservice.cloud.inventory.productStock.domain.entity.ProductStock;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
@@ -50,6 +53,9 @@ public class ProductController {
     private final DeleteProductUseCase deleteProductUseCase;
     private final AddProductAttributeUseCase addProductAttributeUseCase;
     private final DeleteProductAttributeUseCase deleteProductAttributeUseCase;
+
+    private final CreateProductStockUseCase createProductStockUseCase;
+    private final UpdateProductStockUseCase updateProductStockUseCase;
 
     @GetMapping
     public ResponseEntity<?> listProducts(
@@ -96,6 +102,15 @@ public class ProductController {
 
         productDTO.setId(Id.generate().value());
 
+        productDTO.setStockId(Id.generate().value());
+
+        createProductStockUseCase.execute(
+            new ProductStock(
+                Id.fromString(productDTO.getStockId()),
+                new Quantity(productDTO.getStock())
+            )
+        );
+
         createProductUseCase.execute(
             new Product(
                 Id.fromString(productDTO.getId()),
@@ -115,7 +130,7 @@ public class ProductController {
                         attr.getBoolean_value()
                     )
                 ).collect(Collectors.toSet()),
-                new Quantity(productDTO.getStock()),
+                Id.fromString(productDTO.getStockId()),
                 productDTO.getMinStock() == null? null: new Quantity(productDTO.getMinStock()),
                 null,
                 productDTO.getTags()
@@ -141,7 +156,6 @@ public class ProductController {
             productDTO.categories(),
             productDTO.isActive(),
             new Price(productDTO.price()),
-            new Quantity(productDTO.stock()),
             new Quantity(productDTO.minStock()),
             null,
             productDTO.attributes().stream().map(attr -> 
@@ -159,6 +173,19 @@ public class ProductController {
 
         return new ResponseEntity<>(
             ResponsePayload.<UpdateProductDTO>builder().payload(productDTO).build(),
+            HttpStatus.OK
+        );
+    }
+
+    @PutMapping("/{find_slug}/stock")
+    public ResponseEntity<ResponsePayload<Integer>> updateProductStock(
+        @PathVariable String find_slug,
+        @Valid @RequestBody Integer stock
+    ) {
+        updateProductStockUseCase.execute(Slug.fromString(find_slug), new Quantity(stock));
+
+        return new ResponseEntity<>(
+            ResponsePayload.<Integer>builder().payload(stock).build(),
             HttpStatus.OK
         );
     }

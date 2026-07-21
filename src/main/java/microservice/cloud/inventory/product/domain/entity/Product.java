@@ -18,8 +18,6 @@ import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
-import microservice.cloud.inventory.shared.domain.value_objects.Me;
-import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class Product extends AggregateRoot {
@@ -31,7 +29,7 @@ public class Product extends AggregateRoot {
     private boolean isActive;
     private Price price;
     private Map<String, ProductAttributeValue> attributeValues = new HashMap<>();
-    private Quantity stock;
+    private Id stockId;
     private Quantity minStock;
     private Set<String> images;
     private Set<String> tags;
@@ -45,7 +43,7 @@ public class Product extends AggregateRoot {
         boolean isActive,
         Price price, 
         Set<ProductAttributeValue> attributeValues,
-        Quantity stock,
+        Id stockId,
         Quantity minStock,
         Set<String> images,
         Set<String> tags
@@ -58,9 +56,6 @@ public class Product extends AggregateRoot {
         if(minStock == null)
             this.minStock = new Quantity(5);
 
-        if(stock.isLessThan(this.minStock)) {
-            publishEvent(new MinStockAlertEvent(id.value(), stock.value()));
-        }
         
         this.id = id;
         this.title = title;
@@ -70,7 +65,7 @@ public class Product extends AggregateRoot {
         this.isActive = isActive;
         attributeValues.stream().forEach(attr -> this.attributeValues.put(attr.id().value(), attr));
         this.price = price;
-        this.stock = stock;
+        this.stockId = stockId;
         this.images = images;
         this.tags = tags;
     }
@@ -82,7 +77,6 @@ public class Product extends AggregateRoot {
         Set<String> categories,
         boolean isActive,
         Price price,
-        Quantity stock,
         Quantity minStock,
         Set<String> images,
         Set<ProductAttributeValue> attributes,
@@ -119,19 +113,20 @@ public class Product extends AggregateRoot {
         if(minStock == null)
             this.minStock = new Quantity(5);
 
-        if(stock.isLessThan(this.minStock)) {
-            publishEvent(new MinStockAlertEvent(id.value(), stock.value()));
-        }
-
         this.title = title;
         this.slug = slug;
         this.description = description;
         this.categories = categories;
         this.isActive = isActive;
         this.price = price;
-        this.stock = stock;
         this.images = images;
         this.tags = tags;
+    }
+
+    public void maxStockReached(Quantity stock) {
+        if(stock.isLessThan(this.minStock)) {
+            publishEvent(new MinStockAlertEvent(id.value(), stock.value()));
+        }
     }
 
     public void validGlobalAttributesAndCategoryAttributes(Set<AttributeDefinition> globalAttrs, Set<CategoryAttribute> catAttrs) {
@@ -246,8 +241,8 @@ public class Product extends AggregateRoot {
         return attributeValues == null? null: new HashSet<>(attributeValues.values());
     }
 
-    public Quantity stock() {
-        return stock;
+    public Id stockId() {
+        return stockId;
     }
 
     public Quantity minStock() {

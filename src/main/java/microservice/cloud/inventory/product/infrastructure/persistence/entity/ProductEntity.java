@@ -37,7 +37,7 @@ public class ProductEntity {
 
     private Double price;
     
-    private int stock;
+    private String stockId;
    
     private Integer minStock;
 
