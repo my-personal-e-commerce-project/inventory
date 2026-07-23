@@ -69,7 +69,7 @@ public class ProductReadRepositoryJdbcAdapter implements ProductReadRepository {
             LEFT JOIN attributedefinition ad
                 ON pav.attribute_definition_id = ad.id
             LEFT JOIN product_stock ps
-                ON p.stock_id = ps.id
+                ON p.id = ps.product_id
             WHERE
                 (
                     (:search IS NULL OR :search = '')

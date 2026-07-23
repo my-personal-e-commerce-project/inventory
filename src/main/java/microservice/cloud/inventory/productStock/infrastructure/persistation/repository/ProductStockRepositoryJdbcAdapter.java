@@ -38,7 +38,7 @@ public class ProductStockRepositoryJdbcAdapter implements ProductStockRepository
 
         function.accept(productStock);
 
-        jdbcAggregateTemplate.update(productStock);
+        jdbcAggregateTemplate.update(toMap(productStock));
     }
 
     private ProductStock findByProductIdForUpdate(String productId) {

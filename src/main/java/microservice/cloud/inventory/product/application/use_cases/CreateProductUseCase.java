@@ -9,10 +9,12 @@ import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
 import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
+import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
 import microservice.cloud.inventory.product.domain.entity.Product;
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
+import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 
 public class CreateProductUseCase {
 
@@ -37,7 +39,9 @@ public class CreateProductUseCase {
     }
    
     public void execute(
-        Product product
+        Product product,
+        Id productStockId,
+        Quantity stock
     ) {
         Me me = getMePort.execute();
 
@@ -57,7 +61,7 @@ public class CreateProductUseCase {
         
         product.validGlobalAttributesAndCategoryAttributes(new HashSet<>(defaultAttributes), new HashSet<>(catAttrs));
       
-        productRepository.save(product);
+        productRepository.createProductAndStock(product, productStockId, stock);
 
         if(product.getEvents() != null && !product.getEvents().isEmpty()) {
             eventPublisher.publish(product.getEvents());

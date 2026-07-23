@@ -23,9 +23,7 @@ public class UpdateProductStockUseCase {
         Product product = productRepository.findBySlug(slug);
 
         productStockRepository.updatePessimistic(product.id(), (ProductStock ps) -> {
-
             ps.updateQuantity(quantity);
-
             product.minStockReached(ps.quantity());
         });
 

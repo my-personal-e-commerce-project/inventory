@@ -19,6 +19,7 @@ import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 import microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductAttributeValueEntity;
 import static microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductEntity.ProductCategoryReference;
 import microservice.cloud.inventory.product.infrastructure.persistence.entity.ProductEntity;
+import microservice.cloud.inventory.productStock.infrastructure.persistation.repository.ProductStockEntity;
 import microservice.cloud.inventory.shared.domain.exception.DataNotFound;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
@@ -56,7 +57,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
 
     @Transactional
     @Override
-    public void save(Product product) {
+    public void createProductAndStock(Product product, Id productStockId, Quantity stock) {
         if(productJdbcRepository.existsBySlug(product.slug().value()))
             throw new RuntimeException("This slug already exists");
 
@@ -65,6 +66,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
 
         try {
             aggregateTemplate.insert(toMap(product));
+            aggregateTemplate.insert(new ProductStockEntity(productStockId.value(), product.id().value(), stock.value()));
         } catch(DataIntegrityViolationException e) {
             if (e.getMessage() != null && e.getMessage().contains("slug")) {
                 throw new RuntimeException("The slug already exists");

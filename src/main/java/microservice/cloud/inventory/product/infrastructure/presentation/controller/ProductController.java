@@ -118,14 +118,6 @@ public class ProductController {
         productDTO.setId(Id.generate().value());
         productDTO.setStockId(Id.generate().value());
 
-        createProductStockUseCase.execute(
-            new ProductStock(
-                Id.fromString(productDTO.getStockId()),
-                Id.fromString(productDTO.getId()),
-                new Quantity(productDTO.getStock())
-            )
-        );
-
         createProductUseCase.execute(
             new Product(
                 Id.fromString(productDTO.getId()),
@@ -148,7 +140,9 @@ public class ProductController {
                 productDTO.getMinStock() == null? null: new Quantity(productDTO.getMinStock()),
                 null,
                 productDTO.getTags()
-            )
+            ),
+            Id.fromString(productDTO.getStockId()),
+            productDTO.getStock() == null? null: new Quantity(productDTO.getStock())
         );
 
         return new ResponseEntity<>(
