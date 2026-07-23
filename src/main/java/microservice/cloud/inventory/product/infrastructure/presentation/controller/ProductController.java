@@ -39,6 +39,7 @@ import microservice.cloud.inventory.product.domain.value_objects.Price;
 import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 import microservice.cloud.inventory.product.infrastructure.presentation.validate.ProductAttributeValueDTO;
 import microservice.cloud.inventory.product.infrastructure.presentation.validate.ProductDTO;
+import microservice.cloud.inventory.product.infrastructure.presentation.validate.ProductStockDTO;
 import microservice.cloud.inventory.product.infrastructure.presentation.validate.UpdateProductDTO;
 import microservice.cloud.inventory.productStock.application.use_cases.CreateProductStockUseCase;
 import microservice.cloud.inventory.productStock.application.use_cases.UpdateProductStockUseCase;
@@ -120,6 +121,7 @@ public class ProductController {
         createProductStockUseCase.execute(
             new ProductStock(
                 Id.fromString(productDTO.getStockId()),
+                Id.fromString(productDTO.getId()),
                 new Quantity(productDTO.getStock())
             )
         );
@@ -143,7 +145,6 @@ public class ProductController {
                         attr.getBoolean_value()
                     )
                 ).collect(Collectors.toSet()),
-                Id.fromString(productDTO.getStockId()),
                 productDTO.getMinStock() == null? null: new Quantity(productDTO.getMinStock()),
                 null,
                 productDTO.getTags()
@@ -175,7 +176,7 @@ public class ProductController {
             productDTO.categories(),
             productDTO.isActive(),
             new Price(productDTO.price()),
-            new Quantity(productDTO.minStock()),
+            productDTO.minStock() == null ? null: new Quantity(productDTO.minStock()),
             null,
             productDTO.attributes().stream().map(attr -> 
                 new ProductAttributeValue(
@@ -205,12 +206,12 @@ public class ProductController {
     @PutMapping("/{find_slug}/stock")
     public ResponseEntity<ResponsePayload<Integer>> updateProductStock(
         @Parameter(description = "Product slug") @PathVariable String find_slug,
-        @Valid @RequestBody Integer stock
+        @RequestBody @Valid ProductStockDTO productStockDTO
     ) {
-        updateProductStockUseCase.execute(Slug.fromString(find_slug), new Quantity(stock));
+        updateProductStockUseCase.execute(Slug.fromString(find_slug), new Quantity(productStockDTO.stock()));
 
         return new ResponseEntity<>(
-            ResponsePayload.<Integer>builder().payload(stock).build(),
+            ResponsePayload.<Integer>builder().payload(productStockDTO.stock()).build(),
             HttpStatus.OK
         );
     }

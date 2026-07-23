@@ -40,61 +40,85 @@ public class ProductReadRepositoryJdbcAdapter implements ProductReadRepository {
 
         List<ProductReadDTO> products = namedParameterJdbcTemplate.query(
             """
-            SELECT 
-                p.id AS prod_id, 
-                p.title, 
-                p.slug, 
-                p.description, 
-                p.images, 
-                p.tags, 
-                p.price, 
+            SELECT
+                p.id AS prod_id,
+                p.title,
+                p.slug,
+                p.description,
+                p.images,
+                p.tags,
+                p.price,
                 p.min_stock,
                 p.is_active AS isActive,
                 pav.id AS val_id,
-                pav.string_value, 
-                pav.integer_value, 
-                pav.double_value, 
+                pav.string_value,
+                pav.integer_value,
+                pav.double_value,
                 pav.boolean_value,
-                pd.quantity AS stock,
+                ps.quantity AS stock,
                 ad.slug AS attr_slug,
                 ad.id AS attr_id,
-                (SELECT string_agg(category_id, ',') FROM product_categories WHERE product_id = p.id) AS all_categories
-            FROM (
-                SELECT * FROM products 
-                ORDER BY id 
-                LIMIT :limit OFFSET :offset
-            ) p
-            LEFT JOIN product_attribute_values pav ON p.id = pav.product_id
-            LEFT JOIN attributedefinition ad ON pav.attribute_definition_id = ad.id
-            LEFT JOIN product_categories pc ON p.id = pc.product_id
-            LEFT JOIN product_stock ps ON p.stock_id = ps.id 
-            WHERE ((:search IS NULL OR :search = '')
-                OR (
-                     p.title ILIKE '%' || :search || '%'
-                    OR p.description ILIKE '%' || :search || '%'
-                    OR p.slug ILIKE '%' || :search || '%'
-                    OR p.description ILIKE '%' || :search || '%'
-                    OR pav.string_value ILIKE '%' || :search || '%'
-                    OR pav.integer_value::text ILIKE '%' || :search || '%'
-                    OR pav.double_value::text ILIKE '%' || :search || '%'
-                    OR pav.boolean_value::text ILIKE '%' || :search || '%'
+                (
+                    SELECT string_agg(pc2.category_id, ',')
+                    FROM product_categories pc2
+                    WHERE pc2.product_id = p.id
+                ) AS all_categories
+            FROM products p
+            LEFT JOIN product_attribute_values pav
+                ON p.id = pav.product_id
+            LEFT JOIN attributedefinition ad
+                ON pav.attribute_definition_id = ad.id
+            LEFT JOIN product_stock ps
+                ON p.stock_id = ps.id
+            WHERE
+                (
+                    (:search IS NULL OR :search = '')
+                    OR (
+                        p.title ILIKE '%' || :search || '%'
+                        OR p.description ILIKE '%' || :search || '%'
+                        OR p.slug ILIKE '%' || :search || '%'
+
+                        OR EXISTS (
+                            SELECT 1
+                            FROM product_attribute_values pav2
+                            WHERE pav2.product_id = p.id
+                            AND (
+                                pav2.string_value ILIKE '%' || :search || '%'
+                                OR pav2.integer_value::text ILIKE '%' || :search || '%'
+                                OR pav2.double_value::text ILIKE '%' || :search || '%'
+                                OR pav2.boolean_value::text ILIKE '%' || :search || '%'
+                            )
+                        )
+                    )
                 )
-            ) AND (
-                (:thereCategories)
-                OR p.id IN (
-                    SELECT product_id 
-                    FROM product_categories 
-                    WHERE category_id = ANY(CAST(:categories AS text[]))
+                AND (
+                    (:thereCategories)
+                    OR EXISTS (
+                        SELECT 1
+                        FROM product_categories pc
+                        WHERE pc.product_id = p.id
+                        AND pc.category_id = ANY(CAST(:categories AS text[]))
+                    )
                 )
-            ) AND (
-                (:minPrice IS NULL OR p.price >= :minPrice)
-            ) AND (
-                (:maxPrice IS NULL OR p.price <= :maxPrice)
-            ) AND (
-                (:minStock IS NULL OR p.stock >= :minStock)
-            ) AND (
-                (:maxStock IS NULL OR p.stock <= :maxStock)
-            );
+                AND (
+                    :minPrice IS NULL
+                    OR p.price >= :minPrice
+                )
+                AND (
+                    :maxPrice IS NULL
+                    OR p.price <= :maxPrice
+                )
+                AND (
+                    :minStock IS NULL
+                    OR ps.quantity >= :minStock
+                )
+                AND (
+                    :maxStock IS NULL
+                    OR ps.quantity <= :maxStock
+                )
+            ORDER BY p.id
+            LIMIT :limit
+            OFFSET :offset;
         """,
             params,
             new ProductResultSetExtractor()

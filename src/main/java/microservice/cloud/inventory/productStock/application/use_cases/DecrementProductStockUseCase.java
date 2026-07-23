@@ -21,7 +21,7 @@ public class DecrementProductStockUseCase {
     public void execute(Slug productSlug, int value) {
         Product product  = productRepository.findBySlug(productSlug);
 
-        productStockRepository.updatePessimistic(product.stockId(), (ProductStock ps) -> {
+        productStockRepository.updatePessimistic(product.id(), (ProductStock ps) -> {
             ps.decrementQuantity(value);
             product.minStockReached(ps.quantity());
         });

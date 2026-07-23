@@ -29,7 +29,6 @@ public class Product extends AggregateRoot {
     private boolean isActive;
     private Price price;
     private Map<String, ProductAttributeValue> attributeValues = new HashMap<>();
-    private Id stockId;
     private Quantity minStock;
     private Set<String> images;
     private Set<String> tags;
@@ -43,7 +42,6 @@ public class Product extends AggregateRoot {
         boolean isActive,
         Price price, 
         Set<ProductAttributeValue> attributeValues,
-        Id stockId,
         Quantity minStock,
         Set<String> images,
         Set<String> tags
@@ -65,7 +63,6 @@ public class Product extends AggregateRoot {
         this.isActive = isActive;
         attributeValues.stream().forEach(attr -> this.attributeValues.put(attr.id().value(), attr));
         this.price = price;
-        this.stockId = stockId;
         this.images = images;
         this.tags = tags;
     }
@@ -241,10 +238,6 @@ public class Product extends AggregateRoot {
 
     public Set<ProductAttributeValue> attributeValues() {
         return attributeValues == null? null: new HashSet<>(attributeValues.values());
-    }
-
-    public Id stockId() {
-        return stockId;
     }
 
     public Quantity minStock() {

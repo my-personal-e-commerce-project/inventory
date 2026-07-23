@@ -7,13 +7,7 @@ CREATE TABLE products (
     images varchar[],
     tags varchar[],
     price DOUBLE PRECISION NOT NULL,
-    stock_id varchar(255) NOT NULL,
-    min_stock INTEGER DEFAULT 5,
-
-    CONSTRAINT fk_stock_id
-    FOREIGN KEY (stock_id)
-    REFERENCES product_stock(id)
-    ON DELETE SET NULL
+    min_stock INTEGER DEFAULT 5
 );
 
 CREATE TABLE product_categories (
@@ -67,7 +61,9 @@ BEGIN
             'slug', NEW.slug,
             'description', NEW.description,
             'price', NEW.price,
-            'stock', NEW.stock,
+            'stock', (
+                SELECT quantity FROM product_stock ps WHERE ps.product_id = NEW.id
+            ),
             'active', NEW.is_active,
             'images', NEW.images,
             'tags', NEW.tags,

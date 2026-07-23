@@ -60,7 +60,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
         if(productJdbcRepository.existsBySlug(product.slug().value()))
             throw new RuntimeException("This slug already exists");
 
-        if(product.categories() != null && categoryJdbcRepository.countByIdIn(product.categories()) == 0)
+        if(product.categories() != null && !product.categories().isEmpty() && categoryJdbcRepository.countByIdIn(product.categories()) == 0)
             throw new RuntimeException("Not all provided category ids are valid");
 
         try {
@@ -76,11 +76,9 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
     @Transactional
     @Override
     public void update(Product product) {
-        if(productJdbcRepository.existsBySlug(product.slug().value()))
-            throw new RuntimeException("This slug already exists");
-
         if(
-            product.categories() != null 
+            product.categories() != null
+            && !product.categories().isEmpty()
             && categoryJdbcRepository.countByIdIn(product.categories()) != product.categories().size()
         )
             throw new RuntimeException("Not all provided category ids are valid");
@@ -127,7 +125,6 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
             categories,
             product.isActive(),
             product.price().value(),
-            product.stockId().value(),
             product.minStock().value(),
             product.images() == null? null: new HashSet<>(product.images()),
             product.attributeValues()
@@ -173,7 +170,6 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
                         attr.getBoolean_value()
                     )
                 ).collect(Collectors.toSet()),
-            Id.fromString(product.getStockId()),
             product.getMinStock() == null? null: new Quantity(product.getMinStock()),
             product.getImages(),
             product.getTags()

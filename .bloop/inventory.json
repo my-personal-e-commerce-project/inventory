@@ -116,10 +116,23 @@
             "/home/mauroc/.m2/repository/com/fasterxml/classmate/1.7.0/classmate-1.7.0.jar",
             "/home/mauroc/.m2/repository/com/github/slugify/slugify/3.0.7/slugify-3.0.7.jar",
             "/home/mauroc/.m2/repository/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar",
+            "/home/mauroc/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/4.0.2/jakarta.xml.bind-api-4.0.2.jar",
+            "/home/mauroc/.m2/repository/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar",
             "/home/mauroc/.m2/repository/org/apache/httpcomponents/httpclient/4.5.13/httpclient-4.5.13.jar",
             "/home/mauroc/.m2/repository/org/apache/httpcomponents/httpcore/4.4.16/httpcore-4.4.16.jar",
             "/home/mauroc/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2.jar",
-            "/home/mauroc/.m2/repository/commons-codec/commons-codec/1.17.2/commons-codec-1.17.2.jar"
+            "/home/mauroc/.m2/repository/commons-codec/commons-codec/1.17.2/commons-codec-1.17.2.jar",
+            "/home/mauroc/.m2/repository/org/apache/commons/commons-lang3/3.17.0/commons-lang3-3.17.0.jar",
+            "/home/mauroc/.m2/repository/org/springdoc/springdoc-openapi-starter-webmvc-ui/2.8.5/springdoc-openapi-starter-webmvc-ui-2.8.5.jar",
+            "/home/mauroc/.m2/repository/org/springdoc/springdoc-openapi-starter-webmvc-api/2.8.5/springdoc-openapi-starter-webmvc-api-2.8.5.jar",
+            "/home/mauroc/.m2/repository/org/springdoc/springdoc-openapi-starter-common/2.8.5/springdoc-openapi-starter-common-2.8.5.jar",
+            "/home/mauroc/.m2/repository/io/swagger/core/v3/swagger-core-jakarta/2.2.28/swagger-core-jakarta-2.2.28.jar",
+            "/home/mauroc/.m2/repository/io/swagger/core/v3/swagger-annotations-jakarta/2.2.28/swagger-annotations-jakarta-2.2.28.jar",
+            "/home/mauroc/.m2/repository/io/swagger/core/v3/swagger-models-jakarta/2.2.28/swagger-models-jakarta-2.2.28.jar",
+            "/home/mauroc/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/2.18.2/jackson-dataformat-yaml-2.18.2.jar",
+            "/home/mauroc/.m2/repository/org/webjars/swagger-ui/5.18.3/swagger-ui-5.18.3.jar",
+            "/home/mauroc/.m2/repository/org/webjars/webjars-locator-lite/1.0.1/webjars-locator-lite-1.0.1.jar",
+            "/home/mauroc/.m2/repository/org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar"
         ],
         "out": "/home/mauroc/project/microservice_ecommerce/inventory/target",
         "classesDir": "/home/mauroc/project/microservice_ecommerce/inventory/target/classes",
@@ -264,6 +277,22 @@
                             "name": "reactive-streams",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/org/reactivestreams/reactive-streams/1.0.4/reactive-streams-1.0.4-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "io.swagger.core.v3",
+                    "name": "swagger-annotations-jakarta",
+                    "version": "2.2.28",
+                    "artifacts": [
+                        {
+                            "name": "swagger-annotations-jakarta",
+                            "path": "/home/mauroc/.m2/repository/io/swagger/core/v3/swagger-annotations-jakarta/2.2.28/swagger-annotations-jakarta-2.2.28.jar"
+                        },
+                        {
+                            "name": "swagger-annotations-jakarta",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/io/swagger/core/v3/swagger-annotations-jakarta/2.2.28/swagger-annotations-jakarta-2.2.28-sources.jar"
                         }
                     ]
                 },
@@ -1079,6 +1108,22 @@
                     ]
                 },
                 {
+                    "organization": "org.webjars",
+                    "name": "webjars-locator-lite",
+                    "version": "1.0.1",
+                    "artifacts": [
+                        {
+                            "name": "webjars-locator-lite",
+                            "path": "/home/mauroc/.m2/repository/org/webjars/webjars-locator-lite/1.0.1/webjars-locator-lite-1.0.1.jar"
+                        },
+                        {
+                            "name": "webjars-locator-lite",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/org/webjars/webjars-locator-lite/1.0.1/webjars-locator-lite-1.0.1-sources.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "org.apache.commons",
                     "name": "commons-lang3",
                     "version": "3.17.0",
@@ -1091,6 +1136,17 @@
                             "name": "commons-lang3",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/org/apache/commons/commons-lang3/3.17.0/commons-lang3-3.17.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.webjars",
+                    "name": "swagger-ui",
+                    "version": "5.18.3",
+                    "artifacts": [
+                        {
+                            "name": "swagger-ui",
+                            "path": "/home/mauroc/.m2/repository/org/webjars/swagger-ui/5.18.3/swagger-ui-5.18.3.jar"
                         }
                     ]
                 },
@@ -1507,6 +1563,22 @@
                             "name": "spring-boot-starter-cache",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/org/springframework/boot/spring-boot-starter-cache/3.4.3/spring-boot-starter-cache-3.4.3-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "io.swagger.core.v3",
+                    "name": "swagger-core-jakarta",
+                    "version": "2.2.28",
+                    "artifacts": [
+                        {
+                            "name": "swagger-core-jakarta",
+                            "path": "/home/mauroc/.m2/repository/io/swagger/core/v3/swagger-core-jakarta/2.2.28/swagger-core-jakarta-2.2.28.jar"
+                        },
+                        {
+                            "name": "swagger-core-jakarta",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/io/swagger/core/v3/swagger-core-jakarta/2.2.28/swagger-core-jakarta-2.2.28-sources.jar"
                         }
                     ]
                 },
@@ -2263,6 +2335,22 @@
                     ]
                 },
                 {
+                    "organization": "com.fasterxml.jackson.dataformat",
+                    "name": "jackson-dataformat-yaml",
+                    "version": "2.18.2",
+                    "artifacts": [
+                        {
+                            "name": "jackson-dataformat-yaml",
+                            "path": "/home/mauroc/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/2.18.2/jackson-dataformat-yaml-2.18.2.jar"
+                        },
+                        {
+                            "name": "jackson-dataformat-yaml",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/2.18.2/jackson-dataformat-yaml-2.18.2-sources.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "org.springframework.data",
                     "name": "spring-data-commons",
                     "version": "3.4.3",
@@ -2339,6 +2427,22 @@
                             "name": "shrinkwrap-spi",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/org/jboss/shrinkwrap/shrinkwrap-spi/2.0.0-beta-2/shrinkwrap-spi-2.0.0-beta-2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "io.swagger.core.v3",
+                    "name": "swagger-models-jakarta",
+                    "version": "2.2.28",
+                    "artifacts": [
+                        {
+                            "name": "swagger-models-jakarta",
+                            "path": "/home/mauroc/.m2/repository/io/swagger/core/v3/swagger-models-jakarta/2.2.28/swagger-models-jakarta-2.2.28.jar"
+                        },
+                        {
+                            "name": "swagger-models-jakarta",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/io/swagger/core/v3/swagger-models-jakarta/2.2.28/swagger-models-jakarta-2.2.28-sources.jar"
                         }
                     ]
                 },
@@ -2744,6 +2848,22 @@
                     ]
                 },
                 {
+                    "organization": "org.springdoc",
+                    "name": "springdoc-openapi-starter-common",
+                    "version": "2.8.5",
+                    "artifacts": [
+                        {
+                            "name": "springdoc-openapi-starter-common",
+                            "path": "/home/mauroc/.m2/repository/org/springdoc/springdoc-openapi-starter-common/2.8.5/springdoc-openapi-starter-common-2.8.5.jar"
+                        },
+                        {
+                            "name": "springdoc-openapi-starter-common",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/org/springdoc/springdoc-openapi-starter-common/2.8.5/springdoc-openapi-starter-common-2.8.5-sources.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "commons-jxpath",
                     "name": "commons-jxpath",
                     "version": "1.3",
@@ -2788,6 +2908,22 @@
                             "name": "mockito-core",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/org/mockito/mockito-core/5.14.2/mockito-core-5.14.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.springdoc",
+                    "name": "springdoc-openapi-starter-webmvc-api",
+                    "version": "2.8.5",
+                    "artifacts": [
+                        {
+                            "name": "springdoc-openapi-starter-webmvc-api",
+                            "path": "/home/mauroc/.m2/repository/org/springdoc/springdoc-openapi-starter-webmvc-api/2.8.5/springdoc-openapi-starter-webmvc-api-2.8.5.jar"
+                        },
+                        {
+                            "name": "springdoc-openapi-starter-webmvc-api",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/org/springdoc/springdoc-openapi-starter-webmvc-api/2.8.5/springdoc-openapi-starter-webmvc-api-2.8.5-sources.jar"
                         }
                     ]
                 },
@@ -3630,6 +3766,22 @@
                     ]
                 },
                 {
+                    "organization": "org.springdoc",
+                    "name": "springdoc-openapi-starter-webmvc-ui",
+                    "version": "2.8.5",
+                    "artifacts": [
+                        {
+                            "name": "springdoc-openapi-starter-webmvc-ui",
+                            "path": "/home/mauroc/.m2/repository/org/springdoc/springdoc-openapi-starter-webmvc-ui/2.8.5/springdoc-openapi-starter-webmvc-ui-2.8.5.jar"
+                        },
+                        {
+                            "name": "springdoc-openapi-starter-webmvc-ui",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/org/springdoc/springdoc-openapi-starter-webmvc-ui/2.8.5/springdoc-openapi-starter-webmvc-ui-2.8.5-sources.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "org.springframework.boot",
                     "name": "spring-boot-autoconfigure",
                     "version": "3.4.3",
@@ -3754,6 +3906,22 @@
                             "name": "spring-aop",
                             "classifier": "sources",
                             "path": "/home/mauroc/.m2/repository/org/springframework/spring-aop/6.2.3/spring-aop-6.2.3-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.jspecify",
+                    "name": "jspecify",
+                    "version": "1.0.0",
+                    "artifacts": [
+                        {
+                            "name": "jspecify",
+                            "path": "/home/mauroc/.m2/repository/org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar"
+                        },
+                        {
+                            "name": "jspecify",
+                            "classifier": "sources",
+                            "path": "/home/mauroc/.m2/repository/org/jspecify/jspecify/1.0.0/jspecify-1.0.0-sources.jar"
                         }
                     ]
                 },

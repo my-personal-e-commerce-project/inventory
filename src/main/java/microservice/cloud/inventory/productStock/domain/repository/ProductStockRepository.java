@@ -8,5 +8,5 @@ import microservice.cloud.inventory.shared.domain.value_objects.Id;
 public interface ProductStockRepository {
 
     public void save(ProductStock productStock);
-    public void updatePessimistic(Id id, Consumer<ProductStock> function);
+    public void updatePessimistic(Id productId, Consumer<ProductStock> function);
 }

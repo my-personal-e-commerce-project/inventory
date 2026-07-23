@@ -37,8 +37,6 @@ public class ProductEntity {
 
     private Double price;
     
-    private String stockId;
-   
     private Integer minStock;
 
     private Set<String> images;

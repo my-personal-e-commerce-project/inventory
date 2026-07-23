@@ -5,10 +5,16 @@ import microservice.cloud.inventory.shared.domain.value_objects.Id;
 
 public class ProductStock {
     private Id id;
+    private Id productId;
     private Quantity quantity;
 
-    public ProductStock(Id id, Quantity quantity) {
+    public ProductStock(Id id, Id productId, Quantity quantity) {
+        if (id == null) throw new IllegalArgumentException("Id is required");
+        if (productId == null) throw new IllegalArgumentException("Product id is required");
+        if (quantity == null) throw new IllegalArgumentException("Quantity is required");
+
         this.id = id;
+        this.productId = productId;
         this.quantity = quantity;
     }
 
@@ -22,6 +28,10 @@ public class ProductStock {
 
     public Id id() {
         return id;
+    }
+
+    public Id productId() {
+        return productId;
     }
 
     public Quantity quantity() {

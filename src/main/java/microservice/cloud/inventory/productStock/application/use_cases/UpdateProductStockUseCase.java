@@ -6,7 +6,6 @@ import microservice.cloud.inventory.product.domain.value_objects.Quantity;
 import microservice.cloud.inventory.productStock.domain.entity.ProductStock;
 import microservice.cloud.inventory.productStock.domain.repository.ProductStockRepository;
 import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
-import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class UpdateProductStockUseCase {
@@ -23,9 +22,7 @@ public class UpdateProductStockUseCase {
     public void execute(Slug slug, Quantity quantity) {
         Product product = productRepository.findBySlug(slug);
 
-        Id id = product.stockId();
-
-        productStockRepository.updatePessimistic(id, (ProductStock ps) -> {
+        productStockRepository.updatePessimistic(product.id(), (ProductStock ps) -> {
 
             ps.updateQuantity(quantity);
 

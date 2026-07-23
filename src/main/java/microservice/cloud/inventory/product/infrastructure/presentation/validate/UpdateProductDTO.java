@@ -19,7 +19,6 @@ public record UpdateProductDTO (
     @NotNull
     Set<String> categories,
     @NotNull
-    @NotEmpty
     Boolean isActive,
     @Valid
     @NotNull

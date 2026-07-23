@@ -31,7 +31,6 @@ public class ProductDTO {
     private String description;
 
     @NotNull
-    @NotEmpty
     private Set<String> categories;
 
     private boolean isActive = true;
