@@ -1,25 +1,62 @@
 spring:
+  threads:
+    virtual:
+      enabled: true
+  flyway:
+    enabled: true
+    repair-on-migrate: true
+    baseline-on-migrate: true
+    validate-on-migrate: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH_URI}
   application:
     name: inventory
-  config:
-    import: 
-      - optional:classpath:.env[.properties]
-      - "configserver:"
   cloud:
-    config:
-      discovery:
+    function:
+      definition: discountSagaHandler;deletedCategoryProducer;minStockAlertProducer
+    openfeign:
+      circuitbreaker:
         enabled: true
-        service-id: config
+    stream:
+      kafka:
+        binder:
+          brokers: ${KAFKA_HOST}
+          configuration:
+            security:
+              protocol: PLAINTEXT
+      bindings:
+        deletedCategoryProducer-out-0:
+          destination: inventory.category.saga-events
+          content-type: application/json
 
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-    enabled: true
-  swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
+        minStockAlertProducer-out-0:
+          destination: inventory.product.min-stock-alert
+          content-type: application/json
 
-eureka:
+        discountSagaHandler-in-0:
+          destination: discount.discount.saga-events
+          group: inventory-group
+          content-type: application/json
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL} 
+    username: ${SPRING_DATASOURCE_USERNAME} 
+    password: ${SPRING_DATASOURCE_PASSWORD} 
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+      format_sql: true
+server:
+  port: 8001
+resilience4j:
+  circuitbreaker:
+    instances:
+      default:
+        sliding-window-size: 100eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
