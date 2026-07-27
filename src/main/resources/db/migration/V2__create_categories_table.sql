@@ -4,7 +4,8 @@ CREATE TABLE Category (
     slug VARCHAR(255) NOT NULL UNIQUE,
     status VARCHAR(255) NOT NULL,
     parent_id VARCHAR(255),
-    
+    version INTEGER NOT NULL DEFAULT 1,
+
     CONSTRAINT fk_category_parent 
         FOREIGN KEY (parent_id) 
         REFERENCES Category (id) 

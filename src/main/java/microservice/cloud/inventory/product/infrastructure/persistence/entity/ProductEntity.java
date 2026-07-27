@@ -4,12 +4,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import microservice.cloud.inventory.product.domain.entity.Product;
 
 @Table("products")
 @Getter
@@ -45,4 +47,18 @@ public class ProductEntity {
     private Set<ProductAttributeValueEntity> attributeValues;
 
     private Set<String> tags;
+
+    @Version
+    private Long version;
+
+    public void updateFromDomain(Product product) {
+        this.title = product.title();
+        this.slug = product.slug().value();
+        this.description = product.description();
+        this.isActive = product.isActive();
+        this.price = product.price().value();
+        this.minStock = product.minStock() == null? null: product.minStock().value();
+        this.images = product.images();
+        this.tags = product.tags();
+    }
 }

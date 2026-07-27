@@ -3,7 +3,8 @@ CREATE TABLE AttributeDefinition (
     name VARCHAR(255),
     slug VARCHAR(255) NOT NULL UNIQUE,
     type VARCHAR(255) NOT NULL,
-    is_global BOOLEAN DEFAULT FALSE
+    is_global BOOLEAN DEFAULT FALSE,
+    version INTEGER NOT NULL DEFAULT 1
 );
 
 ALTER TABLE AttributeDefinition REPLICA IDENTITY FULL;

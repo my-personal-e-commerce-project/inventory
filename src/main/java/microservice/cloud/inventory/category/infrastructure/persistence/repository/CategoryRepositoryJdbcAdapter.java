@@ -120,7 +120,8 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
                 rs.getString("name"),
                 rs.getString("slug"),
                 rs.getString("type"),
-                rs.getBoolean("is_global")
+                rs.getBoolean("is_global"),
+                rs.getLong("version")
             );
 
             return new CategoryAttributeEntity(
@@ -182,12 +183,12 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
         if(category.parent_id() != null && !categoryJdbcRepository.existsByIdAndStatus(category.parent_id().value(), Status.ENABLED.name()))
             throw new RuntimeException("The parent category %s does not exists".formatted(category.parent_id().value()));
 
-        aggregateTemplate.insert(toMap(category));
+        aggregateTemplate.insert(factoryCategoryEntity(category));
     }
 
     @Transactional
     @Override
-    public void update(Category category) {
+    public void updateIfExists(Id id, Category category) {
         Set<String> definitionIds = category.categoryAttributes().stream()
             .map(attr -> attr.attribute_definition_id().value())
             .distinct()
@@ -213,14 +214,21 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
         
         if(category.parent_id() != null && !categoryJdbcRepository.existsByIdAndStatus(category.parent_id().value(), Status.ENABLED.name()))
             throw new RuntimeException("The parent category %s does not exists".formatted(category.parent_id().value()));
-        
-        aggregateTemplate.update(toMap(category));
+       
+        CategoryEntity categoryEntity = aggregateTemplate.findById(id.value(), CategoryEntity.class);
+
+        if(categoryEntity == null)
+            throw new DataNotFound("Category not found");
+
+        categoryEntity.updateFromDomain(category);
+
+        aggregateTemplate.update(categoryEntity);
     }
 
     @Transactional
     @Override
     public void delete(Category category) {
-        aggregateTemplate.delete(toMap(category));
+        aggregateTemplate.delete(factoryCategoryEntity(category));
     }
 
     private Category toMap(CategoryEntity entity) {
@@ -252,7 +260,7 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
         return catAttr;
     }
 
-    private CategoryEntity toMap(Category entity) {
+    private CategoryEntity factoryCategoryEntity(Category entity) {
         return new CategoryEntity(
             entity.id().value(), 
             entity.name(), 
@@ -262,7 +270,8 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
             entity.categoryAttributes()
                 .stream()
                 .map(attr -> toMap(entity.id(), attr)
-            ).collect(Collectors.toSet())
+            ).collect(Collectors.toSet()),
+            1L
         );
     }
     

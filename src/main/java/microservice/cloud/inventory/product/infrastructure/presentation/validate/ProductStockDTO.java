@@ -1,5 +1,6 @@
 package microservice.cloud.inventory.product.infrastructure.presentation.validate;
 
 public record ProductStockDTO(
-    int stock
+    int stock,
+    boolean isIncreasing
 ) {}

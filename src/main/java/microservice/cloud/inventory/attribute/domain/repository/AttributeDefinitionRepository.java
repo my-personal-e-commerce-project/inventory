@@ -16,6 +16,6 @@ public interface AttributeDefinitionRepository {
     public Map<String, AttributeDefinition> findByIds(Set<String> ids);
     public void isValidTheseAttributeDefinitionIds(Set<String> ids);
     public void save(AttributeDefinition attr);
-    public void update(AttributeDefinition attr);
+    public void updateIfExists(Id id, AttributeDefinition attr);
     public void delete(AttributeDefinition attrDef);
 }

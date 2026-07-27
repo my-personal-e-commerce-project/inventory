@@ -4,9 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
-import microservice.cloud.inventory.productStock.application.use_cases.CreateProductStockUseCase;
 import microservice.cloud.inventory.productStock.application.use_cases.DecrementProductStockUseCase;
-import microservice.cloud.inventory.productStock.application.use_cases.UpdateProductStockUseCase;
+import microservice.cloud.inventory.productStock.application.use_cases.IncrementProductStockUseCase;
 import microservice.cloud.inventory.productStock.domain.repository.ProductStockRepository;
 import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 
@@ -14,17 +13,12 @@ import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 public class ProductStockConfigAdapter {
 
     @Bean
-    public DecrementProductStockUseCase decrementProductStockUseCase(ProductStockRepository productStockRepository, ProductRepository productRepository, EventPublisher eventPublisher) {
+    public IncrementProductStockUseCase incrementProductStockUseCase(ProductStockRepository productStockRepository, ProductRepository productRepository, EventPublisher eventPublisher) {
+        return new IncrementProductStockUseCase(productStockRepository, productRepository, eventPublisher);
+    }
+
+    @Bean
+    public DecrementProductStockUseCase updateProductStockUseCase(ProductStockRepository productStockRepository, ProductRepository productRepository, EventPublisher eventPublisher) {
         return new DecrementProductStockUseCase(productStockRepository, productRepository, eventPublisher);
-    }
-
-    @Bean
-    public UpdateProductStockUseCase updateProductStockUseCase(ProductStockRepository productStockRepository, ProductRepository productRepository, EventPublisher eventPublisher) {
-        return new UpdateProductStockUseCase(productRepository, productStockRepository, eventPublisher);
-    }
-
-    @Bean
-    public CreateProductStockUseCase createProductStockUseCase(ProductStockRepository productStockRepository) {
-        return new CreateProductStockUseCase(productStockRepository);
     }
 }

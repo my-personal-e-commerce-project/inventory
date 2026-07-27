@@ -24,7 +24,7 @@ class CreateProductStockUseCaseTest {
 
     @Test
     void shouldCreateProductStockSuccessfully() {
-        ProductStock productStock = new ProductStock(Id.generate(), new Quantity(20));
+        ProductStock productStock = new ProductStock(Id.generate(), Id.generate(), new Quantity(20));
 
         createProductStockUseCase.execute(productStock);
 

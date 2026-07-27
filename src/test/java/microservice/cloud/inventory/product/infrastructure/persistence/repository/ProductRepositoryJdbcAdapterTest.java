@@ -57,7 +57,6 @@ class ProductRepositoryJdbcAdapterTest {
             true,
             new Price(100.0),
             new HashSet<>(),
-            Id.generate(),
             null,
             Set.of("image1.png"),
             Set.of("tag1")
@@ -73,7 +72,6 @@ class ProductRepositoryJdbcAdapterTest {
             Set.of(new ProductCategoryReference("cat-1")),
             true,
             100.0,
-            "id",
             5,
             Set.of("image1.png"),
             new HashSet<>(),
@@ -153,7 +151,7 @@ class ProductRepositoryJdbcAdapterTest {
         when(categoryJdbcRepository.countByIdIn(product.categories())).thenReturn(1L);
 
         // WHEN
-        assertDoesNotThrow(() -> repositoryAdapter.save(product));
+        assertDoesNotThrow(() -> repositoryAdapter.createProductAndStock(product, Id.generate(), new Quantity(5)));
 
         // THEN
         verify(aggregateTemplate, times(1)).insert(any(ProductEntity.class));
@@ -168,7 +166,7 @@ class ProductRepositoryJdbcAdapterTest {
         // WHEN & THEN
         RuntimeException exception = assertThrows(
             RuntimeException.class,
-            () -> repositoryAdapter.save(product)
+            () -> repositoryAdapter.createProductAndStock(product, Id.generate(), new Quantity(5))
         );
         assertEquals("This slug already exists", exception.getMessage());
         verifyNoInteractions(categoryJdbcRepository, aggregateTemplate);
@@ -185,7 +183,7 @@ class ProductRepositoryJdbcAdapterTest {
         // WHEN & THEN
         RuntimeException exception = assertThrows(
             RuntimeException.class,
-            () -> repositoryAdapter.save(product)
+            () -> repositoryAdapter.createProductAndStock(product, Id.generate(), new Quantity(5))
         );
         assertEquals("Not all provided category ids are valid", exception.getMessage());
         verify(aggregateTemplate, never()).insert(any(ProductEntity.class));

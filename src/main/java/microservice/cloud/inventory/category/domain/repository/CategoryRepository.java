@@ -11,7 +11,7 @@ import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 public interface CategoryRepository {
 
     void save(Category category);
-    void update(Category category);
+    void updateIfExists(Id id, Category category);
     void delete(Category category);
 
     Category findBySlug(Slug slug);

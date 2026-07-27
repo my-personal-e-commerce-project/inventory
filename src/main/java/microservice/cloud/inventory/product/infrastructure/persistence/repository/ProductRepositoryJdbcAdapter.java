@@ -65,8 +65,8 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
             throw new RuntimeException("Not all provided category ids are valid");
 
         try {
-            aggregateTemplate.insert(toMap(product));
-            aggregateTemplate.insert(new ProductStockEntity(productStockId.value(), product.id().value(), stock.value()));
+            aggregateTemplate.insert(factoryProductEntity(product));
+            aggregateTemplate.insert(new ProductStockEntity(productStockId.value(), product.id().value(), stock.value(), 1L));
         } catch(DataIntegrityViolationException e) {
             if (e.getMessage() != null && e.getMessage().contains("slug")) {
                 throw new RuntimeException("The slug already exists");
@@ -77,7 +77,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
 
     @Transactional
     @Override
-    public void update(Product product) {
+    public void updateIfExists(Id id, Product product) {
         if(
             product.categories() != null
             && !product.categories().isEmpty()
@@ -85,8 +85,17 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
         )
             throw new RuntimeException("Not all provided category ids are valid");
 
+        ProductEntity entity = productJdbcRepository
+            .findById(id.value())
+            .orElseThrow(() -> new DataNotFound("Product not found"));
+
+        if(!entity.getSlug().equals(product.slug().value()) && productJdbcRepository.existsBySlug(product.slug().value()))
+            throw new RuntimeException("The slug already exists");
+
+        entity.updateFromDomain(product);
+
         try {
-            aggregateTemplate.update(toMap(product));
+            aggregateTemplate.update(entity);
         } catch (Throwable t) { 
             Throwable root = t;
             while (root != null) {
@@ -95,6 +104,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
                     if (msg.contains("fk_pav_definition")) {
                         throw new RuntimeException("The attribute definition not found");
                     }
+
                     if (msg.contains("products_slug_key")) {
                         throw new RuntimeException("The slug already exists");
                     }
@@ -107,10 +117,10 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
 
     @Override
     public void delete(Product product) {
-        aggregateTemplate.delete(toMap(product));
+        aggregateTemplate.deleteById(product.id().value(), ProductEntity.class);
     }
 
-    private ProductEntity toMap(Product product) {
+    private ProductEntity factoryProductEntity(Product product) {
 
         Set<ProductCategoryReference> categories = product.categories() == null
             ? null
@@ -141,7 +151,8 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
                         attr.boolean_value()
                     )
                 ).collect(Collectors.toSet()),
-            product.tags()
+            product.tags(),
+            1L
         );
     }
 

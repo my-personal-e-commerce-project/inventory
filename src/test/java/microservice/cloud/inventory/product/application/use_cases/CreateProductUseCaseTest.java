@@ -60,17 +60,19 @@ class CreateProductUseCaseTest {
         ProductAttributeValue pav = new ProductAttributeValue(Id.generate(), globalDefId, "value", null, null, null);
         Product product = new Product(
             Id.generate(), "Product title", Slug.fromString("slug"), "Desc", Set.of("cat-1"), true,
-            new Price(10.0), Set.of(pav), Id.generate(), new Quantity(5), new HashSet<>(), new HashSet<>()
+            new Price(10.0), Set.of(pav), new Quantity(5), new HashSet<>(), new HashSet<>()
         );
 
         when(categoryRepository.getCategoryAttributesWithAttributeDefinitionsByCategoryIds(product.categories()))
             .thenReturn(List.of()); // Sin atributos de categorías para simplificar
 
+        Id stockId = Id.generate();
+
         // WHEN
-        assertDoesNotThrow(() -> createProductUseCase.execute(product));
+        assertDoesNotThrow(() -> createProductUseCase.execute(product, stockId, new Quantity(5)));
 
         // THEN
-        verify(productRepository, times(1)).save(product);
+        verify(productRepository, times(1)).createProductAndStock(product, stockId, new Quantity(5));
     }
 
     @Test

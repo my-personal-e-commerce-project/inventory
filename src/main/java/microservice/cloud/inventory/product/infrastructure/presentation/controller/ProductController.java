@@ -41,9 +41,8 @@ import microservice.cloud.inventory.product.infrastructure.presentation.validate
 import microservice.cloud.inventory.product.infrastructure.presentation.validate.ProductDTO;
 import microservice.cloud.inventory.product.infrastructure.presentation.validate.ProductStockDTO;
 import microservice.cloud.inventory.product.infrastructure.presentation.validate.UpdateProductDTO;
-import microservice.cloud.inventory.productStock.application.use_cases.CreateProductStockUseCase;
-import microservice.cloud.inventory.productStock.application.use_cases.UpdateProductStockUseCase;
-import microservice.cloud.inventory.productStock.domain.entity.ProductStock;
+import microservice.cloud.inventory.productStock.application.use_cases.DecrementProductStockUseCase;
+import microservice.cloud.inventory.productStock.application.use_cases.IncrementProductStockUseCase;
 import microservice.cloud.inventory.shared.application.dto.Pagination;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
@@ -61,8 +60,8 @@ public class ProductController {
     private final AddProductAttributeUseCase addProductAttributeUseCase;
     private final DeleteProductAttributeUseCase deleteProductAttributeUseCase;
 
-    private final CreateProductStockUseCase createProductStockUseCase;
-    private final UpdateProductStockUseCase updateProductStockUseCase;
+    private final DecrementProductStockUseCase decrementProductStockUseCase;
+    private final IncrementProductStockUseCase incrementProductStockUseCase;
 
     @Operation(summary = "List products", description = "Retrieves a paginated list of products with optional filtering parameters.")
     @ApiResponses(value = {
@@ -191,7 +190,7 @@ public class ProductController {
         );
     }
 
-    @Operation(summary = "Update product stock (Pessimistic Locking)", description = "Mutates product stock quantity using pessimistic locking and triggers min stock alert event if threshold reached.")
+    @Operation(summary = "Update product stock (Optimistic Locking)", description = "Mutates product stock quantity using optimistic locking and triggers min stock alert event if threshold reached.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Stock updated successfully"),
         @ApiResponse(responseCode = "404", description = "Product not found"),
@@ -202,7 +201,11 @@ public class ProductController {
         @Parameter(description = "Product slug") @PathVariable String find_slug,
         @RequestBody @Valid ProductStockDTO productStockDTO
     ) {
-        updateProductStockUseCase.execute(Slug.fromString(find_slug), new Quantity(productStockDTO.stock()));
+        if (productStockDTO.isIncreasing()) {
+            incrementProductStockUseCase.execute(Slug.fromString(find_slug), productStockDTO.stock());
+        } else {
+            decrementProductStockUseCase.execute(Slug.fromString(find_slug), productStockDTO.stock());
+        }
 
         return new ResponseEntity<>(
             ResponsePayload.<Integer>builder().payload(productStockDTO.stock()).build(),

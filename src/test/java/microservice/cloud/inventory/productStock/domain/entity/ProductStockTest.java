@@ -11,18 +11,21 @@ class ProductStockTest {
     @Test
     void shouldCreateProductStockWithValidValues() {
         Id id = Id.generate();
+        Id productId = Id.generate();
         Quantity quantity = new Quantity(50);
-        ProductStock productStock = new ProductStock(id, quantity);
+        ProductStock productStock = new ProductStock(id, productId, quantity);
 
         assertEquals(id, productStock.id());
         assertEquals(quantity, productStock.quantity());
         assertEquals(50, productStock.quantity().value());
+        assertEquals(productId.value(), productStock.quantity().value());
     }
 
     @Test
     void shouldDecrementQuantitySuccessfully() {
         Id id = Id.generate();
-        ProductStock productStock = new ProductStock(id, new Quantity(50));
+        Id productId = Id.generate();
+        ProductStock productStock = new ProductStock(id, productId, new Quantity(50));
 
         productStock.decrementQuantity(10);
 
@@ -32,7 +35,8 @@ class ProductStockTest {
     @Test
     void shouldDecrementQuantityToZero() {
         Id id = Id.generate();
-        ProductStock productStock = new ProductStock(id, new Quantity(10));
+        Id productId = Id.generate();
+        ProductStock productStock = new ProductStock(id, productId, new Quantity(10));
 
         productStock.decrementQuantity(10);
 
@@ -42,7 +46,8 @@ class ProductStockTest {
     @Test
     void shouldThrowExceptionWhenDecrementingQuantityBelowZero() {
         Id id = Id.generate();
-        ProductStock productStock = new ProductStock(id, new Quantity(5));
+        Id productId = Id.generate();
+        ProductStock productStock = new ProductStock(id, productId, new Quantity(5));
 
         assertThrows(IllegalArgumentException.class, () -> productStock.decrementQuantity(10));
     }
@@ -50,7 +55,8 @@ class ProductStockTest {
     @Test
     void shouldUpdateQuantitySuccessfully() {
         Id id = Id.generate();
-        ProductStock productStock = new ProductStock(id, new Quantity(50));
+        Id productId = Id.generate();
+        ProductStock productStock = new ProductStock(id, productId, new Quantity(50));
         Quantity newQuantity = new Quantity(100);
 
         productStock.updateQuantity(newQuantity);

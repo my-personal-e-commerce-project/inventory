@@ -26,7 +26,7 @@ public class DecrementProductStockUseCase {
             product.minStockReached(ps.quantity());
         });
 
-        productRepository.update(product);
+        productRepository.updateIfExists(product.id(), product);
 
         if(product.getEvents() != null && !product.getEvents().isEmpty()) {
             eventPublisher.publish(product.getEvents());

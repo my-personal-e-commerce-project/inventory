@@ -87,20 +87,28 @@ public class AttributeDefinitionRepositoryJdbcAdapter implements AttributeDefini
         if(attributeDefinitionJdbcRepository.existsBySlug(attr.slug().value()))
             throw new RuntimeException("Slug already exists");
 
-        aggregateTemplate.insert(toMap(attr));
+        aggregateTemplate.insert(factoryProductEntity(attr));
     }
 
     @Transactional
     @Override
-    public void update(AttributeDefinition attr) {
-        aggregateTemplate.update(toMap(attr));
+    public void updateIfExists(Id id, AttributeDefinition attr) {
+        AttributeDefinitionEntity attrDef = aggregateTemplate.findById(id.value(), AttributeDefinitionEntity.class);
+
+        if(!attrDef.getSlug().equals(attr.slug().value()))
+            throw new RuntimeException("Slug already exists");
+
+        attrDef.updateFromDomain(attr);
+
+        aggregateTemplate.update(attrDef);
     }
 
     @Transactional
     @Override
     public void delete(AttributeDefinition attributeDefinition) {
-        aggregateTemplate.delete(
-            toMap(attributeDefinition)
+        aggregateTemplate.deleteById(
+            attributeDefinition.id().value(),
+            AttributeDefinitionEntity.class
         );
     }
 
@@ -114,13 +122,14 @@ public class AttributeDefinitionRepositoryJdbcAdapter implements AttributeDefini
         );
     }
 
-    private AttributeDefinitionEntity toMap(AttributeDefinition attr) {
+    private AttributeDefinitionEntity factoryProductEntity(AttributeDefinition attr) {
         return new AttributeDefinitionEntity(
             attr.id().value(),
             attr.name(),
             attr.slug().value(),
             attr.type().toString(),
-            attr.is_global()
+            attr.is_global(),
+            1L
         );
     }
 }

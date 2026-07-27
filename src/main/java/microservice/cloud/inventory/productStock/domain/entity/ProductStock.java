@@ -18,6 +18,10 @@ public class ProductStock {
         this.quantity = quantity;
     }
 
+    public void incrementQuantity(int value) {
+        this.quantity = this.quantity.incrementValue(value);
+    }
+
     public void decrementQuantity(int value) {
         this.quantity = this.quantity.decrementValue(value);
     }

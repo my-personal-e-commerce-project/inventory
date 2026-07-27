@@ -64,7 +64,7 @@ public class UpdateProductUseCase {
             tags
         );
 
-        productRepository.update(p);
+        productRepository.updateIfExists(p.id(), p);
 
         if(p.getEvents() != null && !p.getEvents().isEmpty()) {
             eventPublisher.publish(p.getEvents());

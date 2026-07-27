@@ -41,7 +41,7 @@ class UpdateProductStockUseCaseTest {
     @InjectMocks
     private UpdateProductStockUseCase updateProductStockUseCase;
 
-    private Product createSampleProduct(Id stockId, Quantity minStock) {
+    private Product createSampleProduct(Quantity minStock) {
         return new Product(
             Id.generate(),
             "Sample Product",
@@ -51,7 +51,6 @@ class UpdateProductStockUseCaseTest {
             true,
             new Price(100.0),
             new HashSet<>(),
-            stockId,
             minStock,
             Set.of("image1.png"),
             Set.of("tag1")
@@ -63,8 +62,8 @@ class UpdateProductStockUseCaseTest {
         // GIVEN
         Slug slug = Slug.fromString("sample-product");
         Id stockId = Id.generate();
-        Product product = createSampleProduct(stockId, new Quantity(5));
-        ProductStock productStock = new ProductStock(stockId, new Quantity(10));
+        Product product = createSampleProduct(new Quantity(5));
+        ProductStock productStock = new ProductStock(stockId, product.id(), new Quantity(10));
 
         when(productRepository.findBySlug(slug)).thenReturn(product);
 
@@ -88,8 +87,8 @@ class UpdateProductStockUseCaseTest {
         // GIVEN
         Slug slug = Slug.fromString("sample-product");
         Id stockId = Id.generate();
-        Product product = createSampleProduct(stockId, new Quantity(10));
-        ProductStock productStock = new ProductStock(stockId, new Quantity(20));
+        Product product = createSampleProduct(new Quantity(10));
+        ProductStock productStock = new ProductStock(stockId, product.id(), new Quantity(20));
 
         when(productRepository.findBySlug(slug)).thenReturn(product);
 

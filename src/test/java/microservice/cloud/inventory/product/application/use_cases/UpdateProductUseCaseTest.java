@@ -49,7 +49,7 @@ class UpdateProductUseCaseTest {
         ProductAttributeValue pav = new ProductAttributeValue(attrId, defId, "value", null, null, null);
         Product product = new Product(
             Id.generate(), "Old Title", findSlug, "Old Desc", Set.of("cat-1"), true,
-            new Price(10.0), Set.of(pav), Id.generate(), new Quantity(5), new HashSet<>(), new HashSet<>()
+            new Price(10.0), Set.of(pav), new Quantity(5), new HashSet<>(), new HashSet<>()
         );
         when(productRepository.findBySlug(findSlug)).thenReturn(product);
 

@@ -38,7 +38,7 @@ public class DeleteCategoryAttributeUseCase implements DeleteCategoryAttributeUs
 
         category.removeCategoryAttribute(categoryAttributeId);
 
-        categoryRepository.update(category);
+        categoryRepository.updateIfExists(category.id(), category);
 
         eventPublisher.publish(category.getEvents());
     }

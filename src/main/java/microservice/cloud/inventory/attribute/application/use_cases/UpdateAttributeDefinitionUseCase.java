@@ -44,7 +44,7 @@ public class UpdateAttributeDefinitionUseCase {
             is_global
             );
 
-        attributeDefinitionRepository.update(attr);
+        attributeDefinitionRepository.updateIfExists(attr.id(), attr);
 
         return attr;
     } 

@@ -1,6 +1,5 @@
 package microservice.cloud.inventory.category.application.use_cases;
 
-import java.util.List;
 import java.util.Set;
 
 import microservice.cloud.inventory.category.application.ports.in.UpdateCategoryUseCasePort;
@@ -56,7 +55,7 @@ public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
 
         category.update(name, slug, parent_id, categoryAttributes);
 
-        categoryRepository.update(category);
+        categoryRepository.updateIfExists(category.id(), category);
 
         eventPublisher.publish(category.getEvents());
     }

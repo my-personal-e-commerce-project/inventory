@@ -23,7 +23,6 @@ class QuantityTest {
             IllegalArgumentException.class, 
             () -> new Quantity(-5)
         );
-        // Nota: la excepción lanza "Price cannot be negative" en la implementación actual de Quantity.
         assertEquals("Price cannot be negative", exception.getMessage());
     }
 }

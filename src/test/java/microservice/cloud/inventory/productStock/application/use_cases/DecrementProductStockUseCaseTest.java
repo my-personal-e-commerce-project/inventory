@@ -41,7 +41,7 @@ class DecrementProductStockUseCaseTest {
     @InjectMocks
     private DecrementProductStockUseCase decrementProductStockUseCase;
 
-    private Product createSampleProduct(Id stockId, Quantity minStock) {
+    private Product createSampleProduct(Quantity minStock) {
         return new Product(
             Id.generate(),
             "Sample Product",
@@ -51,7 +51,6 @@ class DecrementProductStockUseCaseTest {
             true,
             new Price(100.0),
             new HashSet<>(),
-            stockId,
             minStock,
             Set.of("image1.png"),
             Set.of("tag1")
@@ -63,8 +62,8 @@ class DecrementProductStockUseCaseTest {
         // GIVEN
         Slug slug = Slug.fromString("sample-product");
         Id stockId = Id.generate();
-        Product product = createSampleProduct(stockId, new Quantity(5));
-        ProductStock productStock = new ProductStock(stockId, new Quantity(20));
+        Product product = createSampleProduct(new Quantity(5));
+        ProductStock productStock = new ProductStock(stockId, product.id(), new Quantity(20));
 
         when(productRepository.findBySlug(slug)).thenReturn(product);
 
@@ -88,8 +87,8 @@ class DecrementProductStockUseCaseTest {
         // GIVEN
         Slug slug = Slug.fromString("sample-product");
         Id stockId = Id.generate();
-        Product product = createSampleProduct(stockId, new Quantity(5));
-        ProductStock productStock = new ProductStock(stockId, new Quantity(8));
+        Product product = createSampleProduct(new Quantity(5));
+        ProductStock productStock = new ProductStock(stockId, product.id(), new Quantity(8));
 
         when(productRepository.findBySlug(slug)).thenReturn(product);
 
@@ -125,8 +124,8 @@ class DecrementProductStockUseCaseTest {
         // GIVEN
         Slug slug = Slug.fromString("sample-product");
         Id stockId = Id.generate();
-        Product product = createSampleProduct(stockId, new Quantity(5));
-        ProductStock productStock = new ProductStock(stockId, new Quantity(3));
+        Product product = createSampleProduct(new Quantity(5));
+        ProductStock productStock = new ProductStock(stockId, product.id(), new Quantity(3));
 
         when(productRepository.findBySlug(slug)).thenReturn(product);
 

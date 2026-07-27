@@ -18,4 +18,8 @@ public record Quantity (
     public Quantity decrementValue(int value) {
         return new Quantity(this.value - value);
     }
+
+    public Quantity incrementValue(int value) {
+        return new Quantity(this.value + value);
+    }
 }
