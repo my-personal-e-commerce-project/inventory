@@ -36,13 +36,12 @@ public class DeleteCategoryUseCase implements DeleteCategoryUseCasePort {
 
         Category category = categoryRepository.findBySlug(find_slug);
 
-        category.deleteCategory();
-
-        try {
-            categoryRepository.update(category);
+        category = categoryRepository.updateIfExists(category.id(), (c) -> {
+            c.deleteCategory();
+        });
+      
+        if(category.getEvents() != null && !category.getEvents().isEmpty()) {
             eventPublisher.publish(category.getEvents());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        };
     }
 }

@@ -2,6 +2,7 @@ package microservice.cloud.inventory.product.infrastructure.persistence.reposito
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -77,7 +78,13 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
 
     @Transactional
     @Override
-    public void updateIfExists(Id id, Product product) {
+    public Product updateIfExists(Id id, Consumer<Product> function) {
+        ProductEntity entity = productJdbcRepository
+            .findById(id.value())
+            .orElseThrow(() -> new DataNotFound("Product not found"));
+
+        Product product = toMap(entity);
+
         if(
             product.categories() != null
             && !product.categories().isEmpty()
@@ -85,12 +92,10 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
         )
             throw new RuntimeException("Not all provided category ids are valid");
 
-        ProductEntity entity = productJdbcRepository
-            .findById(id.value())
-            .orElseThrow(() -> new DataNotFound("Product not found"));
-
         if(!entity.getSlug().equals(product.slug().value()) && productJdbcRepository.existsBySlug(product.slug().value()))
             throw new RuntimeException("The slug already exists");
+
+        function.accept(product);
 
         entity.updateFromDomain(product);
 
@@ -113,6 +118,7 @@ public class ProductRepositoryJdbcAdapter implements ProductRepository {
             }
             throw t; 
         }
+        return product;
     }
 
     @Override

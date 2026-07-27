@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
@@ -188,7 +189,11 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
 
     @Transactional
     @Override
-    public void updateIfExists(Id id, Category category) {
+    public Category updateIfExists(Id id, Consumer<Category> function) {
+        CategoryEntity categoryEntity = aggregateTemplate.findById(id.value(), CategoryEntity.class);
+
+        Category category = toMap(categoryEntity);
+
         Set<String> definitionIds = category.categoryAttributes().stream()
             .map(attr -> attr.attribute_definition_id().value())
             .distinct()
@@ -214,15 +219,14 @@ public class CategoryRepositoryJdbcAdapter implements CategoryRepository {
         
         if(category.parent_id() != null && !categoryJdbcRepository.existsByIdAndStatus(category.parent_id().value(), Status.ENABLED.name()))
             throw new RuntimeException("The parent category %s does not exists".formatted(category.parent_id().value()));
-       
-        CategoryEntity categoryEntity = aggregateTemplate.findById(id.value(), CategoryEntity.class);
 
-        if(categoryEntity == null)
-            throw new DataNotFound("Category not found");
+        function.accept(category);
 
         categoryEntity.updateFromDomain(category);
 
         aggregateTemplate.update(categoryEntity);
+        
+        return category;
     }
 
     @Transactional

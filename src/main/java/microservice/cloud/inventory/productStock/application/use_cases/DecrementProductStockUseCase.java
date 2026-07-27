@@ -21,12 +21,16 @@ public class DecrementProductStockUseCase {
     public void execute(Slug productSlug, int value) {
         Product product  = productRepository.findBySlug(productSlug);
 
-        productStockRepository.updatePessimistic(product.id(), (ProductStock ps) -> {
-            ps.decrementQuantity(value);
-            product.minStockReached(ps.quantity());
-        });
+        ProductStock productStock = productStockRepository.findByProductId(product.id());
 
-        productRepository.updateIfExists(product.id(), product);
+        productStock.decrementQuantity(value);
+        
+        product.minStockReached(productStock.quantity());
+
+        productStockRepository.decrementStock(
+            product.id(),
+            value
+        );
 
         if(product.getEvents() != null && !product.getEvents().isEmpty()) {
             eventPublisher.publish(product.getEvents());

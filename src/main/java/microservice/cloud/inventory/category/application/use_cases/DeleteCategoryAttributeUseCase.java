@@ -36,9 +36,9 @@ public class DeleteCategoryAttributeUseCase implements DeleteCategoryAttributeUs
 
         Category category = categoryRepository.findBySlug(find_slug);
 
-        category.removeCategoryAttribute(categoryAttributeId);
-
-        categoryRepository.updateIfExists(category.id(), category);
+        category = categoryRepository.updateIfExists(category.id(), (c) -> {
+            c.removeCategoryAttribute(categoryAttributeId);
+        });
 
         eventPublisher.publish(category.getEvents());
     }

@@ -8,6 +8,8 @@ import microservice.cloud.inventory.product.infrastructure.persistence.entity.Pr
 
 public interface ProductJdbcRepository extends CrudRepository<ProductEntity, String> {
 
+    Optional<ProductEntity> findById(String id);
+
     Optional<ProductEntity> findBySlug(String slug);
    
     boolean existsBySlug(String slug);

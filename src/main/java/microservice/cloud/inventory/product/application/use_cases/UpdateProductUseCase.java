@@ -49,25 +49,25 @@ public class UpdateProductUseCase {
 
         me.IHavePermission(Permission.updateProduct());
 
-        Product p = productRepository.findBySlug(find_slug);
+        Product product = productRepository.findBySlug(find_slug);
     
-        p.update(
-            title, 
-            slug, 
-            description, 
-            categories,
-            isActive,
-            price,
-            minStock,
-            images, 
-            attributes, 
-            tags
-        );
+        product = productRepository.updateIfExists(product.id(), (p) -> {
+            p.update(
+                title, 
+                slug, 
+                description, 
+                categories,
+                isActive,
+                price,
+                minStock,
+                images, 
+                attributes, 
+                tags
+            );
+        });
 
-        productRepository.updateIfExists(p.id(), p);
-
-        if(p.getEvents() != null && !p.getEvents().isEmpty()) {
-            eventPublisher.publish(p.getEvents());
+        if(product.getEvents() != null && !product.getEvents().isEmpty()) {
+            eventPublisher.publish(product.getEvents());
         }
     }
 }

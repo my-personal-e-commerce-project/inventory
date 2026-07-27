@@ -17,12 +17,8 @@ public class RollbackCategoryUseCase {
     public void execute(Id id) {
         Category category = categoryRepository.findById(id);
 
-        category.enabledCategory();
-
-        try {
-            categoryRepository.update(category);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        categoryRepository.updateIfExists(category.id(), (c) -> {
+            c.enabledCategory();
+        });
     }
 }

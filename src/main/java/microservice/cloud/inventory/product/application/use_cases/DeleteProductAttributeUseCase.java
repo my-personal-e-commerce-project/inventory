@@ -36,17 +36,17 @@ public class DeleteProductAttributeUseCase {
 
         Product product = productRepository.findBySlug(find_slug);
 
-        ProductAttributeValue productAttributeValue = productRepository 
-            .findProductAttributeValueById(productAttributeId);
+        productRepository.updateIfExists(product.id(), (p) -> {
+            ProductAttributeValue productAttributeValue = productRepository 
+                .findProductAttributeValueById(productAttributeId);
 
-        product.removeProductAttribute(
-            productAttributeId, 
-            categoryRepository.getCategoryAttributeByAttributeDefinitionId(
-                productAttributeValue.attribute_definition_id()
-            )
-        );
-
-        productRepository.update(product);
+            product.removeProductAttribute(
+                productAttributeId, 
+                categoryRepository.getCategoryAttributeByAttributeDefinitionId(
+                    productAttributeValue.attribute_definition_id()
+                )
+            );
+        });
 
         return product;
     } 

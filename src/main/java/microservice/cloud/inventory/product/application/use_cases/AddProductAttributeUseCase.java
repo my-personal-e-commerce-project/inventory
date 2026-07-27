@@ -31,9 +31,9 @@ public class AddProductAttributeUseCase {
 
         Product product = productRepository.findBySlug(find_slug);
         
-        product.addProductAttribute(productAttributeValue);
-        
-        productRepository.update(product);
+        productRepository.updateIfExists(product.id(), (p) -> {
+            p.addProductAttribute(productAttributeValue);
+        });
         
         return product;
     } 

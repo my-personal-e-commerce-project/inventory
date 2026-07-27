@@ -53,10 +53,11 @@ public class UpdateCategoryUseCase implements UpdateCategoryUseCasePort {
         if(category.status() == Status.DISABLED)
             throw new DataNotFound("Category not found");
 
-        category.update(name, slug, parent_id, categoryAttributes);
+        categoryRepository.updateIfExists(category.id(), (c) -> {
+            category.update(name, slug, parent_id, categoryAttributes);
+        });
 
-        categoryRepository.updateIfExists(category.id(), category);
-
-        eventPublisher.publish(category.getEvents());
+        if(category.getEvents() != null && !category.getEvents().isEmpty())
+            eventPublisher.publish(category.getEvents());
     }
 }

@@ -8,7 +8,6 @@ import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 import microservice.cloud.inventory.shared.domain.value_objects.Slug;
 
 public class IncrementProductStockUseCase {
-
     private final ProductStockRepository productStockRepository;
     private final ProductRepository productRepository;
     private final EventPublisher eventPublisher;
@@ -22,14 +21,16 @@ public class IncrementProductStockUseCase {
     public void execute(Slug productSlug, int value) {
         Product product  = productRepository.findBySlug(productSlug);
 
-        ProductStock ps = productStockRepository.findByProductId(product.id());
+        ProductStock productStock = productStockRepository.findByProductId(product.id());
 
-        ps.decrementQuantity(value);
-        product.minStockReached(ps.quantity());
+        productStock.decrementQuantity(value);
+        
+        product.minStockReached(productStock.quantity());
 
-        productStockRepository.updateIfExists(ps.id(), ps);
-
-        productRepository.updateIfExists(product.id(), product);
+        productStockRepository.incrementStock(
+            product.id(),
+            value
+        );
 
         if(product.getEvents() != null && !product.getEvents().isEmpty()) {
             eventPublisher.publish(product.getEvents());

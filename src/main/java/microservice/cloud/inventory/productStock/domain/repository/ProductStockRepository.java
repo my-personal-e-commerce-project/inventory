@@ -7,5 +7,6 @@ public interface ProductStockRepository {
 
     public ProductStock findByProductId(Id productId);
     public void save(ProductStock productStock);
-    public void updateIfExists(Id id, ProductStock productStock);
+    public void incrementStock(Id id, int value);
+    public void decrementStock(Id id, int value);
 }

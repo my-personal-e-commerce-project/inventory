@@ -22,7 +22,8 @@ public class CategoryAttributeResultSetExtractor implements ResultSetExtractor<C
                         rs.getString("def_name"),
                         rs.getString("def_slug"),
                         rs.getString("def_type"),
-                        rs.getBoolean("def_is_global")
+                        rs.getBoolean("def_is_global"),
+                        rs.getLong("version")
                     );
 
                     entity = new CategoryAttributeEntity(

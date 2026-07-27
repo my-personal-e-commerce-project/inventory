@@ -45,10 +45,11 @@ public class CreateCategoryAttributeUseCase implements CreateCategoryAttributeUs
 
         categoryAttribute.load_attribute_definition(attrDef);
 
-        category.addCategoryAttribute(categoryAttribute);
+        categoryRepository.updateIfExists(category.id(), (c) -> {
+            c.addCategoryAttribute(categoryAttribute);
+        });
 
-        categoryRepository.update(category);
-
-        eventPublisher.publish(category.getEvents());
+        if(category.getEvents() != null && !category.getEvents().isEmpty())
+            eventPublisher.publish(category.getEvents());
     }
 }
