@@ -45,7 +45,7 @@ class UpdateAttributeDefinitionUseCaseTest {
         assertEquals("New Color", updated.name());
         assertEquals("new-color", updated.slug().value());
         assertEquals(DataType.INTEGER, updated.type());
-        verify(attributeDefinitionRepository, times(1)).update(existing);
+        verify(attributeDefinitionRepository, times(1)).updateIfExists(eq(existing.id()), eq(existing));
     }
 
     @Test

@@ -80,11 +80,12 @@ class CreateProductUseCaseTest {
         // GIVEN
         when(getMePort.execute()).thenReturn(null);
         Product product = mock(Product.class);
+        Id stockId = Id.generate();
 
         // WHEN & THEN
         RuntimeException exception = assertThrows(
             RuntimeException.class, 
-            () -> createProductUseCase.execute(product)
+            () -> createProductUseCase.execute(product, stockId, new Quantity(5))
         );
         assertEquals("You do not have permission to perform this action", exception.getMessage());
         verifyNoInteractions(productRepository, categoryRepository, attributeDefinitionRepository);
@@ -96,11 +97,12 @@ class CreateProductUseCaseTest {
         Me me = new Me(Id.generate(), Set.of(Permission.deleteProduct())); // Sin permiso de creación
         when(getMePort.execute()).thenReturn(me);
         Product product = mock(Product.class);
+        Id stockId = Id.generate();
 
         // WHEN & THEN
         assertThrows(
             UnauthorizedException.class, 
-            () -> createProductUseCase.execute(product)
+            () -> createProductUseCase.execute(product, stockId, new Quantity(5))
         );
         verifyNoInteractions(productRepository, categoryRepository, attributeDefinitionRepository);
     }
@@ -118,17 +120,19 @@ class CreateProductUseCaseTest {
 
         Product product = new Product(
             Id.generate(), "Product title", Slug.fromString("slug"), "Desc", Set.of("cat-1"), true,
-            new Price(10.0), new HashSet<>(), Id.generate(), new Quantity(5), new HashSet<>(), new HashSet<>()
+            new Price(10.0), new HashSet<>(), new Quantity(5), new HashSet<>(), new HashSet<>()
         );
 
         when(categoryRepository.getCategoryAttributesWithAttributeDefinitionsByCategoryIds(product.categories()))
             .thenReturn(List.of());
 
+        Id stockId = Id.generate();
+
         // WHEN & THEN
         assertThrows(
             IllegalStateException.class, 
-            () -> createProductUseCase.execute(product)
+            () -> createProductUseCase.execute(product, stockId, new Quantity(5))
         );
-        verify(productRepository, never()).save(any());
+        verify(productRepository, never()).createProductAndStock(any(), any(), any());
     }
 }

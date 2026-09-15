@@ -55,11 +55,16 @@ class CreateCategoryAttributeUseCaseTest {
         AttributeDefinition def = new AttributeDefinition(defId, "Brand", Slug.fromString("brand"), DataType.STRING, false);
         when(attributeDefinitionRepository.getById(defId)).thenReturn(def);
 
+        when(categoryRepository.updateIfExists(eq(category.id()), any())).thenAnswer(invocation -> {
+            java.util.function.Consumer<Category> consumer = invocation.getArgument(1);
+            consumer.accept(category);
+            return category;
+        });
+
         assertDoesNotThrow(() -> createAttrUseCase.execute(findSlug, categoryAttribute));
 
         assertEquals(1, category.categoryAttributes().size());
-        verify(categoryRepository, times(1)).update(category);
-        verify(eventPublisher, times(1)).publish(anyList());
+        verify(categoryRepository, times(1)).updateIfExists(eq(category.id()), any());
     }
 
     @Test

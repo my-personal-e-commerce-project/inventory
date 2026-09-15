@@ -40,7 +40,7 @@ DECLARE
 BEGIN
     IF (TG_OP = 'DELETE') THEN
         v_payload = jsonb_build_object('id', OLD.id, 'deleted', true);
-        INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
+        INSERT INTO aggregate_outbox (aggregate_type, aggregate_id, type, payload, created_at)
         VALUES ('category', OLD.id, 'CATEGORY_DELETED', v_payload, now());
     ELSE
         SELECT jsonb_build_object(
@@ -60,7 +60,7 @@ BEGIN
             )
         ) INTO v_payload;
 
-        INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
+        INSERT INTO aggregate_outbox (aggregate_type, aggregate_id, type, payload, created_at)
         VALUES ('category', NEW.id, 
                 CASE WHEN TG_OP = 'INSERT' THEN 'CATEGORY_CREATED' ELSE 'CATEGORY_UPDATED' END, 
                 v_payload, now());

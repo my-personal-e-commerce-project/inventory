@@ -58,6 +58,11 @@ class DeleteProductAttributeUseCaseTest {
         when(productRepository.findBySlug(findSlug)).thenReturn(product);
         when(productRepository.findProductAttributeValueById(attrId)).thenReturn(pav);
         when(categoryRepository.getCategoryAttributeByAttributeDefinitionId(defId)).thenReturn(null);
+        doAnswer(invocation -> {
+            java.util.function.Consumer<Product> consumer = invocation.getArgument(1);
+            consumer.accept(product);
+            return product;
+        }).when(productRepository).updateIfExists(eq(product.id()), any());
 
         // WHEN
         Product result = deleteProductAttributeUseCase.execute(findSlug, attrId);
@@ -65,7 +70,7 @@ class DeleteProductAttributeUseCaseTest {
         // THEN
         assertNotNull(result);
         assertTrue(result.attributeValues().isEmpty());
-        verify(productRepository, times(1)).update(product);
+        verify(productRepository, times(1)).updateIfExists(eq(product.id()), any());
     }
 
     @Test

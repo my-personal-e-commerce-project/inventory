@@ -57,7 +57,8 @@ class CategoryRepositoryJdbcAdapterTest {
             "electronics",
             null,
             Status.ENABLED.name(),
-            new HashSet<>()
+            new HashSet<>(),
+            1L
         );
     }
 
@@ -177,7 +178,7 @@ class CategoryRepositoryJdbcAdapterTest {
         when(attributeDefinitionJdbcRepository.countByIdIn(anySet())).thenReturn(0L);
         when(aggregateTemplate.findById(category.id().value(), CategoryEntity.class)).thenReturn(entity);
 
-        assertDoesNotThrow(() -> repositoryAdapter.update(category));
+        assertDoesNotThrow(() -> repositoryAdapter.updateIfExists(category.id(), (c) -> {}));
 
         verify(aggregateTemplate, times(1)).update(any(CategoryEntity.class));
     }

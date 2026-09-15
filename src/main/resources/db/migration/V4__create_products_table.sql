@@ -53,7 +53,7 @@ DECLARE
     v_payload JSONB;
 BEGIN
     IF (TG_OP = 'DELETE') THEN
-        INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
+        INSERT INTO aggregate_outbox (aggregate_type, aggregate_id, type, payload, created_at)
         VALUES ('product', OLD.id, 'PRODUCT_DELETED', jsonb_build_object('id', OLD.id, 'deleted', true), now());
     ELSE
         SELECT jsonb_build_object(
@@ -97,10 +97,10 @@ BEGIN
         ) INTO v_payload;
 
         IF (TG_OP = 'INSERT') THEN
-            INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
+            INSERT INTO aggregate_outbox (aggregate_type, aggregate_id, type, payload, created_at)
             VALUES ('product', NEW.id, 'PRODUCT_CREATED', v_payload, now());
         ELSE
-            INSERT INTO outbox (aggregate_type, aggregate_id, type, payload, created_at)
+            INSERT INTO aggregate_outbox (aggregate_type, aggregate_id, type, payload, created_at)
             VALUES ('product', NEW.id, 'PRODUCT_UPDATED', v_payload, now());
         END IF;
     END IF;

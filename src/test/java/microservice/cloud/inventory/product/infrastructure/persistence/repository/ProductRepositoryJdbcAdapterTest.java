@@ -75,7 +75,8 @@ class ProductRepositoryJdbcAdapterTest {
             5,
             Set.of("image1.png"),
             new HashSet<>(),
-            Set.of("tag1")
+            Set.of("tag1"),
+            1L
         );
     }
 
@@ -193,11 +194,12 @@ class ProductRepositoryJdbcAdapterTest {
     void shouldUpdateProductSuccessfully() {
         // GIVEN
         Product product = createDomainProduct();
-        when(productJdbcRepository.existsBySlug(product.slug().value())).thenReturn(false);
+        ProductEntity entity = createProductEntity();
+        when(productJdbcRepository.findById(product.id().value())).thenReturn(Optional.of(entity));
         when(categoryJdbcRepository.countByIdIn(product.categories())).thenReturn((long) product.categories().size());
 
         // WHEN
-        assertDoesNotThrow(() -> repositoryAdapter.update(product));
+        assertDoesNotThrow(() -> repositoryAdapter.updateIfExists(product.id(), (p) -> {}));
 
         // THEN
         verify(aggregateTemplate, times(1)).update(any(ProductEntity.class));
@@ -212,6 +214,6 @@ class ProductRepositoryJdbcAdapterTest {
         assertDoesNotThrow(() -> repositoryAdapter.delete(product));
 
         // THEN
-        verify(aggregateTemplate, times(1)).delete(any(ProductEntity.class));
+        verify(aggregateTemplate, times(1)).deleteById(product.id().value(), ProductEntity.class);
     }
 }

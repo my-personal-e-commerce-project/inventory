@@ -24,15 +24,41 @@ services:
 #    "database.password": "root",
 #    "database.dbname": "inventory",
 #    "topic.prefix": "inventory",
-#    "table.include.list": "public.outbox",
+#    "table.include.list": "public.aggregate_outbox",
 #    "plugin.name": "pgoutput",
 #    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
 #    "value.converter.schemas.enable": "false",
 #    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
 #    "key.converter.schemas.enable": "false"
 #  }'
+#
+# curl -i -X PUT -H "Accept:application/json" -H "Content-Type:application/json" \
+#  localhost:8083/connectors/domain-outbox-connector/config -d '{
+#    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+#    "database.hostname": "inventory-postgres-1",
+#    "database.port": "5432",
+#    "database.user": "root",
+#    "database.password": "root",
+#    "database.dbname": "inventory",
+#    "topic.prefix": "domain",
+#    "table.include.list": "public.domain_outbox",
+#    "plugin.name": "pgoutput",
+#    
+#    "transforms": "outbox",
+#    "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+#    "transforms.outbox.table.field.event.timestamp": "created_at",
+#    "transforms.outbox.table.field.event.key": "id",
+#    "transforms.outbox.route.by.field": "topic",
+#    "transforms.outbox.route.topic.replacement": "${routedByValue}",
+#
+#    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+#    "value.converter.schemas.enable": "false",
+#    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+#    "key.converter.schemas.enable": "false"
+#  }'
+#
 # Para verificar el estado del conector:
-# curl -s localhost:8083/connectors/mi-conector-postgres/status | jq
+# curl -s localhost:8083/connectors/<mi-conector-postgres>/status | jq
 # =========================================================================
   connect:
     image: quay.io/debezium/connect:2.5
@@ -55,8 +81,8 @@ services:
         - postgres
       ports:
         - 8001:80
-      #environment:
-        # SERVER_PORT: 80
+      environment:
+        SERVER_PORT: 80
       networks:
         - e-commerce-network
       volumes:

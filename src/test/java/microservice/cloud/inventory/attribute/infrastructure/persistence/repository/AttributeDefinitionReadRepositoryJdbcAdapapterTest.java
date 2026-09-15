@@ -33,7 +33,7 @@ class AttributeDefinitionReadRepositoryJdbcAdapapterTest {
     void shouldFindAllAttributeDefinitionsWithPaginationSuccessfully() {
         // GIVEN
         QueryAttributeDefinitions query = new QueryAttributeDefinitions("search-query");
-        AttributeDefinitionEntity entity = new AttributeDefinitionEntity("id-123", "Name", "slug", "STRING", false);
+        AttributeDefinitionEntity entity = new AttributeDefinitionEntity("id-123", "Name", "slug", "STRING", false, 1L);
         
         when(attributeDefinitionJdbcRepository.findAllAndSearch("search-query", 10, 0))
             .thenReturn(List.of(entity));

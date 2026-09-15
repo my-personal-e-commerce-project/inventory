@@ -23,17 +23,11 @@ public class IncrementProductStockUseCase {
 
         ProductStock productStock = productStockRepository.findByProductId(product.id());
 
-        productStock.decrementQuantity(value);
-        
-        product.minStockReached(productStock.quantity());
+        productStock.incrementQuantity(value);
 
         productStockRepository.incrementStock(
             product.id(),
             value
         );
-
-        if(product.getEvents() != null && !product.getEvents().isEmpty()) {
-            eventPublisher.publish(product.getEvents());
-        }
     }
 }

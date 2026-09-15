@@ -52,6 +52,11 @@ class UpdateProductUseCaseTest {
             new Price(10.0), Set.of(pav), new Quantity(5), new HashSet<>(), new HashSet<>()
         );
         when(productRepository.findBySlug(findSlug)).thenReturn(product);
+        when(productRepository.updateIfExists(eq(product.id()), any())).thenAnswer(invocation -> {
+            java.util.function.Consumer<Product> consumer = invocation.getArgument(1);
+            consumer.accept(product);
+            return product;
+        });
 
         // Nuevos datos para actualizar
         String newTitle = "New Title";
@@ -68,7 +73,7 @@ class UpdateProductUseCaseTest {
         ));
 
         // THEN
-        verify(productRepository, times(1)).update(product);
+        verify(productRepository, times(1)).updateIfExists(eq(product.id()), any());
         assertEquals(newTitle, product.title());
         assertEquals("new-title", product.slug().value());
         assertFalse(product.isActive());

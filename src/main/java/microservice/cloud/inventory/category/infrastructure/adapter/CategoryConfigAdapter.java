@@ -83,14 +83,12 @@ public class CategoryConfigAdapter {
     public CreateCategoryAttributeUseCase createCategoryAttributeUseCase(
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        EventPublisher eventPublisher,        
         GetMePort getMe
     ) {
     
         return new CreateCategoryAttributeUseCase(
             categoryRepository, 
             attributeDefinitionRepository,
-            eventPublisher,
             getMe
         );
     }

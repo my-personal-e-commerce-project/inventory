@@ -44,10 +44,16 @@ class DeleteCategoryUseCaseTest {
         );
         when(categoryRepository.findBySlug(findSlug)).thenReturn(category);
 
+        when(categoryRepository.updateIfExists(eq(category.id()), any())).thenAnswer(invocation -> {
+            java.util.function.Consumer<Category> consumer = invocation.getArgument(1);
+            consumer.accept(category);
+            return category;
+        });
+
         assertDoesNotThrow(() -> deleteUseCase.execute(findSlug));
 
         assertEquals(Status.DISABLED, category.status());
-        verify(categoryRepository, times(1)).update(category);
+        verify(categoryRepository, times(1)).updateIfExists(eq(category.id()), any());
         verify(eventPublisher, times(1)).publish(anyList());
     }
 

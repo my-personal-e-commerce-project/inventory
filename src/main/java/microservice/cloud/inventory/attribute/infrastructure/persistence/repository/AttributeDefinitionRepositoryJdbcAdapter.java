@@ -95,6 +95,9 @@ public class AttributeDefinitionRepositoryJdbcAdapter implements AttributeDefini
     public void updateIfExists(Id id, AttributeDefinition attr) {
         AttributeDefinitionEntity attrDef = aggregateTemplate.findById(id.value(), AttributeDefinitionEntity.class);
 
+        if(attrDef == null)
+            throw new RuntimeException("Attribute definition not found");
+
         if(!attrDef.getSlug().equals(attr.slug().value()))
             throw new RuntimeException("Slug already exists");
 

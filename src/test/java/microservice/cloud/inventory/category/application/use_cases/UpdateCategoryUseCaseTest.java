@@ -47,11 +47,16 @@ class UpdateCategoryUseCaseTest {
         );
         when(categoryRepository.findBySlug(findSlug)).thenReturn(category);
 
+        when(categoryRepository.updateIfExists(eq(category.id()), any())).thenAnswer(invocation -> {
+            java.util.function.Consumer<Category> consumer = invocation.getArgument(1);
+            consumer.accept(category);
+            return category;
+        });
+
         assertDoesNotThrow(() -> updateUseCase.execute(findSlug, "New Electronics", Slug.fromString("new-electronics"), null, Set.of(attr)));
 
         assertEquals("New Electronics", category.name());
-        verify(categoryRepository, times(1)).update(category);
-        verify(eventPublisher, times(1)).publish(anyList());
+        verify(categoryRepository, times(1)).updateIfExists(eq(category.id()), any());
     }
 
     @Test
@@ -69,6 +74,6 @@ class UpdateCategoryUseCaseTest {
             DataNotFound.class,
             () -> updateUseCase.execute(findSlug, "New Electronics", Slug.fromString("new-electronics"), null, Set.of())
         );
-        verify(categoryRepository, never()).update(any());
+        verify(categoryRepository, never()).updateIfExists(any(), any());
     }
 }

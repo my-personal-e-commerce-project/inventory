@@ -101,9 +101,9 @@ public class AttributeDefinitionController {
         @ApiResponse(responseCode = "200", description = "Attribute definition updated successfully"),
         @ApiResponse(responseCode = "404", description = "Attribute definition not found")
     })
-    @PutMapping(name = "/{find_slug}")
+    @PutMapping("/{find_slug}")
     public ResponseEntity<ResponsePayload<UpdateAttributeDefinitionDTO>> updateAttributeDefinition(
-        @Parameter(description = "Attribute definition slug") @RequestParam String find_slug,
+        @Parameter(description = "Attribute definition slug") @PathVariable String find_slug,
         @Valid @RequestBody UpdateAttributeDefinitionDTO attribute
     ) {
         AttributeDefinition attrDef = updateAttributeDefinitionUseCase.execute(

@@ -1,6 +1,5 @@
 package microservice.cloud.inventory.attribute.domain.entity;
 
-import microservice.cloud.inventory.attribute.domain.event.CreatedGlobalAttributeDefinition;
 import microservice.cloud.inventory.attribute.domain.value_objects.DataType;
 import microservice.cloud.inventory.shared.domain.entity.AggregateRoot;
 import microservice.cloud.inventory.shared.domain.value_objects.Id;
@@ -35,18 +34,6 @@ public class AttributeDefinition extends AggregateRoot {
 
     public static AttributeDefinition factory(Id id, String name, Slug slug, DataType type, boolean is_global) {
         AttributeDefinition attrDef = new AttributeDefinition(id, name, slug, type, is_global);
-
-        if(is_global) {
-            attrDef.publishEvent(
-                new CreatedGlobalAttributeDefinition(
-                    id.value(), 
-                    name, 
-                    slug.value(), 
-                    type.toString(), 
-                    is_global
-                )
-            );
-        }
 
         return attrDef;
     }

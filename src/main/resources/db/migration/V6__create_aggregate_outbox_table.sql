@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS outbox (
+CREATE TABLE IF NOT EXISTS aggregate_outbox (
     id SERIAL PRIMARY KEY,
     aggregate_type VARCHAR(255) NOT NULL,
     aggregate_id VARCHAR(255) NOT NULL,
@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS outbox (
     created_at TIMESTAMP NOT NULL
 );
 
-ALTER TABLE outbox REPLICA IDENTITY FULL;
+ALTER TABLE aggregate_outbox REPLICA IDENTITY FULL;

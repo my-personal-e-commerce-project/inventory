@@ -18,7 +18,7 @@ public class ProductStockConfigAdapter {
     }
 
     @Bean
-    public DecrementProductStockUseCase updateProductStockUseCase(ProductStockRepository productStockRepository, ProductRepository productRepository, EventPublisher eventPublisher) {
+    public DecrementProductStockUseCase decrementProductStockUseCase(ProductStockRepository productStockRepository, ProductRepository productRepository, EventPublisher eventPublisher) {
         return new DecrementProductStockUseCase(productStockRepository, productRepository, eventPublisher);
     }
 }

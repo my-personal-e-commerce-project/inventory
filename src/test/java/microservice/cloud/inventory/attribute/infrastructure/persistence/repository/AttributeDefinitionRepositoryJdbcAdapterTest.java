@@ -36,7 +36,7 @@ class AttributeDefinitionRepositoryJdbcAdapterTest {
 
     @Test
     void shouldGetGlobalAttributesSuccessfully() {
-        AttributeDefinitionEntity entity = new AttributeDefinitionEntity("id-123", "Global", "global", "STRING", true);
+        AttributeDefinitionEntity entity = new AttributeDefinitionEntity("id-123", "Global", "global", "STRING", true, 1L);
         when(attributeDefinitionJdbcRepository.findAllByIsGlobal(true)).thenReturn(List.of(entity));
 
         List<AttributeDefinition> result = adapter.getGlobalAttributes();
@@ -50,7 +50,7 @@ class AttributeDefinitionRepositoryJdbcAdapterTest {
     @Test
     void shouldGetByIdSuccessfully() {
         Id id = Id.generate();
-        AttributeDefinitionEntity entity = new AttributeDefinitionEntity(id.value(), "Name", "slug", "STRING", false);
+        AttributeDefinitionEntity entity = new AttributeDefinitionEntity(id.value(), "Name", "slug", "STRING", false, 1L);
         when(aggregateTemplate.findById(id.value(), AttributeDefinitionEntity.class)).thenReturn(entity);
 
         AttributeDefinition result = adapter.getById(id);
@@ -71,7 +71,7 @@ class AttributeDefinitionRepositoryJdbcAdapterTest {
     @Test
     void shouldValidateAttributeDefinitionIdsSuccessfully() {
         String id1 = Id.generate().value();
-        AttributeDefinitionEntity entity = new AttributeDefinitionEntity(id1, "Name", "slug", "STRING", false);
+        AttributeDefinitionEntity entity = new AttributeDefinitionEntity(id1, "Name", "slug", "STRING", false, 1L);
         when(attributeDefinitionJdbcRepository.findAllByIdIn(Set.of(id1))).thenReturn(List.of(entity));
 
         assertDoesNotThrow(() -> adapter.isValidTheseAttributeDefinitionIds(new HashSet<>(Set.of(id1))));
@@ -88,7 +88,7 @@ class AttributeDefinitionRepositoryJdbcAdapterTest {
     @Test
     void shouldGetBySlugSuccessfully() {
         Slug slug = Slug.fromString("some-slug");
-        AttributeDefinitionEntity entity = new AttributeDefinitionEntity("id-123", "Name", slug.value(), "STRING", false);
+        AttributeDefinitionEntity entity = new AttributeDefinitionEntity("id-123", "Name", slug.value(), "STRING", false, 1L);
         when(attributeDefinitionJdbcRepository.findBySlug(slug.value())).thenReturn(entity);
 
         AttributeDefinition result = adapter.getBySlug(slug);
@@ -109,7 +109,7 @@ class AttributeDefinitionRepositoryJdbcAdapterTest {
     @Test
     void shouldFindByIdsSuccessfully() {
         String id1 = Id.generate().value();
-        AttributeDefinitionEntity entity = new AttributeDefinitionEntity(id1, "Name", "slug", "STRING", false);
+        AttributeDefinitionEntity entity = new AttributeDefinitionEntity(id1, "Name", "slug", "STRING", false, 1L);
         when(attributeDefinitionJdbcRepository.findAllByIdIn(Set.of(id1))).thenReturn(List.of(entity));
 
         Map<String, AttributeDefinition> result = adapter.findByIds(Set.of(id1));
@@ -140,8 +140,11 @@ class AttributeDefinitionRepositoryJdbcAdapterTest {
     @Test
     void shouldUpdateSuccessfully() {
         AttributeDefinition attr = new AttributeDefinition(Id.generate(), "Name", Slug.fromString("slug"), DataType.STRING, false);
+        AttributeDefinitionEntity attrEntity = new AttributeDefinitionEntity(attr.id().value(), "Name", "slug", DataType.STRING.toString(), false, null);
 
-        assertDoesNotThrow(() -> adapter.update(attr));
+        when(aggregateTemplate.findById(attr.id().value(), AttributeDefinitionEntity.class)).thenReturn(attrEntity);
+
+        assertDoesNotThrow(() -> adapter.updateIfExists(attr.id(), attr));
         verify(aggregateTemplate, times(1)).update(any(AttributeDefinitionEntity.class));
     }
 
@@ -150,6 +153,6 @@ class AttributeDefinitionRepositoryJdbcAdapterTest {
         AttributeDefinition attr = new AttributeDefinition(Id.generate(), "Name", Slug.fromString("slug"), DataType.STRING, false);
 
         assertDoesNotThrow(() -> adapter.delete(attr));
-        verify(aggregateTemplate, times(1)).delete(any(AttributeDefinitionEntity.class));
+        verify(aggregateTemplate, times(1)).deleteById(attr.id().value(), AttributeDefinitionEntity.class);
     }
 }

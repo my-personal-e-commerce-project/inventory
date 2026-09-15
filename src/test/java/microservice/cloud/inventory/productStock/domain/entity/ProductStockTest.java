@@ -18,7 +18,7 @@ class ProductStockTest {
         assertEquals(id, productStock.id());
         assertEquals(quantity, productStock.quantity());
         assertEquals(50, productStock.quantity().value());
-        assertEquals(productId.value(), productStock.quantity().value());
+        assertEquals(productId.value(), productStock.productId().value());
     }
 
     @Test

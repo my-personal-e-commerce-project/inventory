@@ -6,7 +6,6 @@ import microservice.cloud.inventory.category.application.ports.in.CreateCategory
 import microservice.cloud.inventory.category.domain.entity.Category;
 import microservice.cloud.inventory.category.domain.entity.CategoryAttribute;
 import microservice.cloud.inventory.category.domain.repository.CategoryRepository;
-import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 import microservice.cloud.inventory.shared.application.ports.out.GetMePort;
 import microservice.cloud.inventory.shared.domain.value_objects.Me;
 import microservice.cloud.inventory.shared.domain.value_objects.Permission;
@@ -16,18 +15,15 @@ public class CreateCategoryAttributeUseCase implements CreateCategoryAttributeUs
 
     private CategoryRepository categoryRepository;
     private AttributeDefinitionRepository attributeDefinitionRepository;
-    private EventPublisher eventPublisher;
     private GetMePort getMePort;
 
     public CreateCategoryAttributeUseCase(
         CategoryRepository categoryRepository,
         AttributeDefinitionRepository attributeDefinitionRepository,
-        EventPublisher eventPublisher,
         GetMePort getMePort
     ) {
         this.categoryRepository = categoryRepository;
         this.attributeDefinitionRepository = attributeDefinitionRepository;
-        this.eventPublisher = eventPublisher;
         this.getMePort = getMePort;
     }
 
@@ -48,8 +44,5 @@ public class CreateCategoryAttributeUseCase implements CreateCategoryAttributeUs
         categoryRepository.updateIfExists(category.id(), (c) -> {
             c.addCategoryAttribute(categoryAttribute);
         });
-
-        if(category.getEvents() != null && !category.getEvents().isEmpty())
-            eventPublisher.publish(category.getEvents());
     }
 }

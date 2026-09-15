@@ -1,9 +1,8 @@
 package microservice.cloud.inventory.productStock.infrastructure.adapters;
 
 import microservice.cloud.inventory.product.domain.entity.ProductRepository;
-import microservice.cloud.inventory.productStock.application.use_cases.CreateProductStockUseCase;
 import microservice.cloud.inventory.productStock.application.use_cases.DecrementProductStockUseCase;
-import microservice.cloud.inventory.productStock.application.use_cases.UpdateProductStockUseCase;
+import microservice.cloud.inventory.productStock.application.use_cases.IncrementProductStockUseCase;
 import microservice.cloud.inventory.productStock.domain.repository.ProductStockRepository;
 import microservice.cloud.inventory.shared.application.ports.out.EventPublisher;
 
@@ -36,17 +35,13 @@ class ProductStockConfigAdapterTest {
         assertNotNull(useCase);
     }
 
+
     @Test
-    void shouldCreateUpdateProductStockUseCaseBean() {
-        UpdateProductStockUseCase useCase = adapter.updateProductStockUseCase(
+    void shouldCreateIncrementProductStockUseCaseBean() {
+        IncrementProductStockUseCase useCase = adapter.incrementProductStockUseCase(
             productStockRepository, productRepository, eventPublisher
         );
         assertNotNull(useCase);
     }
 
-    @Test
-    void shouldCreateCreateProductStockUseCaseBean() {
-        CreateProductStockUseCase useCase = adapter.createProductStockUseCase(productStockRepository);
-        assertNotNull(useCase);
-    }
 }

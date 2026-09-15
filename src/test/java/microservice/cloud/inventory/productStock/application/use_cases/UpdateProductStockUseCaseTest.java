@@ -1,6 +1,5 @@
 package microservice.cloud.inventory.productStock.application.use_cases;
 
-import java.util.function.Consumer;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,8 +21,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,7 +36,10 @@ class UpdateProductStockUseCaseTest {
     private EventPublisher eventPublisher;
 
     @InjectMocks
-    private UpdateProductStockUseCase updateProductStockUseCase;
+    private DecrementProductStockUseCase decrementProductStockUseCase;
+
+    @InjectMocks
+    private IncrementProductStockUseCase incrementProductStockUseCase;
 
     private Product createSampleProduct(Quantity minStock) {
         return new Product(
@@ -58,54 +58,42 @@ class UpdateProductStockUseCaseTest {
     }
 
     @Test
-    void shouldUpdateProductStockSuccessfullyWhenAboveMinStock() {
+    void shouldIncrementProductStockSuccessfully() {
         // GIVEN
         Slug slug = Slug.fromString("sample-product");
-        Id stockId = Id.generate();
         Product product = createSampleProduct(new Quantity(5));
-        ProductStock productStock = new ProductStock(stockId, product.id(), new Quantity(10));
+        ProductStock productStock = new ProductStock(Id.generate(), product.id(), new Quantity(10));
 
         when(productRepository.findBySlug(slug)).thenReturn(product);
-
-        doAnswer(invocation -> {
-            Consumer<ProductStock> consumer = invocation.getArgument(1);
-            consumer.accept(productStock);
-            return null;
-        }).when(productStockRepository).updatePessimistic(eq(stockId), any());
+        when(productStockRepository.findByProductId(product.id())).thenReturn(productStock);
 
         // WHEN
-        updateProductStockUseCase.execute(slug, new Quantity(50));
+        incrementProductStockUseCase.execute(slug, 50);
 
         // THEN
-        assertEquals(50, productStock.quantity().value());
-        verify(productRepository).update(product);
+        assertEquals(60, productStock.quantity().value());
+        verify(productStockRepository).incrementStock(product.id(), 50);
         verifyNoInteractions(eventPublisher);
     }
 
     @Test
-    void shouldUpdateProductStockAndPublishMinStockEventWhenBelowMinStock() {
+    void shouldDecrementProductStockAndPublishMinStockEventWhenBelowMinStock() {
         // GIVEN
         Slug slug = Slug.fromString("sample-product");
-        Id stockId = Id.generate();
         Product product = createSampleProduct(new Quantity(10));
-        ProductStock productStock = new ProductStock(stockId, product.id(), new Quantity(20));
+        ProductStock productStock = new ProductStock(Id.generate(), product.id(), new Quantity(20));
 
         when(productRepository.findBySlug(slug)).thenReturn(product);
-
-        doAnswer(invocation -> {
-            Consumer<ProductStock> consumer = invocation.getArgument(1);
-            consumer.accept(productStock);
-            return null;
-        }).when(productStockRepository).updatePessimistic(eq(stockId), any());
+        when(productStockRepository.findByProductId(product.id())).thenReturn(productStock);
 
         // WHEN
-        updateProductStockUseCase.execute(slug, new Quantity(2));
+        decrementProductStockUseCase.execute(slug, 18);
 
         // THEN
         assertEquals(2, productStock.quantity().value());
         assertFalse(product.isActive());
-        verify(productRepository).update(product);
-        verify(eventPublisher, times(1)).publish(product.getEvents());
+        verify(productStockRepository).decrementStock(product.id(), 18);
+        verify(eventPublisher, times(1)).publish(any());
     }
 
     @Test
@@ -115,7 +103,7 @@ class UpdateProductStockUseCaseTest {
         when(productRepository.findBySlug(slug)).thenThrow(new DataNotFound("Product not found"));
 
         // WHEN & THEN
-        assertThrows(DataNotFound.class, () -> updateProductStockUseCase.execute(slug, new Quantity(10)));
+        assertThrows(DataNotFound.class, () -> decrementProductStockUseCase.execute(slug, 10));
         verifyNoInteractions(productStockRepository, eventPublisher);
     }
 }

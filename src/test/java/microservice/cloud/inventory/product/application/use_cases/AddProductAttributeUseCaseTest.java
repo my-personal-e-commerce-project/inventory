@@ -45,9 +45,15 @@ class AddProductAttributeUseCaseTest {
         Slug findSlug = Slug.fromString("product-slug");
         Product product = new Product(
             Id.generate(), "Product title", findSlug, "Desc", Set.of("cat-1"), true,
-            new Price(10.0), new HashSet<>(), Id.generate(), new Quantity(5), new HashSet<>(), new HashSet<>()
+            new Price(10.0), new HashSet<>(), new Quantity(5), new HashSet<>(), new HashSet<>()
         );
         when(productRepository.findBySlug(findSlug)).thenReturn(product);
+
+        doAnswer(invocation -> {
+            java.util.function.Consumer<Product> consumer = invocation.getArgument(1);
+            consumer.accept(product);
+            return product;
+        }).when(productRepository).updateIfExists(eq(product.id()), any());
 
         ProductAttributeValue pav = new ProductAttributeValue(Id.generate(), Id.generate(), "value", null, null, null);
 
@@ -57,7 +63,7 @@ class AddProductAttributeUseCaseTest {
         // THEN
         assertNotNull(result);
         assertEquals(1, result.attributeValues().size());
-        verify(productRepository, times(1)).update(product);
+        verify(productRepository, times(1)).updateIfExists(eq(product.id()), any());
     }
 
     @Test

@@ -1,5 +1,7 @@
 package microservice.cloud.inventory.productStock.infrastructure.persistation.repository;
 
+import java.beans.Transient;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -24,8 +26,18 @@ public class ProductStockRepositoryJdbcAdapter implements ProductStockRepository
     @Transactional(readOnly = true)
     @Override
     public ProductStock findByProductId(Id productId) {
-        ProductStockEntity ps = jdbcAggregateTemplate.findById(productId.value(), ProductStockEntity.class);
-        return toMap(ps);
+        String sql = "SELECT id, product_id, quantity, version FROM product_stock WHERE product_id = ?";
+        List<ProductStockEntity> list = jdbcTemplate.query(sql, (rs, rowNum) -> new ProductStockEntity(
+            rs.getString("id"),
+            rs.getString("product_id"),
+            rs.getInt("quantity"),
+            rs.getLong("version")
+        ), productId.value());
+
+        if (list.isEmpty()) {
+            throw new DataNotFound("Product stock not found for product id: " + productId.value());
+        }
+        return toMap(list.get(0));
     }
 
     @Transactional
@@ -36,29 +48,16 @@ public class ProductStockRepositoryJdbcAdapter implements ProductStockRepository
 
     @Transactional
     @Override
-    public ProductStock updateIfExists(Id productId, Consumer<ProductStock> function) {
-        ProductStockEntity ps = jdbcTemplate.queryForObject(
-            "SELECT * FROM productstock WHERE product_id = ?",
-            new Object[] { productId.value() },
-            (rs, rowNum) -> new ProductStockEntity(
-                rs.getString("id"),
-                rs.getString("product_id"),
-                rs.getInt("quantity"),
-                rs.getLong("version")
-            )
-        );
+    public void incrementStock(Id id, int value) {
+        String sql = "UPDATE product_stock SET quantity = quantity + ? WHERE product_id = ?";
+        jdbcTemplate.update(sql, value, id.value());    
+    }
 
-        if (ps == null) throw new DataNotFound("ProductStock not found");
-
-        ProductStock productStock = toMap(ps);
-
-        function.accept(productStock);
-
-        ps.updateFromDomain(productStock);
-
-        jdbcAggregateTemplate.update(ps);
-
-        return productStock;
+    @Transactional
+    @Override
+    public void decrementStock(Id id, int value) {
+        String sql = "UPDATE product_stock SET quantity = quantity - ? WHERE product_id = ?";
+        jdbcTemplate.update(sql, value, id.value());    
     }
 
     private ProductStock toMap(ProductStockEntity productStockEntity) {

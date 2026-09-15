@@ -5,4 +5,5 @@ import java.time.LocalDateTime;
 public interface DomainEvent{
     public LocalDateTime occurredOn();
     public String aggregateId();
+    public String topic();
 }

@@ -21,4 +21,8 @@ public record MinStockAlertEvent(
             currentStock
         );
     }
+
+    public String topic() {
+        return "inventory.product.min-stock-alert";
+    }
 }

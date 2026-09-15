@@ -47,10 +47,16 @@ class DeleteCategoryAttributeUseCaseTest {
         );
         when(categoryRepository.findBySlug(findSlug)).thenReturn(category);
 
+        when(categoryRepository.updateIfExists(eq(category.id()), any())).thenAnswer(invocation -> {
+            java.util.function.Consumer<Category> consumer = invocation.getArgument(1);
+            consumer.accept(category);
+            return category;
+        });
+
         assertDoesNotThrow(() -> deleteAttrUseCase.execute(findSlug, attrId));
 
         assertTrue(category.categoryAttributes().isEmpty());
-        verify(categoryRepository, times(1)).update(category);
+        verify(categoryRepository, times(1)).updateIfExists(eq(category.id()), any());
         verify(eventPublisher, times(1)).publish(anyList());
     }
 

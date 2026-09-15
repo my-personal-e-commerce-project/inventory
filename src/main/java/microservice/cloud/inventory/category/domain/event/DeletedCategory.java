@@ -17,4 +17,8 @@ public record DeletedCategory(
             aggregateId
         );
     }
+
+    public String topic() {
+        return "inventory.category.saga-events";
+    }
 }

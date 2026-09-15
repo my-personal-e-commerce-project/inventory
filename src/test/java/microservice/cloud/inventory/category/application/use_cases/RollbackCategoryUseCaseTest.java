@@ -33,9 +33,15 @@ class RollbackCategoryUseCaseTest {
         );
         when(categoryRepository.findById(id)).thenReturn(category);
 
+        when(categoryRepository.updateIfExists(eq(id), any())).thenAnswer(invocation -> {
+            java.util.function.Consumer<Category> consumer = invocation.getArgument(1);
+            consumer.accept(category);
+            return category;
+        });
+
         assertDoesNotThrow(() -> rollbackUseCase.execute(id));
 
         assertEquals(Status.ENABLED, category.status());
-        verify(categoryRepository, times(1)).update(category);
+        verify(categoryRepository, times(1)).updateIfExists(eq(id), any());
     }
 }
